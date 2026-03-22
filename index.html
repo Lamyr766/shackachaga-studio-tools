@@ -335,9 +335,9 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="setup-logo">Le Shackachaga</div>
     <div class="setup-sub" style="margin-bottom:20px;"><span id="login-subtitle-text">Studio Tools — Sign in to continue</span></div>
     <div id="login-error" style="display:none;background:#FDECEA;color:var(--red);padding:10px 12px;border-radius:var(--radius-sm);font-size:0.82rem;margin-bottom:12px;"></div>
-    <label>Email</label>
+    <label data-i18n="lbl_email">Email</label>
     <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
-    <label>Password</label>
+    <label data-i18n="lbl_password">Password</label>
     <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
       onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn btn-green btn-block" onclick="doLogin()" id="login-btn">Sign In</button>
@@ -389,8 +389,8 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <div id="page-quote" class="page active">
   <div class="card">
     <div class="card-title">Quote Calculator</div>
-    <div class="card-sub">Instant pricing with QC taxes. Save directly as a project.</div>
-    <label>Project Type</label>
+    <div class="card-sub" data-i18n="sub_quote">Instant pricing with QC taxes. Save directly as a project.</div>
+    <label data-i18n="lbl_project_type">Project Type</label>
     <select id="q-type">
       <option value="">— Select —</option>
       <option value="Epoxy River Table">Epoxy River Table</option>
@@ -403,7 +403,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <option value="Custom Piece">Other Custom Piece</option>
     </select>
     <div class="row-2">
-      <div><label>Client Name</label><input type="text" id="q-client" placeholder="e.g. Marie L."></div>
+      <div><label data-i18n="lbl_client_name">Client Name</label><input type="text" id="q-client" placeholder="e.g. Marie L." data-i18n-ph="ph_client"></div>
       <div><label>Wood Species</label>
         <select id="q-wood">
           <option value="1.0">Ambrosia Maple</option>
@@ -415,14 +415,14 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       </div>
     </div>
     <div class="row-3">
-      <div><label>Materials ($)</label><input type="number" id="q-mat" placeholder="280" min="0"></div>
-      <div><label>Epoxy / Hardware ($)</label><input type="number" id="q-extra" placeholder="0" value="0" min="0"></div>
-      <div><label>Delivery ($)</label><input type="number" id="q-del" placeholder="0" value="0" min="0"></div>
+      <div><label data-i18n="lbl_materials">Materials ($)</label><input type="number" id="q-mat" placeholder="280" min="0"></div>
+      <div><label data-i18n="lbl_epoxy_hw">Epoxy / Hardware ($)</label><input type="number" id="q-extra" placeholder="0" value="0" min="0"></div>
+      <div><label data-i18n="lbl_delivery_cost">Delivery ($)</label><input type="number" id="q-del" placeholder="0" value="0" min="0"></div>
     </div>
     <div class="row-3">
-      <div><label>Hours Est.</label><input type="number" id="q-hrs" placeholder="12" min="0"></div>
-      <div><label>Rate ($/h)</label><input type="number" id="q-rate" placeholder="40" value="40" min="0"></div>
-      <div><label>Complexity</label>
+      <div><label data-i18n="lbl_hours">Hours Est.</label><input type="number" id="q-hrs" placeholder="12" min="0"></div>
+      <div><label data-i18n="lbl_rate">Rate ($/h)</label><input type="number" id="q-rate" placeholder="40" value="40" min="0"></div>
+      <div><label data-i18n="lbl_complexity">Complexity</label>
         <select id="q-comp">
           <option value="1.0">Standard</option>
           <option value="1.1">Moderate +10%</option>
@@ -432,10 +432,10 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       </div>
     </div>
     <div class="row-2">
-      <div><label>Overhead %</label>
+      <div><label data-i18n="lbl_overhead">Overhead %</label>
         <select id="q-oh"><option value="0.12">12%</option><option value="0.15" selected>15%</option><option value="0.18">18%</option><option value="0.20">20%</option></select>
       </div>
-      <div><label>Margin %</label>
+      <div><label data-i18n="lbl_margin">Margin %</label>
         <select id="q-mg"><option value="0.20">20%</option><option value="0.25" selected>25%</option><option value="0.30">30%</option><option value="0.35">35%</option></select>
       </div>
     </div>
@@ -455,7 +455,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <div id="page-dashboard" class="page">
   <div class="section-header">
     <div class="section-title" id="section-dash-title">Projects</div>
-    <button class="btn btn-primary btn-sm" onclick="showPage('intake')">+ New</button>
+    <button class="btn btn-primary btn-sm" onclick="showPage('intake')" data-i18n="btn_add_new">+ New</button>
   </div>
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="st-total">—</div><div class="stat-label">Total</div></div>
@@ -479,64 +479,64 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <div id="page-intake" class="page">
   <div class="section-header"><div class="section-title">New Client Intake</div></div>
   <div class="card">
-    <div class="intake-section-title">A — Contact</div>
+    <div class="intake-section-title" data-i18n="sec_intake_a">A — Contact</div>
     <div class="row-2">
-      <div><label>First Name</label><input type="text" id="i-fn" placeholder="Jean"></div>
-      <div><label>Last Name</label><input type="text" id="i-ln" placeholder="Tremblay"></div>
+      <div><label data-i18n="lbl_first_name">First Name</label><input type="text" id="i-fn" placeholder="Jean" data-i18n-ph="ph_first"></div>
+      <div><label data-i18n="lbl_last_name">Last Name</label><input type="text" id="i-ln" placeholder="Tremblay" data-i18n-ph="ph_last"></div>
     </div>
     <div class="row-2">
-      <div><label>Email</label><input type="email" id="i-em" placeholder="jean@email.com"></div>
-      <div><label>Phone</label><input type="tel" id="i-ph" placeholder="(819) 555-0000"></div>
+      <div><label data-i18n="lbl_email">Email</label><input type="email" id="i-em" placeholder="jean@email.com" data-i18n-ph="ph_email"></div>
+      <div><label data-i18n="lbl_phone">Phone</label><input type="tel" id="i-ph" placeholder="(819) 555-0000"></div>
     </div>
     <div class="row-2">
-      <div><label>City</label><input type="text" id="i-ci" placeholder="Gatineau"></div>
-      <div><label>Found us via</label>
+      <div><label data-i18n="lbl_city">City</label><input type="text" id="i-ci" placeholder="Gatineau" data-i18n-ph="ph_city"></div>
+      <div><label data-i18n="lbl_found_via">Found us via</label>
         <select id="i-src"><option>Instagram</option><option>Facebook</option><option>Google</option><option>Word of mouth</option><option>Etsy</option><option>Houzz</option><option>Other</option></select>
       </div>
     </div>
-    <div class="intake-section-title">B — Project</div>
-    <label>Piece Type(s)</label>
+    <div class="intake-section-title" data-i18n="sec_intake_b">B — Project</div>
+    <label data-i18n="lbl_piece_types">Piece Type(s)</label>
     <div class="checkboxes" id="i-pieces">
-      <label class="checkbox-item"><input type="checkbox" value="Dining table"> Dining table</label>
-      <label class="checkbox-item"><input type="checkbox" value="Coffee table"> Coffee table</label>
-      <label class="checkbox-item"><input type="checkbox" value="Wood sink"> Wood sink</label>
-      <label class="checkbox-item"><input type="checkbox" value="Vanity"> Vanity</label>
-      <label class="checkbox-item"><input type="checkbox" value="Desk"> Desk</label>
-      <label class="checkbox-item"><input type="checkbox" value="Staircase"> Staircase</label>
-      <label class="checkbox-item"><input type="checkbox" value="Art piece"> Art piece</label>
-      <label class="checkbox-item"><input type="checkbox" value="Other"> Other</label>
+      <label class="checkbox-item"><input type="checkbox" value="Dining table" data-i18n-val="cb_dining"> Dining table</label>
+      <label class="checkbox-item"><input type="checkbox" value="Coffee table" data-i18n-val="cb_coffee"> Coffee table</label>
+      <label class="checkbox-item"><input type="checkbox" value="Wood sink" data-i18n-val="cb_sink"> Wood sink</label>
+      <label class="checkbox-item"><input type="checkbox" value="Vanity" data-i18n-val="cb_vanity"> Vanity</label>
+      <label class="checkbox-item"><input type="checkbox" value="Desk" data-i18n-val="cb_desk"> Desk</label>
+      <label class="checkbox-item"><input type="checkbox" value="Staircase" data-i18n-val="cb_staircase"> Staircase</label>
+      <label class="checkbox-item"><input type="checkbox" value="Art piece" data-i18n-val="cb_art"> Art piece</label>
+      <label class="checkbox-item"><input type="checkbox" value="Other" data-i18n-val="cb_other"> Other</label>
     </div>
     <div class="row-2">
-      <div><label>Dimensions</label><input type="text" id="i-dim" placeholder='72" x 36"'></div>
+      <div><label data-i18n="lbl_dimensions">Dimensions</label><input type="text" id="i-dim" placeholder='72" x 36"'></div>
       <div><label>Wood Species</label>
         <select id="i-wd"><option>Ambrosia Maple</option><option>Black Walnut</option><option>White Pine</option><option>Barn Wood</option><option>No preference</option><option>Other</option></select>
       </div>
     </div>
-    <label>Style / Finish</label>
+    <label data-i18n="lbl_style_finish">Style / Finish</label>
     <div class="checkboxes" id="i-styles">
-      <label class="checkbox-item"><input type="checkbox" value="Rustic"> Rustic</label>
-      <label class="checkbox-item"><input type="checkbox" value="Modern"> Modern</label>
-      <label class="checkbox-item"><input type="checkbox" value="Live edge"> Live edge</label>
-      <label class="checkbox-item"><input type="checkbox" value="Epoxy"> Epoxy</label>
-      <label class="checkbox-item"><input type="checkbox" value="Raw solid wood"> Raw solid wood</label>
+      <label class="checkbox-item"><input type="checkbox" value="Rustic" data-i18n-val="cb_rustic"> Rustic</label>
+      <label class="checkbox-item"><input type="checkbox" value="Modern" data-i18n-val="cb_modern"> Modern</label>
+      <label class="checkbox-item"><input type="checkbox" value="Live edge" data-i18n-val="cb_liveedge"> Live edge</label>
+      <label class="checkbox-item"><input type="checkbox" value="Epoxy" data-i18n-val="cb_epoxy"> Epoxy</label>
+      <label class="checkbox-item"><input type="checkbox" value="Raw solid wood" data-i18n-val="cb_raw"> Raw solid wood</label>
     </div>
-    <label>Vision Description</label>
-    <textarea id="i-vis" placeholder="What the client is imagining..."></textarea>
+    <label data-i18n="lbl_vision">Vision Description</label>
+    <textarea id="i-vis" placeholder="What the client is imagining..." data-i18n-ph="ph_vision"></textarea>
     <div class="intake-section-title">C — Budget & Timeline</div>
     <div class="row-2">
-      <div><label>Budget Range</label>
+      <div><label data-i18n="lbl_budget_range">Budget Range</label>
         <select id="i-bud"><option>Under $500</option><option>$500–$1,000</option><option>$1,000–$2,500</option><option>$2,500–$5,000</option><option>$5,000+</option><option>Prefer to discuss</option></select>
       </div>
-      <div><label>Timeline</label>
+      <div><label data-i18n="lbl_timeline">Timeline</label>
         <select id="i-tl"><option>ASAP</option><option>Within 1 month</option><option>Within 2–3 months</option><option>Within 6 months</option><option>Not urgent</option></select>
       </div>
     </div>
     <div class="row-2">
-      <div><label>Important Deadline</label><input type="text" id="i-dl" placeholder="e.g. Christmas"></div>
-      <div><label>Quoted Amount ($)</label><input type="number" id="i-amt" placeholder="0" min="0"></div>
+      <div><label data-i18n="lbl_deadline">Important Deadline</label><input type="text" id="i-dl" placeholder="e.g. Christmas" data-i18n-ph="ph_deadline"></div>
+      <div><label data-i18n="lbl_quoted_amount">Quoted Amount ($)</label><input type="number" id="i-amt" placeholder="0" min="0"></div>
     </div>
-    <label>Notes</label>
-    <textarea id="i-nt" placeholder="Special requests, notes..."></textarea>
+    <label data-i18n="lbl_notes">Notes</label>
+    <textarea id="i-nt" placeholder="Special requests, notes..." data-i18n-ph="ph_special"></textarea>
     <button class="btn btn-green btn-block" onclick="saveIntake()">✅ Save & Create Project</button>
   </div>
 </div>
@@ -545,7 +545,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <div id="page-wood" class="page">
   <div class="section-header">
     <div class="section-title">Wood & Material Stock</div>
-    <button class="btn btn-primary btn-sm" onclick="openAddWood()">+ Add</button>
+    <button class="btn btn-primary btn-sm" onclick="openAddWood()" data-i18n="btn_add_wood">+ Add</button>
   </div>
 
   <div class="stats-row">
@@ -564,9 +564,9 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   <div class="section-header"><div class="section-title" id="section-post-title">Post Generator</div></div>
   <div class="card">
     <div class="card-title">Bilingual Caption — Claude AI</div>
-    <div class="card-sub">Generates a ready-to-post EN + FR caption with hashtags in seconds.</div>
+    <div class="card-sub" data-i18n="sub_post">Generates a ready-to-post EN + FR caption with hashtags in seconds.</div>
     <div class="row-2">
-      <div><label>Subject</label>
+      <div><label data-i18n="lbl_subject">Subject</label>
         <select id="p-prod">
           <option value="epoxy river table with teal resin">Epoxy River Table</option>
           <option value="ambrosia maple dining table">Ambrosia Maple Table</option>
@@ -579,7 +579,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
           <option value="custom staircase collaboration">Custom Staircase</option>
         </select>
       </div>
-      <div><label>Tone</label>
+      <div><label data-i18n="lbl_tone">Tone</label>
         <select id="p-tone">
           <option value="storytelling and emotional, poetic">Storytelling — emotional</option>
           <option value="product showcase, feature-focused">Product showcase</option>
@@ -591,13 +591,13 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
         </select>
       </div>
     </div>
-    <label>Extra detail (optional)</label>
+    <label data-i18n="lbl_extra_detail">Extra detail (optional)</label>
     <input type="text" id="p-detail" placeholder="e.g. teal river, Father's Day, floating shelf...">
-    <label>Platform</label>
+    <label data-i18n="lbl_platform">Platform</label>
     <div style="display:flex;gap:12px;margin-top:6px;">
-      <label class="checkbox-item"><input type="radio" name="plat" value="Instagram" checked> Instagram</label>
-      <label class="checkbox-item"><input type="radio" name="plat" value="Facebook"> Facebook</label>
-      <label class="checkbox-item"><input type="radio" name="plat" value="Instagram and Facebook"> Both</label>
+      <label class="checkbox-item"><input type="radio" name="plat" value="Instagram" checked data-i18n-val="rb_instagram"> Instagram</label>
+      <label class="checkbox-item"><input type="radio" name="plat" value="Facebook" data-i18n-val="rb_facebook"> Facebook</label>
+      <label class="checkbox-item"><input type="radio" name="plat" value="Instagram and Facebook" data-i18n-val="rb_both"> Both</label>
     </div>
     <button class="btn btn-primary btn-block" id="gen-btn" onclick="generatePost()">✨ Generate Caption</button>
     <div id="post-out" style="display:none;">
@@ -614,8 +614,8 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
         <button class="copy-btn" onclick="copyCaption('fr-txt','fr-tags')">Copier</button>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-        <button class="btn btn-ghost btn-sm" onclick="generatePost()">🔄 Regenerate</button>
-        <button class="btn btn-amber btn-sm" onclick="savePost()">💾 Save Caption</button>
+        <button class="btn btn-ghost btn-sm" onclick="generatePost()" data-i18n="btn_regen">🔄 Regenerate</button>
+        <button class="btn btn-amber btn-sm" onclick="savePost()" data-i18n="btn_save_caption">💾 Save Caption</button>
       </div>
     </div>
   </div>
@@ -653,19 +653,19 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
   <div class="card">
     <div class="card-title">Clock In / Out</div>
-    <div class="card-sub" id="time-user-label">Logged in as: —</div>
+    <div class="card-sub" id="time-user-label" data-i18n="sub_time_user">Logged in as: —</div>
     <div class="clock-display" id="clock-display">00:00:00</div>
     <div id="clock-gps" style="text-align:center;font-size:0.75rem;color:var(--wood-mid);margin-bottom:12px;min-height:18px;"></div>
-    <label>Location Type</label>
+    <label data-i18n="lbl_loc_type">Location Type</label>
     <div style="display:flex;gap:8px;margin-top:6px;margin-bottom:14px;">
       <button class="loc-btn active shop" id="loc-shop" onclick="setLocType('shop')">🏭 Shop</button>
       <button class="loc-btn" id="loc-travel" onclick="setLocType('travel')">🚗 Travel</button>
       <button class="loc-btn" id="loc-onsite" onclick="setLocType('onsite')">🏗️ On-site</button>
     </div>
-    <label>Link to Project (optional)</label>
+    <label data-i18n="lbl_link_project">Link to Project (optional)</label>
     <select id="time-project-sel"><option value="">— No project —</option></select>
-    <label>Notes</label>
-    <input type="text" id="time-notes" placeholder="e.g. Epoxy pour, client meeting, delivery...">
+    <label data-i18n="lbl_notes">Notes</label>
+    <input type="text" id="time-notes" placeholder="e.g. Epoxy pour, client meeting, delivery..." data-i18n-ph="ph_time_notes">
     <div style="display:flex;gap:10px;margin-top:14px;">
       <button class="btn btn-green btn-block" id="clock-btn" onclick="toggleClock()">▶ Clock In</button>
     </div>
@@ -682,7 +682,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <div class="card-title" style="margin-bottom:0;">All Users — This Week</div>
+      <div class="card-title" style="margin-bottom:0;" data-i18n="sec_all_users">All Users — This Week</div>
       <select id="time-week-filter" onchange="loadTimeLogs()" style="width:auto;font-size:0.8rem;padding:6px 10px;">
         <option value="7">Last 7 days</option>
         <option value="14">Last 14 days</option>
@@ -707,7 +707,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
   <div class="card">
     <div class="card-title">Monthly Revenue</div>
-    <div class="card-sub">Green = collected · Tan = outstanding balance</div>
+    <div class="card-sub" data-i18n="sub_rev">Green = collected · Tan = outstanding balance</div>
     <div class="chart-wrap">
       <div class="bar-chart" id="rev-chart"></div>
     </div>
@@ -751,23 +751,23 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <button class="modal-close" onclick="closeModal('wood-modal')">×</button>
     <div class="modal-title" id="wm-title"><span id="label-wood-modal">Add / Edit Material</span></div>
     <input type="hidden" id="wm-id">
-    <label>Species / Material Name</label>
-    <input type="text" id="wm-species" placeholder="e.g. Ambrosia Maple Slab, Blue Epoxy, Hardware Kit">
+    <label data-i18n="lbl_species_name">Species / Material Name</label>
+    <input type="text" id="wm-species" placeholder="e.g. Ambrosia Maple Slab, Blue Epoxy, Hardware Kit" data-i18n-ph="ph_species">
     <div class="row-2">
-      <div><label>Grade / Description</label><input type="text" id="wm-grade" placeholder="e.g. 4/4, 8ft slab, 1L can"></div>
-      <div><label>Supplier</label><input type="text" id="wm-supplier" placeholder="e.g. Boisverco, Home Depot"></div>
+      <div><label data-i18n="lbl_grade">Grade / Description</label><input type="text" id="wm-grade" placeholder="e.g. 4/4, 8ft slab, 1L can" data-i18n-ph="ph_grade"></div>
+      <div><label data-i18n="lbl_supplier">Supplier</label><input type="text" id="wm-supplier" placeholder="e.g. Boisverco, Home Depot" data-i18n-ph="ph_supplier"></div>
     </div>
     <div class="row-3">
-      <div><label>Quantity</label><input type="number" id="wm-qty" placeholder="5" min="0" step="0.1"></div>
-      <div><label>Unit</label>
+      <div><label data-i18n="lbl_quantity">Quantity</label><input type="number" id="wm-qty" placeholder="5" min="0" step="0.1"></div>
+      <div><label data-i18n="lbl_unit">Unit</label>
         <select id="wm-unit"><option>slabs</option><option>board feet</option><option>sheets</option><option>litres</option><option>kg</option><option>units</option><option>sets</option></select>
       </div>
-      <div><label>Cost per Unit ($)</label><input type="number" id="wm-cost" placeholder="85" min="0" step="0.01"></div>
+      <div><label data-i18n="lbl_cost_unit">Cost per Unit ($)</label><input type="number" id="wm-cost" placeholder="85" min="0" step="0.01"></div>
     </div>
-    <label>Notes</label>
-    <textarea id="wm-notes" placeholder="Dimensions, colour, project reserved for..."></textarea>
+    <label data-i18n="lbl_notes">Notes</label>
+    <textarea id="wm-notes" placeholder="Dimensions, colour, project reserved for..." data-i18n-ph="ph_wood_notes"></textarea>
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
-      <button class="btn btn-green" onclick="saveWood()">✅ Save Material</button>
+      <button class="btn btn-green" onclick="saveWood()" data-i18n="btn_save_material">✅ Save Material</button>
       <button id="wm-del-btn" class="btn btn-red btn-sm" style="display:none;" onclick="deleteWood()">🗑 Delete</button>
     </div>
   </div>
@@ -891,6 +891,46 @@ const T = {
     empty_posts: 'No results found',
     // Sync
     sync_live: 'Live sync', sync_connecting: 'Connecting...', sync_signed_out: 'Please sign in',
+    lbl_first_name: 'First Name', lbl_last_name: 'Last Name', lbl_email: 'Email',
+    lbl_password: 'Password', lbl_phone: 'Phone', lbl_city: 'City',
+    lbl_found_via: 'Found us via', lbl_piece_types: 'Piece Type(s)',
+    lbl_dimensions: 'Dimensions', lbl_wood_species: 'Wood Species',
+    lbl_style_finish: 'Style / Finish', lbl_vision: 'Vision Description',
+    lbl_budget_range: 'Budget Range', lbl_timeline: 'Timeline',
+    lbl_deadline: 'Important Deadline', lbl_quoted_amount: 'Quoted Amount ($)',
+    lbl_notes: 'Notes', lbl_project_type: 'Project Type', lbl_client_name: 'Client Name',
+    lbl_materials: 'Materials ($)', lbl_epoxy_hw: 'Epoxy / Hardware ($)',
+    lbl_delivery_cost: 'Delivery ($)', lbl_hours: 'Hours Est.', lbl_rate: 'Rate ($/h)',
+    lbl_complexity: 'Complexity', lbl_overhead: 'Overhead %', lbl_margin: 'Margin %',
+    lbl_species_name: 'Species / Material Name', lbl_grade: 'Grade / Description',
+    lbl_supplier: 'Supplier', lbl_quantity: 'Quantity', lbl_unit: 'Unit',
+    lbl_cost_unit: 'Cost per Unit ($)', lbl_loc_type: 'Location Type',
+    lbl_link_project: 'Link to Project (optional)', lbl_platform: 'Platform',
+    lbl_subject: 'Subject', lbl_tone: 'Tone', lbl_extra_detail: 'Extra detail (optional)',
+    lbl_found_via2: 'Found via', lbl_pref_wood: 'Preferred Wood',
+    cb_dining: 'Dining table', cb_coffee: 'Coffee table', cb_sink: 'Wood sink',
+    cb_vanity: 'Vanity', cb_desk: 'Desk', cb_staircase: 'Staircase',
+    cb_art: 'Art piece', cb_other: 'Other', cb_rustic: 'Rustic', cb_modern: 'Modern',
+    cb_liveedge: 'Live edge', cb_epoxy: 'Epoxy', cb_raw: 'Raw solid wood',
+    rb_instagram: 'Instagram', rb_facebook: 'Facebook', rb_both: 'Both',
+    sub_quote: 'Instant pricing with QC taxes. Save directly as a project.',
+    sub_post: 'Generates a ready-to-post EN + FR caption with hashtags in seconds.',
+    sub_rev: 'Green = collected · Tan = outstanding balance',
+    sub_time_user: 'Logged in as: —',
+    sec_intake_a: 'A — Contact', sec_intake_b: 'B — Project', sec_intake_c: 'C — Budget & Timeline',
+    sec_all_users: 'All Users — This Week', sec_today_logs: "Today's Time Logs",
+    sec_saved_captions: 'Saved Captions', sec_quote_breakdown: 'Quote Breakdown',
+    ph_dims: 'e.g. 72" x 36"', ph_vision: 'What the client is imagining...',
+    ph_special: 'Special requests, notes...', ph_deadline: 'e.g. Christmas',
+    ph_client: 'e.g. Marie L.', ph_grade: 'e.g. 4/4, 8ft slab, 1L can',
+    ph_species: 'e.g. Ambrosia Maple Slab, Blue Epoxy, Hardware Kit',
+    ph_supplier: 'e.g. Boisverco, Home Depot',
+    ph_time_notes: 'e.g. Epoxy pour, client meeting, delivery...',
+    ph_wood_notes: 'Dimensions, colour, project reserved for...',
+    ph_first: 'Jean', ph_last: 'Tremblay', ph_city: 'Gatineau', ph_email: 'jean@email.com',
+    btn_add_wood: '+ Add', btn_add_new: '+ New', btn_save_material: '✅ Save Material',
+    btn_regen: '🔄 Regenerate', btn_save_caption: '💾 Save Caption',
+    btn_save_proj: '💾 Save as Project', btn_copy_sum: '📋 Copy Summary',
   },
   fr: {
     // Nav
@@ -1003,6 +1043,46 @@ const T = {
     empty_posts: 'Aucun résultat',
     // Sync
     sync_live: 'Synchronisé', sync_connecting: 'Connexion...', sync_signed_out: 'Veuillez vous connecter',
+    lbl_first_name: 'Prénom', lbl_last_name: 'Nom de famille', lbl_email: 'Courriel',
+    lbl_password: 'Mot de passe', lbl_phone: 'Téléphone', lbl_city: 'Ville',
+    lbl_found_via: 'Trouvé via', lbl_piece_types: 'Type(s) de pièce',
+    lbl_dimensions: 'Dimensions', lbl_wood_species: 'Essence de bois',
+    lbl_style_finish: 'Style / Fini', lbl_vision: 'Description de la vision',
+    lbl_budget_range: 'Budget', lbl_timeline: 'Délai',
+    lbl_deadline: 'Date limite importante', lbl_quoted_amount: 'Montant estimé ($)',
+    lbl_notes: 'Notes', lbl_project_type: 'Type de projet', lbl_client_name: 'Nom du client',
+    lbl_materials: 'Matériaux ($)', lbl_epoxy_hw: 'Époxy / Quincaillerie ($)',
+    lbl_delivery_cost: 'Livraison ($)', lbl_hours: 'Heures estimées', lbl_rate: 'Taux ($/h)',
+    lbl_complexity: 'Complexité', lbl_overhead: 'Frais généraux %', lbl_margin: 'Marge %',
+    lbl_species_name: 'Espèce / Nom du matériau', lbl_grade: 'Grade / Description',
+    lbl_supplier: 'Fournisseur', lbl_quantity: 'Quantité', lbl_unit: 'Unité',
+    lbl_cost_unit: 'Coût par unité ($)', lbl_loc_type: 'Type de localisation',
+    lbl_link_project: 'Associer à un projet (optionnel)', lbl_platform: 'Plateforme',
+    lbl_subject: 'Sujet', lbl_tone: 'Ton', lbl_extra_detail: 'Détail supplémentaire (optionnel)',
+    lbl_found_via2: 'Trouvé via', lbl_pref_wood: 'Bois préféré',
+    cb_dining: 'Table à manger', cb_coffee: 'Table basse', cb_sink: 'Évier en bois',
+    cb_vanity: 'Vanité', cb_desk: 'Bureau', cb_staircase: 'Escalier',
+    cb_art: "Pièce d'art", cb_other: 'Autre', cb_rustic: 'Rustique', cb_modern: 'Moderne',
+    cb_liveedge: 'Bord vif', cb_epoxy: 'Époxy', cb_raw: 'Bois massif brut',
+    rb_instagram: 'Instagram', rb_facebook: 'Facebook', rb_both: 'Les deux',
+    sub_quote: 'Prix instantané avec taxes QC. Sauvegarder directement comme projet.',
+    sub_post: 'Génère une légende EN + FR avec hashtags prête à publier en quelques secondes.',
+    sub_rev: 'Vert = encaissé · Beige = solde en attente',
+    sub_time_user: 'Connecté en tant que : —',
+    sec_intake_a: 'A — Contact', sec_intake_b: 'B — Projet', sec_intake_c: 'C — Budget et délais',
+    sec_all_users: 'Tous les utilisateurs — Cette semaine', sec_today_logs: "Pointages d'aujourd'hui",
+    sec_saved_captions: 'Légendes sauvegardées', sec_quote_breakdown: "Détail de l'estimation",
+    ph_dims: 'ex. 182 cm x 91 cm', ph_vision: 'Ce que le client imagine...',
+    ph_special: 'Demandes spéciales, notes...', ph_deadline: 'ex. Noël',
+    ph_client: 'ex. Marie L.', ph_grade: 'ex. 4/4, planche 8pi, cannette 1L',
+    ph_species: 'ex. Planche érable moucheté, Époxy bleu, Quincaillerie',
+    ph_supplier: 'ex. Boisverco, Home Depot',
+    ph_time_notes: 'ex. Coulée époxy, rencontre client, livraison...',
+    ph_wood_notes: 'Dimensions, couleur, projet réservé pour...',
+    ph_first: 'Jean', ph_last: 'Tremblay', ph_city: 'Gatineau', ph_email: 'jean@courriel.com',
+    btn_add_wood: '+ Ajouter', btn_add_new: '+ Nouveau', btn_save_material: '✅ Sauvegarder le matériau',
+    btn_regen: '🔄 Régénérer', btn_save_caption: '💾 Sauvegarder la légende',
+    btn_save_proj: '💾 Sauvegarder comme projet', btn_copy_sum: '📋 Copier le résumé',
   }
 };
 
@@ -1218,6 +1298,32 @@ function applyTranslations() {
   }
   // Translate all dropdowns
   translateSelects(lang);
+
+  // Translate all data-i18n tagged elements (text content)
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    var val = t(key);
+    if (val && val !== key) el.textContent = val;
+  });
+
+  // Translate placeholders
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n-ph');
+    var val = t(key);
+    if (val && val !== key) el.placeholder = val;
+  });
+
+  // Translate checkbox/radio label text nodes
+  document.querySelectorAll('[data-i18n-val]').forEach(function(inp) {
+    var key = inp.getAttribute('data-i18n-val');
+    var val = t(key);
+    var label = inp.closest('label');
+    if (label && val && val !== key) {
+      var nodes = Array.from(label.childNodes);
+      var textNode = nodes.find(function(n){ return n.nodeType === 3 && n.textContent.trim(); });
+      if (textNode) textNode.textContent = ' ' + val;
+    }
+  });
 }
 
 let currentLang = localStorage.getItem('shack_lang') || 'en';
@@ -1496,7 +1602,7 @@ function openProject(id) {
     <select id="pm-st" style="margin-bottom:10px;">
       ${Object.entries(getStatus()).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v.label}</option>`).join('')}
     </select>
-    <label>Notes</label>
+    <label data-i18n="lbl_notes">Notes</label>
     <textarea id="pm-nt" style="margin-bottom:14px;">${p.notes||''}</textarea>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-green btn-sm" onclick="updateProject(${id})">✅ Save</button>
@@ -2238,21 +2344,21 @@ function openAddClient() {
   document.getElementById('cm-title').textContent = 'New Client';
   document.getElementById('cm-body').innerHTML = `
     <div class="row-2">
-      <div><label>First Name</label><input type="text" id="cm-fn" placeholder="Jean"></div>
-      <div><label>Last Name</label><input type="text" id="cm-ln" placeholder="Tremblay"></div>
+      <div><label data-i18n="lbl_first_name">First Name</label><input type="text" id="cm-fn" placeholder="Jean" data-i18n-ph="ph_first"></div>
+      <div><label data-i18n="lbl_last_name">Last Name</label><input type="text" id="cm-ln" placeholder="Tremblay" data-i18n-ph="ph_last"></div>
     </div>
     <div class="row-2">
-      <div><label>Email</label><input type="email" id="cm-em"></div>
-      <div><label>Phone</label><input type="tel" id="cm-ph"></div>
+      <div><label data-i18n="lbl_email">Email</label><input type="email" id="cm-em"></div>
+      <div><label data-i18n="lbl_phone">Phone</label><input type="tel" id="cm-ph"></div>
     </div>
     <div class="row-2">
-      <div><label>City</label><input type="text" id="cm-ci" placeholder="Gatineau"></div>
-      <div><label>Found via</label>
+      <div><label data-i18n="lbl_city">City</label><input type="text" id="cm-ci" placeholder="Gatineau" data-i18n-ph="ph_city"></div>
+      <div><label data-i18n="lbl_found_via2">Found via</label>
         <select id="cm-src"><option>Instagram</option><option>Facebook</option><option>Google</option><option>Word of mouth</option><option>Other</option></select>
       </div>
     </div>
-    <label>Preferred Wood</label><input type="text" id="cm-wd" placeholder="e.g. Black Walnut">
-    <label>Notes</label><textarea id="cm-nt" placeholder="Any notes about this client..."></textarea>
+    <label data-i18n="lbl_pref_wood">Preferred Wood</label><input type="text" id="cm-wd" placeholder="e.g. Black Walnut">
+    <label data-i18n="lbl_notes">Notes</label><textarea id="cm-nt" placeholder="Any notes about this client..."></textarea>
     <button class="btn btn-green btn-block" style="margin-top:14px;" onclick="saveClient()">✅ Save Client</button>`;
   document.getElementById('client-modal').classList.add('open');
 }
