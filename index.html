@@ -1010,6 +1010,136 @@ function t(key) {
   return (T[currentLang] && T[currentLang][key]) || T['en'][key] || key;
 }
 
+
+// ══════════════════════════════════════════════════
+// DROPDOWN / SELECT TRANSLATIONS
+// ══════════════════════════════════════════════════
+const SELECT_OPTIONS = {
+  'q-type': {
+    en: ['— Select —','Epoxy River Table','Dining / Coffee Table','Wood Sink','Bathroom Vanity','Custom Desk','Staircase / Structure','Art Piece / Collectible','Other Custom Piece'],
+    fr: ['— Sélectionner —','Table époxy rivière','Table salle à manger / café','Évier en bois','Vanité de salle de bain','Bureau sur mesure','Escalier / Structure','Pièce d\'art / Collectionnable','Autre pièce sur mesure']
+  },
+  'q-wood': {
+    en: ['Ambrosia Maple','Black Walnut (+15%)','White Pine (+5%)','Barn / Reclaimed (+20%)','Exotic (+25%)'],
+    fr: ['Érable moucheté','Noyer noir (+15%)','Pin blanc (+5%)','Bois de grange / récupéré (+20%)','Essence exotique (+25%)']
+  },
+  'q-comp': {
+    en: ['Standard','Moderate +10%','Complex +25%','Very complex +40%'],
+    fr: ['Standard','Modérée +10%','Complexe +25%','Très complexe +40%']
+  },
+  'q-oh': {
+    en: ['12%','15%','18%','20%'],
+    fr: ['12%','15%','18%','20%']
+  },
+  'q-mg': {
+    en: ['20%','25%','30%','35%'],
+    fr: ['20%','25%','30%','35%']
+  },
+  'f-status': {
+    en: ['All Statuses','New','Quote Sent','Fabrication','Finishing','Ready','Delivered'],
+    fr: ['Tous les statuts','Nouveau','Devis envoyé','Fabrication','Finition','Prêt','Livré']
+  },
+  'i-src': {
+    en: ['Instagram','Facebook','Google','Word of mouth','Etsy','Houzz','Other'],
+    fr: ['Instagram','Facebook','Google','Bouche à oreille','Etsy','Houzz','Autre']
+  },
+  'i-wd': {
+    en: ['Ambrosia Maple','Black Walnut','White Pine','Barn Wood','No preference','Other'],
+    fr: ['Érable moucheté','Noyer noir','Pin blanc','Bois de grange','Aucune préférence','Autre']
+  },
+  'i-bud': {
+    en: ['Under $500','$500–$1,000','$1,000–$2,500','$2,500–$5,000','$5,000+','Prefer to discuss'],
+    fr: ['Moins de 500$','500$–1 000$','1 000$–2 500$','2 500$–5 000$','5 000$+','Préfère en discuter']
+  },
+  'i-tl': {
+    en: ['ASAP','Within 1 month','Within 2–3 months','Within 6 months','Not urgent'],
+    fr: ['Dès que possible','Dans 1 mois','Dans 2–3 mois','Dans 6 mois','Pas urgent']
+  },
+  'i-dl': {
+    en: ['e.g. Christmas'],
+    fr: ['ex. Noël']
+  },
+  'p-prod': {
+    en: ['Epoxy River Table','Ambrosia Maple Table','Black Walnut Sink','White Pine Vanity','Walnut Art Piece','Live Edge Coffee Table','Workshop / Behind the Scenes','Heritage Story','Custom Staircase'],
+    fr: ['Table époxy rivière','Table en érable moucheté','Évier en noyer noir','Vanité en pin blanc','Pièce d\'art en noyer','Table café à bord vif','Atelier / Coulisses','Histoire de patrimoine','Escalier sur mesure']
+  },
+  'p-tone': {
+    en: ['Storytelling — emotional','Product showcase','Educational','Promotional','Behind the scenes','Local — Gatineau/Ottawa','Seasonal / Holiday'],
+    fr: ['Récit — émotionnel','Mise en valeur du produit','Éducatif','Promotionnel','Coulisses','Local — Gatineau/Ottawa','Saisonnier / Fêtes']
+  },
+  'time-week-filter': {
+    en: ['Last 7 days','Last 14 days','Last 30 days'],
+    fr: ['7 derniers jours','14 derniers jours','30 derniers jours']
+  },
+  'wm-unit': {
+    en: ['slabs','board feet','sheets','litres','kg','units','sets'],
+    fr: ['planches','pieds de planche','feuilles','litres','kg','unités','ensembles']
+  },
+  'pm-rev': {
+    en: ['No','Request Sent','Yes'],
+    fr: ['Non','Demande envoyée','Oui']
+  },
+  'note-type': {
+    en: ['Note','Call','Email','Visit'],
+    fr: ['Note','Appel','Courriel','Visite']
+  },
+  'cm-src': {
+    en: ['Instagram','Facebook','Google','Word of mouth','Other'],
+    fr: ['Instagram','Facebook','Google','Bouche à oreille','Autre']
+  }
+};
+
+function translateSelects(lang) {
+  Object.entries(SELECT_OPTIONS).forEach(([id, translations]) => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const opts = translations[lang] || translations['en'];
+    const enOpts = translations['en'];
+    const currentVal = sel.value;
+    // Find current index by matching against both languages
+    let currentIdx = sel.selectedIndex;
+    // Translate each option text
+    [...sel.options].forEach((opt, i) => {
+      if (opts[i] !== undefined) {
+        opt.text = opts[i];
+      }
+    });
+    // Restore selection
+    sel.selectedIndex = currentIdx;
+  });
+  // Also translate labels next to the selects
+  const labelMap = {
+    'q-type': {en: 'Project Type', fr: 'Type de projet'},
+    'q-wood': {en: 'Wood Species', fr: 'Essence de bois'},
+    'q-comp': {en: 'Complexity', fr: 'Complexité'},
+    'q-oh':   {en: 'Overhead %', fr: 'Frais généraux %'},
+    'q-mg':   {en: 'Margin %', fr: 'Marge %'},
+    'i-src':  {en: 'Found us via', fr: 'Trouvé via'},
+    'i-wd':   {en: 'Wood Species', fr: 'Essence de bois'},
+    'i-bud':  {en: 'Budget Range', fr: 'Budget'},
+    'i-tl':   {en: 'Timeline', fr: 'Délai'},
+    'p-prod': {en: 'Subject', fr: 'Sujet'},
+    'p-tone': {en: 'Tone', fr: 'Ton'},
+    'pm-rev': {en: 'Review?', fr: 'Avis reçu?'},
+    'pm-st':  {en: 'Status', fr: 'Statut'},
+    'note-type': {en: '', fr: ''},
+    'wm-unit': {en: 'Unit', fr: 'Unité'},
+    'cm-src': {en: 'Found via', fr: 'Trouvé via'},
+  };
+  Object.entries(labelMap).forEach(([id, labels]) => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    // Find the label element before the select
+    const label = sel.previousElementSibling;
+    if (label && (label.tagName === 'LABEL' || label.className === 'label')) {
+      if (labels[lang]) label.textContent = labels[lang];
+    }
+    // Also check the closest label
+    const closestLabel = sel.closest('div')?.querySelector('label');
+    if (closestLabel && labels[lang]) closestLabel.textContent = labels[lang];
+  });
+}
+
 function applyTranslations() {
   const lang = currentLang;
   // Nav tabs
@@ -1086,6 +1216,8 @@ function applyTranslations() {
   if (syncLabel && syncLabel.textContent === 'Please sign in' || syncLabel?.textContent === 'Veuillez vous connecter') {
     setSyncStatus('', t('sync_signed_out'));
   }
+  // Translate all dropdowns
+  translateSelects(lang);
 }
 
 let currentLang = localStorage.getItem('shack_lang') || 'en';
@@ -1275,14 +1407,25 @@ function copyQuote() {
 // ══════════════════════════════════════════════════
 // PROJECTS
 // ══════════════════════════════════════════════════
-const STATUS = {
-  new:    {label:'New',         cls:'badge-new',   card:'status-new'},
-  quote:  {label:'Quote Sent',  cls:'badge-quote', card:'status-quote'},
-  active: {label:'Fabrication', cls:'badge-active',card:'status-active'},
-  finish: {label:'Finishing',   cls:'badge-finish', card:'status-finish'},
-  ready:  {label:'Ready',       cls:'badge-ready', card:'status-ready'},
-  done:   {label:'Delivered',   cls:'badge-done',  card:'status-done'},
+const STATUS_LABELS = {
+  new:    {en:'New',         fr:'Nouveau'},
+  quote:  {en:'Quote Sent',  fr:'Devis envoyé'},
+  active: {en:'Fabrication', fr:'Fabrication'},
+  finish: {en:'Finishing',   fr:'Finition'},
+  ready:  {en:'Ready',       fr:'Prêt'},
+  done:   {en:'Delivered',   fr:'Livré'},
 };
+function getStatus() {
+  return {
+    new:    {label: STATUS_LABELS.new[currentLang]||'New',       cls:'badge-new',   card:'status-new'},
+    quote:  {label: STATUS_LABELS.quote[currentLang]||'Quote',   cls:'badge-quote', card:'status-quote'},
+    active: {label: STATUS_LABELS.active[currentLang]||'Fab',    cls:'badge-active',card:'status-active'},
+    finish: {label: STATUS_LABELS.finish[currentLang]||'Finish', cls:'badge-finish',card:'status-finish'},
+    ready:  {label: STATUS_LABELS.ready[currentLang]||'Ready',   cls:'badge-ready', card:'status-ready'},
+    done:   {label: STATUS_LABELS.done[currentLang]||'Done',     cls:'badge-done',  card:'status-done'},
+  };
+}
+const STATUS = getStatus();
 
 let allProjects = [];
 
@@ -1314,7 +1457,7 @@ async function loadProjects() {
   }
   checkOverdue(allProjects);
   list.innerHTML = filtered.map(p => {
-    const st = STATUS[p.status] || STATUS.new;
+    const STATUS = getStatus(); const st = STATUS[p.status] || STATUS.new;
     const paid = p.amount ? Math.round((p.amount - p.balance) / p.amount * 100) : 0;
     return `<div class="proj-card ${st.card}" onclick="openProject(${p.id})">
       <div class="proj-header">
@@ -1334,7 +1477,7 @@ async function loadProjects() {
 function openProject(id) {
   const p = allProjects.find(x => x.id === id);
   if (!p) return;
-  const st = STATUS[p.status] || STATUS.new;
+  const STATUS = getStatus(); const st = STATUS[p.status] || STATUS.new;
   const next = {new:'quote',quote:'active',active:'finish',finish:'ready',ready:'done',done:'done'};
   document.getElementById('pm-title').textContent = (p.name||'') + ' — ' + (p.piece||'');
   document.getElementById('pm-body').innerHTML = `
@@ -1351,7 +1494,7 @@ function openProject(id) {
     </div>
     <label>Status</label>
     <select id="pm-st" style="margin-bottom:10px;">
-      ${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v.label}</option>`).join('')}
+      ${Object.entries(getStatus()).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v.label}</option>`).join('')}
     </select>
     <label>Notes</label>
     <textarea id="pm-nt" style="margin-bottom:14px;">${p.notes||''}</textarea>
