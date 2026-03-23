@@ -631,16 +631,16 @@ body.lang-en span.fr { display: none !important; }
   <div class="setup-box">
     <div class="setup-logo">Le Shackachaga</div>
     <div class="setup-sub">Studio Tools — One-time setup required. Enter your Supabase credentials to connect.</div>
-    <div class="setup-step"><strong data-i18n="misc_step1">Step 1</strong> — Go to <code>supabase.com</code>, create free project named <code>shackachaga</code></div>
-    <div class="setup-step"><strong data-i18n="misc_step2">Step 2</strong> — Run the SQL script below in Supabase SQL Editor</div>
-    <div class="setup-step"><strong data-i18n="misc_step3">Step 3</strong> — Go to <strong>Project Settings → API</strong>, copy URL and anon key below</div>
-    <label>Supabase Project URL</label>
+    <div class="setup-step"><strong data-i18n="misc_step1"><span class="en">Step 1</span><span class="fr">Étape 1</span></strong> — Go to <code>supabase.com</code>, create free project named <code>shackachaga</code></div>
+    <div class="setup-step"><strong data-i18n="misc_step2"><span class="en">Step 2</span><span class="fr">Étape 2</span></strong> — Run the SQL script below in Supabase SQL Editor</div>
+    <div class="setup-step"><strong data-i18n="misc_step3"><span class="en">Step 3</span><span class="fr">Étape 3</span></strong> — Go to <strong>Project Settings → API</strong>, copy URL and anon key below</div>
+    <label><span class="en">Supabase Project URL</span><span class="fr">URL du projet Supabase</span></label>
     <input type="text" id="setup-url" placeholder="https://xxxx.supabase.co">
-    <label>Supabase Anon Key</label>
+    <label><span class="en">Supabase Anon Key</span><span class="fr">Clé Anon Supabase</span></label>
     <input type="text" id="setup-key" placeholder="eyJhbGciOiJIUzI1...">
     <button class="btn btn-green btn-block" onclick="saveConfig()"><span class="en">✅ Connect</span><span class="fr">✅ Connecter</span></button>
     <div style="margin-top:14px;padding:12px;background:var(--wood-pale);border-radius:var(--radius-sm);">
-      <div style="font-size:0.75rem;font-weight:700;margin-bottom:7px;color:var(--wood-mid);" data-i18n="misc_sql_setup">SQL Setup Script:</div>
+      <div style="font-size:0.75rem;font-weight:700;margin-bottom:7px;color:var(--wood-mid);" data-i18n="misc_sql_setup"><span class="en">SQL Setup Script:</span><span class="fr">Script de configuration SQL:</span></div>
       <div id="sql-block" style="font-family:monospace;font-size:0.65rem;background:var(--wood-dark);color:var(--wood-light);padding:10px;border-radius:6px;white-space:pre-wrap;max-height:150px;overflow-y:auto;line-height:1.5;">CREATE TABLE IF NOT EXISTS projects (
   id bigint primary key generated always as identity,
   name text, piece text, email text, phone text,
@@ -761,9 +761,9 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="setup-logo">Le Shackachaga</div>
     <div class="setup-sub" style="margin-bottom:20px;"><span id="login-subtitle-text">Studio Tools — Sign in to continue</span></div>
     <div id="login-error" style="display:none;background:#FDECEA;color:var(--red);padding:10px 12px;border-radius:var(--radius-sm);font-size:0.82rem;margin-bottom:12px;"></div>
-    <label data-i18n="lbl_email">Email</label>
+    <label data-i18n="lbl_email"><span class="en">Email</span><span class="fr">Courriel</span></label>
     <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
-    <label data-i18n="lbl_password">Password</label>
+    <label data-i18n="lbl_password"><span class="en">Password</span><span class="fr">Mot de passe</span></label>
     <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
       onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn btn-green btn-block" onclick="doLogin()" id="login-btn"> data-i18n="misc_sign_in"><span class="en">Sign In</span><span class="fr">Se connecter</span></button>
@@ -773,7 +773,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <button class="btn btn-ghost btn-sm" onclick="resetSetup()" style="font-size:0.78rem;" data-i18n="misc_change_server"><span class="en">Change server</span><span class="fr">Changer le serveur</span></button>
     </div>
     <div id="forgot-box" style="display:none;margin-top:14px;padding:12px;background:var(--wood-pale);border-radius:var(--radius-sm);">
-      <div style="font-size:0.8rem;margin-bottom:8px;color:var(--wood-mid);" data-i18n="misc_enter_email_reset">Enter your email to receive a reset link:</div>
+      <div style="font-size:0.8rem;margin-bottom:8px;color:var(--wood-mid);" data-i18n="misc_enter_email_reset"><span class="en">Enter your email to receive a reset link:</span><span class="fr">Entrez votre courriel pour recevoir un lien de réinitialisation:</span></div>
       <div style="display:flex;gap:8px;">
         <input type="email" id="reset-email" placeholder="votre@courriel.com" style="flex:1;">
         <button class="btn btn-amber btn-sm" onclick="sendReset()" data-i18n="misc_send"><span class="en">Send</span><span class="fr">Envoyer</span></button>
@@ -811,7 +811,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="nav-tab" onclick="showPage('roster')" id="tab-roster" style="display:none;"><span class="en">👤 Roster</span><span class="fr">👤 Équipe</span></div>
     <div class="nav-tab" onclick="showPage('map')" id="tab-map" style="display:none;"><span class="en">🗺️ Map</span><span class="fr">🗺️ Carte</span></div>
   </nav>
-  <div id="nav-hint" style="background:var(--wood-dark);text-align:center;padding:3px;font-size:0.62rem;color:rgba(255,255,255,0.35);letter-spacing:0.05em;display:none;" data-i18n="misc_swipe">← SWIPE FOR MORE TABS →</div>
+  <div id="nav-hint" style="background:var(--wood-dark);text-align:center;padding:3px;font-size:0.62rem;color:rgba(255,255,255,0.35);letter-spacing:0.05em;display:none;" data-i18n="misc_swipe"><span class="en">← SWIPE FOR MORE TABS →</span><span class="fr">← GLISSER POUR PLUS D'ONGLETS →</span></div>
 </header>
 <div id="toast" class="toast"></div>
 
@@ -819,8 +819,8 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <div id="page-quote" class="page active">
   <div class="card">
     <div class="card-title"><span class="en">Quote Calculator</span><span class="fr">Calculateur de soumission</span></div>
-    <div class="card-sub" data-i18n="sub_quote">Instant pricing with QC taxes. Save directly as a project.</div>
-    <label data-i18n="lbl_project_type">Project Type</label>
+    <div class="card-sub" data-i18n="sub_quote"><span class="en">Instant pricing with QC taxes. Save directly as a project.</span><span class="fr">Prix instantané avec taxes QC. Sauvegarder directement comme projet.</span></div>
+    <label data-i18n="lbl_project_type"><span class="en">Project Type</span><span class="fr">Type de projet</span></label>
     <select id="q-type">
       <option value=""><span class="en">— Select —</span><span class="fr">— Sélectionner —</span></option>
       <option value="Epoxy River Table"><span class="en"><span class="en">Epoxy River Table</span><span class="fr">Table rivière époxy</span></span><span class="fr">Table rivière époxy</span></option>
@@ -833,7 +833,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <option value="Custom Piece"><span class="en">Other Custom Piece</span><span class="fr">Autre pièce sur mesure</span></option>
     </select>
     <div class="row-2">
-      <div><label data-i18n="lbl_client_name">Client Name</label><input type="text" id="q-client" placeholder="ex. Marie L." data-i18n-ph="ph_client"></div>
+      <div><label data-i18n="lbl_client_name"><span class="en">Client Name</span><span class="fr">Nom du client</span></label><input type="text" id="q-client" placeholder="ex. Marie L." data-i18n-ph="ph_client"></div>
       <div><label>Wood Species</label>
         <select id="q-wood">
           <option value="1.0"><span class="en">Ambrosia Maple</span><span class="fr">Érable moucheté</span></option>
@@ -849,49 +849,49 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <div class="mat-section-title" id="mat-title-tables">📐 Table Size Chart — Select a standard size</div>
       <div class="size-chart" id="size-chart-btns"></div>
       <div id="custom-size-row" style="display:none;">
-        <div style="font-size:0.78rem;color:var(--wood-mid);margin-bottom:6px;" id="lbl-custom-dims">Custom dimensions:</div>
+        <div style="font-size:0.78rem;color:var(--wood-mid);margin-bottom:6px;" id="lbl-custom-dims"><span class="en">Custom dimensions:</span><span class="fr">Dimensions personnalisées:</span></div>
         <div class="custom-dims">
-          <div><label style="font-size:0.72rem;">Length (in)</label><input type="number" id="q-len" placeholder="72" min="12" max="240" oninput="calcTableFBM()"></div>
-          <div><label style="font-size:0.72rem;">Width (in)</label><input type="number" id="q-wid" placeholder="36" min="10" max="72" oninput="calcTableFBM()"></div>
-          <div><label style="font-size:0.72rem;">Thickness (in)</label><input type="number" id="q-thk" placeholder="1.75" min="0.5" max="6" step="0.25" oninput="calcTableFBM()"></div>
+          <div><label style="font-size:0.72rem;"><span class="en">Length (in)</span><span class="fr">Longueur (po)</span></label><input type="number" id="q-len" placeholder="72" min="12" max="240" oninput="calcTableFBM()"></div>
+          <div><label style="font-size:0.72rem;"><span class="en">Width (in)</span><span class="fr">Largeur (po)</span></label><input type="number" id="q-wid" placeholder="36" min="10" max="72" oninput="calcTableFBM()"></div>
+          <div><label style="font-size:0.72rem;"><span class="en">Thickness (in)</span><span class="fr">Épaisseur (po)</span></label><input type="number" id="q-thk" placeholder="1.75" min="0.5" max="6" step="0.25" oninput="calcTableFBM()"></div>
         </div>
       </div>
       <div class="fbm-total-box" id="table-fbm-result" style="display:none;">
         <div>
-          <div class="fbm-total-label" id="lbl-fbm-needed">Board feet needed (incl. 20% waste)</div>
+          <div class="fbm-total-label" id="lbl-fbm-needed"><span class="en">Board feet needed (incl. 20% waste)</span><span class="fr">PMP requis (incl. 20% déchet)</span></div>
           <div class="fbm-total-val"><span id="table-fbm-val">—</span> <span style="font-size:0.85rem;color:var(--wood-mid);">BF</span></div>
         </div>
         <div style="text-align:right;">
-          <div class="fbm-total-label" id="lbl-mat-cost">Est. material cost</div>
+          <div class="fbm-total-label" id="lbl-mat-cost"><span class="en">Est. material cost</span><span class="fr">Coût matériaux estimé</span></div>
           <div class="fbm-total-val" style="color:var(--wood-mid);">$<span id="table-mat-cost">—</span></div>
         </div>
       </div>
       <div class="fbm-rate-row" id="table-rate-row" style="display:none;">
-        <label style="font-size:0.78rem;color:var(--wood-mid);flex-shrink:0;" id="lbl-cost-per-bf">Cost per BF ($):</label>
+        <label style="font-size:0.78rem;color:var(--wood-mid);flex-shrink:0;" id="lbl-cost-per-bf"><span class="en">Cost per BF ($):</span><span class="fr">Coût par PMP ($):</span></label>
         <input type="number" id="q-bf-rate" value="8" min="1" max="50" step="0.5" style="width:80px;" oninput="calcTableFBM()">
-        <span style="font-size:0.72rem;color:var(--wood-mid);" id="lbl-bf-tip">Maple ~$6-8 · Walnut ~$12-18 · Pine ~$4-6</span>
+        <span style="font-size:0.72rem;color:var(--wood-mid);" id="lbl-bf-tip"><span class="en">Maple ~$6-8 · Walnut ~$12-18 · Pine ~$4-6</span><span class="fr">Érable ~6-8$ · Noyer ~12-18$ · Pin ~4-6$</span></span>
       </div>
     </div>
 
     <div id="mat-section-fbm" class="mat-section" style="display:none;">
       <div class="mat-section-title" id="mat-title-fbm">🪵 Wood Calculator — Board Feet / Prix au Pied de Planche</div>
-      <div style="font-size:0.75rem;color:var(--wood-mid);margin-bottom:10px;" id="lbl-fbm-formula">Formula: (Thickness × Width × Length) ÷ 144 = Board Feet</div>
+      <div style="font-size:0.75rem;color:var(--wood-mid);margin-bottom:10px;" id="lbl-fbm-formula"><span class="en">Formula: (Thickness × Width × Length) ÷ 144 = Board Feet</span><span class="fr">Formule: (Épaisseur × Largeur × Longueur) ÷ 144 = PMP</span></div>
       <div id="fbm-boards-list"></div>
       <button class="btn btn-ghost btn-sm" onclick="addFBMBoard()" id="btn-add-board" style="margin-bottom:10px;"><span class="en">+ Add Board</span><span class="fr">+ Ajouter planche</span></button>
       <div class="fbm-total-box">
         <div>
-          <div class="fbm-total-label" id="lbl-total-fbm">Total Board Feet</div>
+          <div class="fbm-total-label" id="lbl-total-fbm"><span class="en">Total Board Feet</span><span class="fr">Total Pieds de planche</span></div>
           <div class="fbm-total-val"><span id="fbm-total-val">0</span> BF</div>
         </div>
         <div style="text-align:right;">
-          <div class="fbm-total-label" id="lbl-mat-cost2">Material Cost</div>
+          <div class="fbm-total-label" id="lbl-mat-cost2"><span class="en">Material Cost</span><span class="fr">Coût des matériaux</span></div>
           <div class="fbm-total-val" style="color:var(--wood-mid);">$<span id="fbm-mat-cost">0</span></div>
         </div>
       </div>
       <div class="fbm-rate-row">
-        <label style="font-size:0.78rem;color:var(--wood-mid);flex-shrink:0;" id="lbl-cost-per-bf2">Cost per BF ($):</label>
+        <label style="font-size:0.78rem;color:var(--wood-mid);flex-shrink:0;" id="lbl-cost-per-bf2"><span class="en">Cost per BF ($):</span><span class="fr">Coût par PMP ($):</span></label>
         <input type="number" id="q-fbm-rate" value="8" min="1" max="50" step="0.5" style="width:80px;" oninput="calcFBMTotal()">
-        <label style="font-size:0.78rem;color:var(--wood-mid);margin-left:10px;flex-shrink:0;" id="lbl-waste-pct">Waste %:</label>
+        <label style="font-size:0.78rem;color:var(--wood-mid);margin-left:10px;flex-shrink:0;" id="lbl-waste-pct"><span class="en">Waste %:</span><span class="fr">Déchet %:</span></label>
         <input type="number" id="q-fbm-waste" value="20" min="5" max="40" step="5" style="width:60px;" oninput="calcFBMTotal()">
         <span style="font-size:0.72rem;color:var(--wood-mid);" id="lbl-waste-tip">(incl. saw kerf & defects)</span>
       </div>
@@ -900,7 +900,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div id="mat-section-manual" class="mat-section" style="display:none;">
       <div class="mat-section-title" id="mat-title-manual">💰 Materials</div>
       <div class="row-2">
-        <div><label data-i18n="lbl_materials" style="font-size:0.78rem;">Materials ($)</label><input type="number" id="q-mat-manual" placeholder="280" min="0" oninput="document.getElementById('q-mat').value=this.value"></div>
+        <div><label data-i18n="lbl_materials" style="font-size:0.78rem;"><span class="en">Materials ($)</span><span class="fr">Matériaux ($)</span></label><input type="number" id="q-mat-manual" placeholder="280" min="0" oninput="document.getElementById('q-mat').value=this.value"></div>
       </div>
     </div>
 
@@ -908,13 +908,13 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <input type="hidden" id="q-mat" value="0">
 
     <div class="row-2">
-      <div><label data-i18n="lbl_epoxy_hw">Epoxy / Hardware ($)</label><input type="number" id="q-extra" placeholder="0" value="0" min="0"></div>
-      <div><label data-i18n="lbl_delivery_cost">Delivery ($)</label><input type="number" id="q-del" placeholder="0" value="0" min="0"></div>
+      <div><label data-i18n="lbl_epoxy_hw"><span class="en">Epoxy / Hardware ($)</span><span class="fr">Époxy / Quincaillerie ($)</span></label><input type="number" id="q-extra" placeholder="0" value="0" min="0"></div>
+      <div><label data-i18n="lbl_delivery_cost"><span class="en">Delivery ($)</span><span class="fr">Livraison ($)</span></label><input type="number" id="q-del" placeholder="0" value="0" min="0"></div>
     </div>
     <div class="row-3">
-      <div><label data-i18n="lbl_hours">Hours Est.</label><input type="number" id="q-hrs" placeholder="12" min="0"></div>
-      <div><label data-i18n="lbl_rate">Rate ($/h)</label><input type="number" id="q-rate" placeholder="40" value="40" min="0"></div>
-      <div><label data-i18n="lbl_complexity">Complexity</label>
+      <div><label data-i18n="lbl_hours"><span class="en">Hours Est.</span><span class="fr">Heures est.</span></label><input type="number" id="q-hrs" placeholder="12" min="0"></div>
+      <div><label data-i18n="lbl_rate"><span class="en">Rate ($/h)</span><span class="fr">Taux ($/h)</span></label><input type="number" id="q-rate" placeholder="40" value="40" min="0"></div>
+      <div><label data-i18n="lbl_complexity"><span class="en">Complexity</span><span class="fr">Complexité</span></label>
         <select id="q-comp">
           <option value="1.0"><span class="en">Standard</span><span class="fr">Standard</span></option>
           <option value="1.1"><span class="en">Moderate +10%</span><span class="fr">Modéré +10%</span></option>
@@ -924,10 +924,10 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       </div>
     </div>
     <div class="row-2">
-      <div><label data-i18n="lbl_overhead">Overhead %</label>
+      <div><label data-i18n="lbl_overhead"><span class="en">Overhead %</span><span class="fr">Frais généraux %</span></label>
         <select id="q-oh"><option value="0.12">12%</option><option value="0.15" selected>15%</option><option value="0.18">18%</option><option value="0.20">20%</option></select>
       </div>
-      <div><label data-i18n="lbl_margin">Margin %</label>
+      <div><label data-i18n="lbl_margin"><span class="en">Margin %</span><span class="fr">Marge %</span></label>
         <select id="q-mg"><option value="0.20">20%</option><option value="0.25" selected>25%</option><option value="0.30">30%</option><option value="0.35">35%</option></select>
       </div>
     </div>
@@ -971,23 +971,23 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <div id="page-intake" class="page">
   <div class="section-header"><div class="section-title"><span class="en">New Client Intake</span><span class="fr">Nouveau dossier client</span></div></div>
   <div class="card">
-    <div class="intake-section-title" data-i18n="sec_intake_a">A — Contact</div>
+    <div class="intake-section-title" data-i18n="sec_intake_a"><span class="en">A — Contact</span><span class="fr">A — Contact</span></div>
     <div class="row-2">
-      <div><label data-i18n="lbl_first_name">First Name</label><input type="text" id="i-fn" placeholder="Prénom / First name" data-i18n-ph="ph_first"></div>
-      <div><label data-i18n="lbl_last_name">Last Name</label><input type="text" id="i-ln" placeholder="Nom / Last name" data-i18n-ph="ph_last"></div>
+      <div><label data-i18n="lbl_first_name"><span class="en">First Name</span><span class="fr">Prénom</span></label><input type="text" id="i-fn" placeholder="Prénom / First name" data-i18n-ph="ph_first"></div>
+      <div><label data-i18n="lbl_last_name"><span class="en">Last Name</span><span class="fr">Nom de famille</span></label><input type="text" id="i-ln" placeholder="Nom / Last name" data-i18n-ph="ph_last"></div>
     </div>
     <div class="row-2">
-      <div><label data-i18n="lbl_email">Email</label><input type="email" id="i-em" placeholder="jean@courriel.com" data-i18n-ph="ph_email"></div>
-      <div><label data-i18n="lbl_phone">Phone</label><input type="tel" id="i-ph" placeholder="(819) 555-0000"></div>
+      <div><label data-i18n="lbl_email"><span class="en">Email</span><span class="fr">Courriel</span></label><input type="email" id="i-em" placeholder="jean@courriel.com" data-i18n-ph="ph_email"></div>
+      <div><label data-i18n="lbl_phone"><span class="en">Phone</span><span class="fr">Téléphone</span></label><input type="tel" id="i-ph" placeholder="(819) 555-0000"></div>
     </div>
     <div class="row-2">
-      <div><label data-i18n="lbl_city">City</label><input type="text" id="i-ci" placeholder="Gatineau" data-i18n-ph="ph_city"></div>
-      <div><label data-i18n="lbl_found_via">Found us via</label>
+      <div><label data-i18n="lbl_city"><span class="en">City</span><span class="fr">Ville</span></label><input type="text" id="i-ci" placeholder="Gatineau" data-i18n-ph="ph_city"></div>
+      <div><label data-i18n="lbl_found_via"><span class="en">Found us via</span><span class="fr">Découvert via</span></label>
         <select id="i-src"><option><span class="en">Instagram</span><span class="fr">Instagram</span></option><option><span class="en">Facebook</span><span class="fr">Facebook</span></option><option><span class="en">Google</span><span class="fr">Google</span></option><option><span class="en">Word of mouth</span><span class="fr">Bouche à oreille</span></option><option><span class="en">Etsy</span><span class="fr">Etsy</span></option><option><span class="en">Houzz</span><span class="fr">Houzz</span></option><option><span class="en">Other</span><span class="fr">Autre</span></option></select>
       </div>
     </div>
-    <div class="intake-section-title" data-i18n="sec_intake_b">B — Project</div>
-    <label data-i18n="lbl_piece_types">Piece Type(s)</label>
+    <div class="intake-section-title" data-i18n="sec_intake_b"><span class="en">B — Project</span><span class="fr">B — Projet</span></div>
+    <label data-i18n="lbl_piece_types"><span class="en">Piece Type(s)</span><span class="fr">Type(s) de pièce</span></label>
     <div class="checkboxes" id="i-pieces">
       <label class="checkbox-item"><input type="checkbox" value="Dining table" data-i18n-val="cb_dining"> Dining table</label>
       <label class="checkbox-item"><input type="checkbox" value="Coffee table" data-i18n-val="cb_coffee"> Coffee table</label>
@@ -999,12 +999,12 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <label class="checkbox-item"><input type="checkbox" value="Other" data-i18n-val="cb_other"> Other</label>
     </div>
     <div class="row-2">
-      <div><label data-i18n="lbl_dimensions">Dimensions</label><input type="text" id="i-dim" placeholder='72" x 36"'></div>
+      <div><label data-i18n="lbl_dimensions"><span class="en">Dimensions</span><span class="fr">Dimensions</span></label><input type="text" id="i-dim" placeholder='72" x 36"'></div>
       <div><label>Wood Species</label>
         <select id="i-wd"><option><span class="en">Ambrosia Maple</span><span class="fr">Érable moucheté</span></option><option><span class="en">Black Walnut</span><span class="fr">Noyer noir</span></option><option><span class="en">White Pine</span><span class="fr">Pin blanc</span></option><option><span class="en">Barn Wood</span><span class="fr">Bois de grange</span></option><option><span class="en">No preference</span><span class="fr">Aucune préférence</span></option><option><span class="en">Other</span><span class="fr">Autre</span></option></select>
       </div>
     </div>
-    <label data-i18n="lbl_style_finish">Style / Finish</label>
+    <label data-i18n="lbl_style_finish"><span class="en">Style / Finish</span><span class="fr">Style / Finition</span></label>
     <div class="checkboxes" id="i-styles">
       <label class="checkbox-item"><input type="checkbox" value="Rustic" data-i18n-val="cb_rustic"> Rustic</label>
       <label class="checkbox-item"><input type="checkbox" value="Modern" data-i18n-val="cb_modern"> Modern</label>
@@ -1012,22 +1012,22 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <label class="checkbox-item"><input type="checkbox" value="Epoxy" data-i18n-val="cb_epoxy"> Epoxy</label>
       <label class="checkbox-item"><input type="checkbox" value="Raw solid wood" data-i18n-val="cb_raw"> Raw solid wood</label>
     </div>
-    <label data-i18n="lbl_vision">Vision Description</label>
+    <label data-i18n="lbl_vision"><span class="en">Vision Description</span><span class="fr">Description de la vision</span></label>
     <textarea id="i-vis" placeholder="Ce que le client imagine..." data-i18n-ph="ph_vision"></textarea>
     <div class="intake-section-title">C — Budget & Timeline</div>
     <div class="row-2">
-      <div><label data-i18n="lbl_budget_range">Budget Range</label>
+      <div><label data-i18n="lbl_budget_range"><span class="en">Budget Range</span><span class="fr">Budget prévu</span></label>
         <select id="i-bud"><option><span class="en">Under $500</span><span class="fr">Moins de 500$</span></option><option>$500–$1,000</option><option>$1,000–$2,500</option><option>$2,500–$5,000</option><option>$5,000+</option><option><span class="en">Prefer to discuss</span><span class="fr">Préfère en discuter</span></option></select>
       </div>
-      <div><label data-i18n="lbl_timeline">Timeline</label>
+      <div><label data-i18n="lbl_timeline"><span class="en">Timeline</span><span class="fr">Délai souhaité</span></label>
         <select id="i-tl"><option><span class="en">ASAP</span><span class="fr">Dès que possible</span></option><option><span class="en">Within 1 month</span><span class="fr">Dans 1 mois</span></option><option><span class="en">Within 2–3 months</span><span class="fr">Dans 2–3 mois</span></option><option><span class="en">Within 6 months</span><span class="fr">Dans 6 mois</span></option><option><span class="en">Not urgent</span><span class="fr">Pas urgent</span></option></select>
       </div>
     </div>
     <div class="row-2">
-      <div><label data-i18n="lbl_deadline">Important Deadline</label><input type="text" id="i-dl" placeholder="ex. Noël" data-i18n-ph="ph_deadline"></div>
-      <div><label data-i18n="lbl_quoted_amount">Quoted Amount ($)</label><input type="number" id="i-amt" placeholder="0" min="0"></div>
+      <div><label data-i18n="lbl_deadline"><span class="en">Important Deadline</span><span class="fr">Échéance importante</span></label><input type="text" id="i-dl" placeholder="ex. Noël" data-i18n-ph="ph_deadline"></div>
+      <div><label data-i18n="lbl_quoted_amount"><span class="en">Quoted Amount ($)</span><span class="fr">Montant soumis ($)</span></label><input type="number" id="i-amt" placeholder="0" min="0"></div>
     </div>
-    <label data-i18n="lbl_notes">Notes</label>
+    <label data-i18n="lbl_notes"><span class="en">Notes</span><span class="fr">Notes</span></label>
     <textarea id="i-nt" placeholder="Demandes spéciales, notes..." data-i18n-ph="ph_special"></textarea>
     <button class="btn btn-green btn-block" onclick="saveIntake()" data-i18n="misc_save_create">✅ Save & Create Project</button>
   </div>
@@ -1042,8 +1042,8 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="ws-items">—</div><div class="stat-label">Items</div></div>
-    <div class="stat-card"><div class="stat-num" id="ws-value">—</div><div class="stat-label" data-i18n="misc_stock_value">Stock Value</div></div>
-    <div class="stat-card"><div class="stat-num" id="ws-low">—</div><div class="stat-label" data-i18n="misc_low_stock">Low Stock</div></div>
+    <div class="stat-card"><div class="stat-num" id="ws-value">—</div><div class="stat-label" data-i18n="misc_stock_value"><span class="en">Stock Value</span><span class="fr">Valeur du stock</span></div></div>
+    <div class="stat-card"><div class="stat-num" id="ws-low">—</div><div class="stat-label" data-i18n="misc_low_stock"><span class="en">Low Stock</span><span class="fr">Stock bas</span></div></div>
   </div>
 
   <div class="card" id="wood-list-card">
@@ -1058,7 +1058,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="card-title"><span class="en">Bilingual Caption — Claude AI</span><span class="fr">Légende bilingue — Claude AI</span></div>
     <div class="card-sub" data-i18n="sub_post">Generates a ready-to-post EN + FR caption with hashtags in seconds.</div>
     <div class="row-2">
-      <div><label data-i18n="lbl_subject">Subject</label>
+      <div><label data-i18n="lbl_subject"><span class="en">Subject</span><span class="fr">Sujet</span></label>
         <select id="p-prod">
           <option value="epoxy river table with teal resin"><span class="en"><span class="en">Epoxy River Table</span><span class="fr">Table rivière époxy</span></span><span class="fr">Table rivière époxy</span></option>
           <option value="ambrosia maple dining table"><span class="en">Ambrosia Maple Table</span><span class="fr">Table en érable moucheté</span></option>
@@ -1071,7 +1071,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
           <option value="custom staircase collaboration"><span class="en">Custom Staircase</span><span class="fr">Escalier sur mesure</span></option>
         </select>
       </div>
-      <div><label data-i18n="lbl_tone">Tone</label>
+      <div><label data-i18n="lbl_tone"><span class="en">Tone</span><span class="fr">Ton</span></label>
         <select id="p-tone">
           <option value="storytelling and emotional, poetic"><span class="en">Storytelling — emotional</span><span class="fr">Storytelling — émotionnel</span></option>
           <option value="product showcase, feature-focused"><span class="en">Product showcase</span><span class="fr">Présentation de produit</span></option>
@@ -1083,9 +1083,9 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
         </select>
       </div>
     </div>
-    <label data-i18n="lbl_extra_detail">Extra detail (optional)</label>
+    <label data-i18n="lbl_extra_detail"><span class="en">Extra detail (optional)</span><span class="fr">Détail supplémentaire (facultatif)</span></label>
     <input type="text" id="p-detail" placeholder="ex. rivière sarcelle, fête des pères, tablette flottante...">
-    <label data-i18n="lbl_platform">Platform</label>
+    <label data-i18n="lbl_platform"><span class="en">Platform</span><span class="fr">Plateforme</span></label>
     <div style="display:flex;gap:12px;margin-top:6px;">
       <label class="checkbox-item"><input type="radio" name="plat" value="Instagram" checked data-i18n-val="rb_instagram"> Instagram</label>
       <label class="checkbox-item"><input type="radio" name="plat" value="Facebook" data-i18n-val="rb_facebook"> Facebook</label>
@@ -1130,8 +1130,8 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="cs-total">—</div><div class="stat-label" id="cs-label-total"><span class="en">Clients</span><span class="fr">Clients</span></div></div>
-    <div class="stat-card"><div class="stat-num" id="cs-revenue">—</div><div class="stat-label" id="cs-label-revenue" data-i18n="misc_total_revenue">Total Revenue</div></div>
-    <div class="stat-card"><div class="stat-num" id="cs-repeat">—</div><div class="stat-label" id="cs-label-repeat" data-i18n="misc_repeat_clients">Repeat Clients</div></div>
+    <div class="stat-card"><div class="stat-num" id="cs-revenue">—</div><div class="stat-label" id="cs-label-revenue" data-i18n="misc_total_revenue"><span class="en">Total Revenue</span><span class="fr">Revenu total</span></div></div>
+    <div class="stat-card"><div class="stat-num" id="cs-repeat">—</div><div class="stat-label" id="cs-label-repeat" data-i18n="misc_repeat_clients"><span class="en">Repeat Clients</span><span class="fr">Clients fidèles</span></div></div>
   </div>
   <div id="client-list" style="display:flex;flex-direction:column;gap:10px;">
     <div class="empty-state"><div class="icon">👥</div><p>No clients yet.<br>Clients are added automatically from intake forms, or add manually.</p></div>
@@ -1145,18 +1145,18 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
   <div class="card">
     <div class="card-title"><span class="en">Clock In / Out</span><span class="fr">Pointage entrée / sortie</span></div>
-    <div class="card-sub" id="time-user-label" data-i18n="sub_time_user">Logged in as: —</div>
+    <div class="card-sub" id="time-user-label" data-i18n="sub_time_user"><span class="en">Logged in as: —</span><span class="fr">Connecté: —</span></div>
     <div class="clock-display" id="clock-display">00:00:00</div>
     <div id="clock-gps" style="text-align:center;font-size:0.75rem;color:var(--wood-mid);margin-bottom:12px;min-height:18px;"></div>
-    <label data-i18n="lbl_loc_type">Location Type</label>
+    <label data-i18n="lbl_loc_type"><span class="en">Location Type</span><span class="fr">Type de lieu</span></label>
     <div style="display:flex;gap:8px;margin-top:6px;margin-bottom:14px;">
       <button class="loc-btn active shop" id="loc-shop" onclick="setLocType('shop')"><span class="en">🏭 Shop</span><span class="fr">🏭 Atelier</span></button>
       <button class="loc-btn" id="loc-travel" onclick="setLocType('travel')"><span class="en">🚗 Travel</span><span class="fr">🚗 Déplacement</span></button>
       <button class="loc-btn" id="loc-onsite" onclick="setLocType('onsite')"><span class="en">🏗️ On-site</span><span class="fr">🏗️ Chantier</span></button>
     </div>
-    <label data-i18n="lbl_link_project">Link to Project (optional)</label>
+    <label data-i18n="lbl_link_project"><span class="en">Link to Project (optional)</span><span class="fr">Lier à un projet (facultatif)</span></label>
     <select id="time-project-sel"><option value=""><span class="en">— No project —</span><span class="fr">— Aucun projet —</span></option></select>
-    <label data-i18n="lbl_notes">Notes</label>
+    <label data-i18n="lbl_notes"><span class="en">Notes</span><span class="fr">Notes</span></label>
     <input type="text" id="time-notes" placeholder="ex. coulée époxy, rencontre client, livraison..." data-i18n-ph="ph_time_notes">
     <div style="display:flex;gap:10px;margin-top:14px;">
       <button class="btn btn-green btn-block" id="clock-btn" onclick="toggleClock()" data-i18n="misc_clock_in_btn"><span class="en">▶ Clock In</span><span class="fr">▶ Pointer entrée</span></button>
@@ -1192,20 +1192,20 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <select id="rev-year" onchange="renderRevenue()" style="width:auto;font-size:0.82rem;padding:7px 10px;"></select>
   </div>
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-num" id="rv-ytd">—</div><div class="stat-label" data-i18n="misc_ytd">YTD Revenue</div></div>
-    <div class="stat-card"><div class="stat-num" id="rv-collected">—</div><div class="stat-label" data-i18n="misc_collected">Collected</div></div>
-    <div class="stat-card"><div class="stat-num" id="rv-outstanding">—</div><div class="stat-label" data-i18n="misc_outstanding">Outstanding</div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-ytd">—</div><div class="stat-label" data-i18n="misc_ytd"><span class="en">YTD Revenue</span><span class="fr">Revenu annuel</span></div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-collected">—</div><div class="stat-label" data-i18n="misc_collected"><span class="en">Collected</span><span class="fr">Perçu</span></div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-outstanding">—</div><div class="stat-label" data-i18n="misc_outstanding"><span class="en">Outstanding</span><span class="fr">Impayé</span></div></div>
     <div class="stat-card"><div class="stat-num" id="rv-projects">—</div><div class="stat-label">Delivered</div></div>
   </div>
   <div class="card">
     <div class="card-title"><span class="en">Monthly Revenue</span><span class="fr">Revenus mensuels</span></div>
-    <div class="card-sub" data-i18n="sub_rev">Green = collected · Tan = outstanding balance</div>
+    <div class="card-sub" data-i18n="sub_rev"><span class="en">Green = collected · Tan = outstanding balance</span><span class="fr">Vert = perçu · Beige = solde impayé</span></div>
     <div class="chart-wrap">
       <div class="bar-chart" id="rev-chart"></div>
     </div>
     <div class="chart-legend">
-      <div class="legend-item"><div class="legend-dot" style="background:var(--green);"></div>Collected</div>
-      <div class="legend-item"><div class="legend-dot" style="background:var(--wood-light);"></div>Outstanding</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green);"></div><span class="en">Collected</span><span class="fr">Perçu</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--wood-light);"></div><span class="en">Outstanding</span><span class="fr">Impayé</span></div>
     </div>
   </div>
   <div class="card">
@@ -1263,7 +1263,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <div class="voice-record-wrap" id="voice-record-wrap" style="display:none;">
         <button class="voice-record-btn" id="voice-record-btn" onclick="toggleVoiceRecord()">🎤</button>
         <div class="voice-timer" id="voice-timer">0:00</div>
-        <div style="flex:1;font-size:0.78rem;color:var(--wood-mid);" id="voice-record-hint" data-i18n="voice_hold">Hold to record, release to send</div>
+        <div style="flex:1;font-size:0.78rem;color:var(--wood-mid);" id="voice-record-hint" data-i18n="voice_hold"><span class="en">Hold to record, release to send</span><span class="fr">Appuyer pour enregistrer, relâcher pour envoyer</span></div>
         <button class="btn btn-ghost btn-sm" onclick="cancelVoiceRecord()" style="padding:4px 10px;">✕</button>
       </div>
       <div class="chat-input-wrap">
@@ -1293,7 +1293,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     </div>
     <div class="card">
       <div class="card-title" id="lbl-team-locations" data-i18n="team_locations"><span class="en">Team Locations</span><span class="fr">Positions de l'équipe</span></div>
-      <div id="team-location-list"><div class="empty-state"><p id="gps-loading-text" data-i18n="team_gps_loading">Loading team positions...</p></div></div>
+      <div id="team-location-list"><div class="empty-state"><p id="gps-loading-text" data-i18n="team_gps_loading"><span class="en">Loading team positions...</span><span class="fr">Chargement des positions...</span></p></div></div>
     </div>
     <div class="card">
       <div class="card-title" id="lbl-gps-history" data-i18n="team_gps_history"><span class="en">GPS History — Today</span><span class="fr">Historique GPS — Aujourd'hui</span></div>
@@ -1320,7 +1320,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       </div>
     </div>
     <div class="call-grid" id="call-grid">
-      <div class="empty-state"><p id="calls-loading-text" data-i18n="team_calls_loading">Loading team members...</p></div>
+      <div class="empty-state"><p id="calls-loading-text" data-i18n="team_calls_loading"><span class="en">Loading team members...</span><span class="fr">Chargement des membres...</span></p></div>
     </div>
   </div>
 </div>
@@ -1491,20 +1491,20 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <button class="modal-close" onclick="closeModal('wood-modal')">×</button>
     <div class="modal-title" id="wm-title"><span id="label-wood-modal">Add / Edit Material</span></div>
     <input type="hidden" id="wm-id">
-    <label data-i18n="lbl_species_name">Species / Material Name</label>
+    <label data-i18n="lbl_species_name"><span class="en">Species / Material Name</span><span class="fr">Espèce / Nom du matériau</span></label>
     <input type="text" id="wm-species" placeholder="ex. Planche d'érable moucheté, Époxy bleu, Quincaillerie" data-i18n-ph="ph_species">
     <div class="row-2">
-      <div><label data-i18n="lbl_grade">Grade / Description</label><input type="text" id="wm-grade" placeholder="ex. 4/4, planche 8pi, 1L" data-i18n-ph="ph_grade"></div>
-      <div><label data-i18n="lbl_supplier">Supplier</label><input type="text" id="wm-supplier" placeholder="ex. Boisverco, Home Depot" data-i18n-ph="ph_supplier"></div>
+      <div><label data-i18n="lbl_grade"><span class="en">Grade / Description</span><span class="fr">Grade / Description</span></label><input type="text" id="wm-grade" placeholder="ex. 4/4, planche 8pi, 1L" data-i18n-ph="ph_grade"></div>
+      <div><label data-i18n="lbl_supplier"><span class="en">Supplier</span><span class="fr">Fournisseur</span></label><input type="text" id="wm-supplier" placeholder="ex. Boisverco, Home Depot" data-i18n-ph="ph_supplier"></div>
     </div>
     <div class="row-3">
-      <div><label data-i18n="lbl_quantity">Quantity</label><input type="number" id="wm-qty" placeholder="5" min="0" step="0.1"></div>
-      <div><label data-i18n="lbl_unit">Unit</label>
+      <div><label data-i18n="lbl_quantity"><span class="en">Quantity</span><span class="fr">Quantité</span></label><input type="number" id="wm-qty" placeholder="5" min="0" step="0.1"></div>
+      <div><label data-i18n="lbl_unit"><span class="en">Unit</span><span class="fr">Unité</span></label>
         <select id="wm-unit"><option><span class="en">slabs</span><span class="fr">panneaux</span></option><option><span class="en">board feet</span><span class="fr">pieds-planche</span></option><option><span class="en">sheets</span><span class="fr">feuilles</span></option><option><span class="en">litres</span><span class="fr">litres</span></option><option>kg</option><option><span class="en">units</span><span class="fr">unités</span></option><option><span class="en">sets</span><span class="fr">ensembles</span></option></select>
       </div>
-      <div><label data-i18n="lbl_cost_unit">Cost per Unit ($)</label><input type="number" id="wm-cost" placeholder="85" min="0" step="0.01"></div>
+      <div><label data-i18n="lbl_cost_unit"><span class="en">Cost per Unit ($)</span><span class="fr">Coût par unité ($)</span></label><input type="number" id="wm-cost" placeholder="85" min="0" step="0.01"></div>
     </div>
-    <label data-i18n="lbl_notes">Notes</label>
+    <label data-i18n="lbl_notes"><span class="en">Notes</span><span class="fr">Notes</span></label>
     <textarea id="wm-notes" placeholder="Dimensions, couleur, projet réservé pour..." data-i18n-ph="ph_wood_notes"></textarea>
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
       <button class="btn btn-green" onclick="saveWood()" data-i18n="btn_save_material"><span class="en">✅ Save Material</span><span class="fr">✅ Sauvegarder</span></button>
@@ -1513,4 +1513,4 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
 </div>
 
-<script src="app.js?v=11" defer></script>
+<script src="app.js?v=12" defer></script>
