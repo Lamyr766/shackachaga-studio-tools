@@ -4143,3 +4143,232 @@ async function confirmDeactivate() {
   }
 }
 
+
+// ══════════════════════════════════════════════════════════════════
+// GPS MAP — Leaflet/OpenStreetMap
+// Admin only. Shows team positions, time summary, GPS history.
+// ══════════════════════════════════════════════════════════════════
+
+var _leafletMap    = null;
+var _leafletLoaded = false;
+var _mapMarkers    = {};
+var SHOP_LAT       = 45.4765;
+var SHOP_LNG       = -75.7013;
+var SHOP_RADIUS_M  = 300;
+
+var USER_COLORS = ['#E65100','#1565C0','#2E7D32','#6A1B9A','#AD1457','#00695C','#4527A0','#558B2F'];
+
+function getUserColor(email) {
+  var idx = 0;
+  for (var i = 0; i < (email||'').length; i++) idx = (idx + email.charCodeAt(i)) % USER_COLORS.length;
+  return USER_COLORS[idx];
+}
+
+function initMap() {
+  if (!isAdmin(currentUserEmail)) return;
+  if (_leafletLoaded && _leafletMap) {
+    _leafletMap.invalidateSize();
+    updateMap();
+    return;
+  }
+  if (_leafletLoaded) {
+    createLeafletMap();
+    return;
+  }
+  // Load Leaflet CSS
+  if (!document.getElementById('leaflet-css')) {
+    var link = document.createElement('link');
+    link.id  = 'leaflet-css';
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(link);
+  }
+  // Load Leaflet JS
+  var script = document.createElement('script');
+  script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  script.onload = function() {
+    _leafletLoaded = true;
+    createLeafletMap();
+  };
+  script.onerror = function() {
+    var el = document.getElementById('leaflet-map');
+    if (el) el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--wood-mid);">⚠️ ' + (currentLang==='fr'?'Carte non disponible hors ligne':'Map unavailable offline') + '</div>';
+  };
+  document.head.appendChild(script);
+}
+
+function createLeafletMap() {
+  var container = document.getElementById('leaflet-map');
+  if (!container || _leafletMap) return;
+  _leafletMap = L.map('leaflet-map', {zoomControl: true, attributionControl: false}).setView([SHOP_LAT, SHOP_LNG], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(_leafletMap);
+  // Shop pin
+  var shopIcon = L.divIcon({
+    className: '',
+    html: '<div style="background:#E65100;border:3px solid white;border-radius:50%;width:18px;height:18px;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>',
+    iconSize: [18,18], iconAnchor: [9,9]
+  });
+  L.marker([SHOP_LAT, SHOP_LNG], {icon: shopIcon})
+    .addTo(_leafletMap)
+    .bindPopup('<strong>🏭 ' + (currentLang==='fr'?'Atelier':'Shop') + '</strong><br>Le Shackachaga');
+  updateMap();
+}
+
+async function updateMap() {
+  if (!_leafletMap || !sb) return;
+  try {
+    var res = await sb.from('user_locations').select('*').neq('status','offline');
+    var members = res.data || [];
+    // Remove old markers
+    Object.values(_mapMarkers).forEach(function(m) { _leafletMap.removeLayer(m); });
+    _mapMarkers = {};
+    var bounds = [[SHOP_LAT, SHOP_LNG]];
+    members.forEach(function(m) {
+      if (!m.lat || !m.lng) return;
+      var name  = (m.display_name || m.user_email || '?').split('@')[0];
+      var color = getUserColor(m.user_email);
+      var icon  = L.divIcon({
+        className: '',
+        html: '<div style="background:'+color+';border:3px solid white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.35);">'+name.charAt(0).toUpperCase()+'</div>',
+        iconSize: [22,22], iconAnchor: [11,11]
+      });
+      var updated = m.updated_at ? new Date(m.updated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+      var locLbl  = m.location_type === 'shop' ? '🏭 '+(currentLang==='fr'?'Atelier':'Shop') :
+                    m.location_type === 'travel' ? '🚗 '+(currentLang==='fr'?'Déplacement':'Travel') :
+                    '🏗️ '+(currentLang==='fr'?'Chantier':'On-site');
+      var marker = L.marker([m.lat, m.lng], {icon: icon})
+        .addTo(_leafletMap)
+        .bindPopup('<strong>'+escapeHtml(name)+'</strong><br>'+locLbl+'<br>'+updated);
+      _mapMarkers[m.user_email] = marker;
+      bounds.push([m.lat, m.lng]);
+    });
+    if (bounds.length > 1) _leafletMap.fitBounds(bounds, {padding: [30,30], maxZoom: 15});
+    // Update team list
+    renderMapTeamList(members);
+    // Update timestamp
+    var upd = document.getElementById('map-last-update');
+    if (upd) upd.textContent = (currentLang==='fr'?'Mis à jour: ':'Updated: ') + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  } catch(e) { console.error('updateMap:', e); }
+}
+
+function renderMapTeamList(members) {
+  var el = document.getElementById('map-team-list');
+  if (!el) return;
+  if (!members || !members.length) {
+    el.innerHTML = '<div class="empty-state"><p>'+(currentLang==='fr'?'Aucun membre en ligne':'No members online')+'</p></div>';
+    return;
+  }
+  el.innerHTML = members.map(function(m) {
+    var name  = (m.display_name || m.user_email || '?').split('@')[0];
+    var color = getUserColor(m.user_email);
+    var locLbl = m.location_type === 'shop'   ? '🏭 '+(currentLang==='fr'?'Atelier':'Shop') :
+                 m.location_type === 'travel' ? '🚗 '+(currentLang==='fr'?'Déplacement':'Travel') :
+                 m.location_type === 'onsite' ? '🏗️ '+(currentLang==='fr'?'Chantier':'On-site') :
+                 '⬛ '+(currentLang==='fr'?'Hors ligne':'Offline');
+    var updated = m.updated_at ? new Date(m.updated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+    return '<div class="map-user-row">' +
+      '<div style="width:36px;height:36px;border-radius:50%;background:'+color+';color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;">'+escapeHtml(name.charAt(0).toUpperCase())+'</div>'+
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-weight:700;font-size:0.85rem;">'+escapeHtml(name)+'</div>'+
+        '<div style="font-size:0.72rem;color:var(--wood-mid);">'+locLbl+'</div>'+
+      '</div>'+
+      '<div style="font-size:0.7rem;color:var(--wood-mid);">'+updated+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+async function loadMapTimeSummary() {
+  if (!sb) return;
+  var el = document.getElementById('map-time-summary');
+  if (!el) return;
+  try {
+    var today = new Date().toISOString().split('T')[0];
+    var res   = await sb.from('time_logs').select('*').gte('clock_in', today+'T00:00:00Z');
+    var logs  = res.data || [];
+    if (!logs.length) {
+      el.innerHTML = '<div style="color:var(--wood-mid);font-size:0.82rem;padding:8px 0;">'+(currentLang==='fr'?'Aucun pointage aujourd\'hui':'No clock-ins today')+'</div>';
+      return;
+    }
+    // Group by user
+    var byUser = {};
+    logs.forEach(function(l) {
+      var u = l.user_email || 'unknown';
+      if (!byUser[u]) byUser[u] = {shop:0,travel:0,onsite:0};
+      if (l.clock_out) {
+        var mins = Math.round((new Date(l.clock_out) - new Date(l.clock_in)) / 60000);
+        if (!isNaN(mins) && mins > 0) byUser[u][l.location_type||'shop'] += mins;
+      }
+    });
+    var fmt = function(m) { return m >= 60 ? (m/60).toFixed(1)+'h' : m+'min'; };
+    el.innerHTML = Object.keys(byUser).map(function(email) {
+      var u    = byUser[email];
+      var name = email.split('@')[0];
+      var total = u.shop + u.travel + u.onsite;
+      return '<div style="padding:8px 0;border-bottom:1px solid var(--wood-pale);last-child:border-none;">' +
+        '<div style="font-weight:700;font-size:0.82rem;margin-bottom:4px;">👤 '+escapeHtml(name)+'</div>'+
+        '<div style="display:flex;gap:12px;font-size:0.72rem;">' +
+          '<span>🏭 '+fmt(u.shop)+'</span>' +
+          '<span>🚗 '+fmt(u.travel)+'</span>' +
+          '<span>🏗️ '+fmt(u.onsite)+'</span>' +
+          '<span style="font-weight:700;">= '+fmt(total)+'</span>' +
+        '</div>'+
+      '</div>';
+    }).join('');
+  } catch(e) { el.innerHTML = '<p style="color:var(--wood-mid);">—</p>'; }
+}
+
+async function loadMapHistory() {
+  if (!sb) return;
+  var el     = document.getElementById('map-history-list');
+  var filter = document.getElementById('map-user-filter')?.value || 'all';
+  if (!el) return;
+  try {
+    var today = new Date().toISOString().split('T')[0];
+    var query = sb.from('user_locations').select('*')
+      .gte('updated_at', today+'T00:00:00Z')
+      .order('updated_at', {ascending:false})
+      .limit(100);
+    if (filter !== 'all') query = query.eq('user_email', filter);
+    var res  = await query;
+    var rows = res.data || [];
+    // Populate filter dropdown
+    var sel = document.getElementById('map-user-filter');
+    if (sel && sel.options.length <= 1) {
+      var seen = new Set();
+      rows.forEach(function(r) {
+        if (r.user_email && !seen.has(r.user_email)) {
+          seen.add(r.user_email);
+          var opt = document.createElement('option');
+          opt.value = r.user_email;
+          opt.textContent = r.user_email.split('@')[0];
+          sel.appendChild(opt);
+        }
+      });
+    }
+    if (!rows.length) {
+      el.innerHTML = '<div class="empty-state"><p>'+(currentLang==='fr'?'Aucun historique GPS aujourd\'hui':'No GPS history today')+'</p></div>';
+      return;
+    }
+    el.innerHTML = rows.map(function(r) {
+      var name    = (r.user_email||'').split('@')[0];
+      var color   = getUserColor(r.user_email);
+      var timeStr = new Date(r.updated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      var locLbl  = r.location_type === 'shop'   ? '🏭 '+(currentLang==='fr'?'Atelier':'Shop') :
+                    r.location_type === 'travel' ? '🚗 '+(currentLang==='fr'?'Déplacement':'Travel') :
+                    r.location_type === 'onsite' ? '🏗️ '+(currentLang==='fr'?'Chantier':'On-site') :
+                    '⬛ '+(currentLang==='fr'?'Hors ligne':'Offline');
+      var coordStr = (r.lat && r.lng) ? r.lat.toFixed(4)+', '+r.lng.toFixed(4) : '—';
+      return '<div class="map-user-row" style="cursor:'+(r.lat&&r.lng?'pointer':'default')+'" onclick="'+(r.lat&&r.lng?'if(_leafletMap){_leafletMap.setView(['+r.lat+','+r.lng+'],16);}':'')+'">' +
+        '<div style="width:30px;height:30px;border-radius:50%;background:'+color+';color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.78rem;flex-shrink:0;">'+escapeHtml(name.charAt(0).toUpperCase())+'</div>'+
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:600;font-size:0.8rem;">'+escapeHtml(name)+' · '+locLbl+'</div>'+
+          '<div style="font-size:0.68rem;color:var(--wood-mid);">'+coordStr+'</div>'+
+        '</div>'+
+        '<div style="font-size:0.7rem;color:var(--wood-mid);flex-shrink:0;">'+timeStr+'</div>'+
+      '</div>';
+    }).join('');
+  } catch(e) { el.innerHTML = '<p style="color:var(--wood-mid);">—</p>'; }
+}
