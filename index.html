@@ -615,14 +615,16 @@ textarea{resize:vertical;min-height:65px;}
 .roster-name{font-weight:700;font-size:0.92rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ── BILINGUAL SPAN SYSTEM ──────────────────────────────── */
-body.lang-fr .en { display: none !important; }
-body.lang-en .fr { display: none !important; }
-/* Default: show FR (default lang) */
-.en { display: none; }
+/* Default: FR is shown, EN hidden */
+span.en { display: none !important; }
+span.fr { display: inline !important; }
+/* When lang-en is active: EN shown, FR hidden */
+body.lang-en span.en { display: inline !important; }
+body.lang-en span.fr { display: none !important; }
 
 </style>
 </head>
-<body>
+<body class="lang-fr">
 
 <!-- SETUP SCREEN -->
 <div class="setup-screen" id="setup-screen" style="display:none!important;">
@@ -764,7 +766,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <label data-i18n="lbl_password">Password</label>
     <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
       onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn btn-green btn-block" onclick="doLogin()" id="login-btn"> data-i18n="misc_sign_in">Sign In</button>
+    <button class="btn btn-green btn-block" onclick="doLogin()" id="login-btn"> data-i18n="misc_sign_in"><span class="en">Sign In</span><span class="fr">Se connecter</span></button>
     <div style="margin-top:14px;text-align:center;">
       <button class="btn btn-ghost btn-sm" onclick="showForgot()" style="font-size:0.78rem;" data-i18n="misc_forgot_pw"><span class="en">Forgot password?</span><span class="fr">Mot de passe oublié?</span></button>
       <span style="color:var(--wood-pale);margin:0 4px;">|</span>
@@ -1511,4 +1513,4 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
 </div>
 
-<script src="app.js?v=10" defer></script>
+<script src="app.js?v=11" defer></script>
