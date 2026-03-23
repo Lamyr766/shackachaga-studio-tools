@@ -684,9 +684,9 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <div class="card-title" style="margin-bottom:0;" data-i18n="sec_all_users">All Users — This Week</div>
       <select id="time-week-filter" onchange="loadTimeLogs()" style="width:auto;font-size:0.8rem;padding:6px 10px;">
-        <option value="7">Last 7 days</option>
-        <option value="14">Last 14 days</option>
-        <option value="30">Last 30 days</option>
+        <option value="7">${t('time_filter')}</option>
+        <option value="14">${t('dyn_14days')||'Last 14 days'}</option>
+        <option value="30">${t('dyn_30days')||'Last 30 days'}</option>
       </select>
     </div>
     <div id="time-all-logs"><div class="empty-state"><p>Loading...</p></div></div>
@@ -931,6 +931,32 @@ const T = {
     btn_add_wood: '+ Add', btn_add_new: '+ New', btn_save_material: '✅ Save Material',
     btn_regen: '🔄 Regenerate', btn_save_caption: '💾 Save Caption',
     btn_save_proj: '💾 Save as Project', btn_copy_sum: '📋 Copy Summary',
+    cb_art: 'Art piece',
+    sec_quote_breakdown: 'Quote Breakdown',
+    lbl_grade: 'Grade / Description',
+    wood_grade: 'Grade / Description',
+    dyn_paid: 'paid',
+    dyn_review_done: 'Review ✓',
+    dyn_no_projects: 'No projects yet. Start with an intake.',
+    dyn_no_matches: 'No matches.',
+    dyn_no_clients: 'No clients yet.',
+    dyn_no_sessions: 'No sessions today.',
+    dyn_no_time: 'No time logged this period.',
+    dyn_no_delivered: 'No delivered projects yet.',
+    dyn_no_results: 'No results found.',
+    dyn_loading: 'Loading...',
+    dyn_balance: 'Balance ($)',
+    dyn_delivery: 'Target Delivery',
+    dyn_review_q: 'Review?',
+    dyn_status: 'Status',
+    dyn_add_note: 'Add Note / Interaction',
+    dyn_note_placeholder: 'Add interaction note...',
+    dyn_proj_notes: 'Notes',
+    dyn_projects_word: 'project(s)',
+    dyn_shop: 'Shop', dyn_travel: 'Travel', dyn_onsite: 'On-site',
+    dyn_today: 'Today',
+    dyn_save: '✅ Save', dyn_next_status: '→',
+    dyn_duplicate: '📋 Duplicate', dyn_pdf: '🧾 PDF Quote', dyn_delete: '🗑',
   },
   fr: {
     // Nav
@@ -1083,6 +1109,33 @@ const T = {
     btn_add_wood: '+ Ajouter', btn_add_new: '+ Nouveau', btn_save_material: '✅ Sauvegarder le matériau',
     btn_regen: '🔄 Régénérer', btn_save_caption: '💾 Sauvegarder la légende',
     btn_save_proj: '💾 Sauvegarder comme projet', btn_copy_sum: '📋 Copier le résumé',
+    cb_art: "Pièce d'art",
+    sec_quote_breakdown: "Détail de l'estimation",
+    lbl_grade: 'Catégorie / Description',
+    wood_grade: 'Catégorie / Description',
+    // Dynamic content translations used in JS rendering
+    dyn_paid: 'payé',
+    dyn_review_done: 'Avis ✓',
+    dyn_no_projects: 'Aucun projet. Commencez par un accueil client.',
+    dyn_no_matches: 'Aucun résultat.',
+    dyn_no_clients: 'Aucun client pour le moment.',
+    dyn_no_sessions: 'Aucune session aujourd\'hui.',
+    dyn_no_time: 'Aucune période enregistrée.',
+    dyn_no_delivered: 'Aucun projet livré pour le moment.',
+    dyn_no_results: 'Aucun résultat.',
+    dyn_loading: 'Chargement...',
+    dyn_balance: 'Solde ($)',
+    dyn_delivery: 'Livraison prévue',
+    dyn_review_q: 'Avis reçu?',
+    dyn_status: 'Statut',
+    dyn_add_note: 'Ajouter une note / interaction',
+    dyn_note_placeholder: 'Ajouter une note...',
+    dyn_proj_notes: 'Notes',
+    dyn_projects_word: 'projet(s)',
+    dyn_shop: 'Atelier', dyn_travel: 'Déplacement', dyn_onsite: 'Chantier',
+    dyn_today: "Aujourd'hui",
+    dyn_save: '✅ Sauvegarder', dyn_next_status: '→',
+    dyn_duplicate: '📋 Dupliquer', dyn_pdf: '🧾 Devis PDF', dyn_delete: '🗑',
   }
 };
 
@@ -1523,12 +1576,12 @@ const STATUS_LABELS = {
 };
 function getStatus() {
   return {
-    new:    {label: STATUS_LABELS.new[currentLang]||'New',       cls:'badge-new',   card:'status-new'},
-    quote:  {label: STATUS_LABELS.quote[currentLang]||'Quote',   cls:'badge-quote', card:'status-quote'},
-    active: {label: STATUS_LABELS.active[currentLang]||'Fab',    cls:'badge-active',card:'status-active'},
-    finish: {label: STATUS_LABELS.finish[currentLang]||'Finish', cls:'badge-finish',card:'status-finish'},
-    ready:  {label: STATUS_LABELS.ready[currentLang]||'Ready',   cls:'badge-ready', card:'status-ready'},
-    done:   {label: STATUS_LABELS.done[currentLang]||'Done',     cls:'badge-done',  card:'status-done'},
+    new:    {label: t('status_new'),    cls:'badge-new',   card:'status-new'},
+    quote:  {label: t('status_quote'),  cls:'badge-quote', card:'status-quote'},
+    active: {label: t('status_active'), cls:'badge-active',card:'status-active'},
+    finish: {label: t('status_finish'), cls:'badge-finish',card:'status-finish'},
+    ready:  {label: t('status_ready'),  cls:'badge-ready', card:'status-ready'},
+    done:   {label: t('status_done'),   cls:'badge-done',  card:'status-done'},
   };
 }
 const STATUS = getStatus();
@@ -1558,7 +1611,7 @@ async function loadProjects() {
 
   const list = document.getElementById('proj-list');
   if (!filtered.length) {
-    list.innerHTML = `<div class="empty-state"><div class="icon">🪵</div><p>${allProjects.length ? 'No matches.' : 'No projects yet. Start with an intake.'}</p></div>`;
+    list.innerHTML = `<div class="empty-state"><div class="icon">🪵</div><p>${allProjects.length ? t('dyn_no_matches') : t('dyn_no_projects')}</p></div>`;
     return;
   }
   checkOverdue(allProjects);
@@ -1572,9 +1625,9 @@ async function loadProjects() {
       </div>
       <div class="proj-meta">
         <div class="proj-meta-item">💰 <strong>$${(p.amount||0).toLocaleString()}</strong></div>
-        <div class="proj-meta-item">💳 <strong>${paid}%</strong> paid</div>
+        <div class="proj-meta-item">💳 <strong>${paid}%</strong> ${t('dyn_paid')}</div>
         ${p.delivery ? `<div class="proj-meta-item">📅 <strong>${p.delivery}</strong></div>` : ''}
-        ${p.review === 'Yes' ? '<div class="proj-meta-item">⭐ Review ✓</div>' : ''}
+        ${p.review === 'Yes' ? `<div class="proj-meta-item">⭐ ${t('dyn_review_done')}</div>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -1590,35 +1643,35 @@ function openProject(id) {
     <div style="margin-bottom:12px;"><span class="badge ${st.cls}">${st.label}</span></div>
     <div class="row-2" style="margin-bottom:10px;">
       <div><label>Total ($)</label><input type="number" id="pm-amt" value="${p.amount||0}"></div>
-      <div><label>Balance ($)</label><input type="number" id="pm-bal" value="${p.balance||0}"></div>
+      <div><label>${t('dyn_balance')}</label><input type="number" id="pm-bal" value="${p.balance||0}"></div>
     </div>
     <div class="row-2" style="margin-bottom:10px;">
-      <div><label>Target Delivery</label><input type="date" id="pm-del" value="${p.delivery||''}"></div>
-      <div><label>Review?</label>
+      <div><label>${t('dyn_delivery')}</label><input type="date" id="pm-del" value="${p.delivery||''}"></div>
+      <div><label>${t('dyn_review_q')}</label>
         <select id="pm-rev"><option ${p.review==='No'?'selected':''}>No</option><option ${p.review==='Request Sent'?'selected':''}>Request Sent</option><option ${p.review==='Yes'?'selected':''}>Yes</option></select>
       </div>
     </div>
-    <label>Status</label>
+    <label>${t('dyn_status')}</label>
     <select id="pm-st" style="margin-bottom:10px;">
       ${Object.entries(getStatus()).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v.label}</option>`).join('')}
     </select>
     <label data-i18n="lbl_notes">Notes</label>
     <textarea id="pm-nt" style="margin-bottom:14px;">${p.notes||''}</textarea>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-green btn-sm" onclick="updateProject(${id})">✅ Save</button>
+      <button class="btn btn-green btn-sm" onclick="updateProject(${id})">${t('dyn_save')}</button>
       ${p.status!=='done'?`<button class="btn btn-amber btn-sm" onclick="advanceProject(${id},'${next[p.status]}')">→ ${STATUS[next[p.status]]?.label||'Next'}</button>`:''}
-      <button class="btn btn-red btn-sm" onclick="deleteProject(${id})">🗑</button>
-      <button class="btn btn-ghost btn-sm" onclick="duplicateProject(${id})">📋 Duplicate</button>
-      <button class="btn btn-blue btn-sm" onclick="exportQuotePDFById(${p.id})" style="background:var(--blue);">🧾 PDF Quote</button>
+      <button class="btn btn-red btn-sm" onclick="deleteProject(${id})">${t('dyn_delete')}</button>
+      <button class="btn btn-ghost btn-sm" onclick="duplicateProject(${id})">${t('dyn_duplicate')}</button>
+      <button class="btn btn-blue btn-sm" onclick="exportQuotePDFById(${p.id})" style="background:var(--blue);">${t('dyn_pdf')}</button>
     </div>
     <div style="margin-top:16px;">
-      <div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">Add Note / Interaction</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">${t('dyn_add_note')}</div>
       <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
         <select id="note-type" style="width:auto;flex:1;min-width:80px;font-size:0.78rem;padding:6px 8px;">
           <option value="note">Note</option><option value="call">Call</option>
           <option value="email">Email</option><option value="visit">Visit</option>
         </select>
-        <input type="text" id="note-text" placeholder="Add interaction note..." style="flex:3;min-width:120px;font-size:0.82rem;padding:6px 10px;">
+        <input type="text" id="note-text" placeholder="${t('dyn_note_placeholder')}" style="flex:3;min-width:120px;font-size:0.82rem;padding:6px 10px;">
         <button class="btn btn-primary btn-sm" onclick="submitNote('+id+')">Add</button>
       </div>
       <div id="notes-list-${id}"><p style="font-size:0.8rem;color:var(--wood-mid);">Loading notes...</p></div>
@@ -2278,12 +2331,17 @@ async function addProjectNote(projectId, note, type, author) {
 
 function renderNotes(notes) {
   if (!notes.length) return '<div class="empty-state" style="padding:20px;"><p>No notes yet.</p></div>';
+  const noteTypeLabels = {
+    note: {en:'Note', fr:'Note'}, call: {en:'Call', fr:'Appel'},
+    email: {en:'Email', fr:'Courriel'}, visit: {en:'Visit', fr:'Visite'}
+  };
   return notes.map(n => {
     const d = new Date(n.created_at);
     const timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const noteLabel = noteTypeLabels[n.type||'note']?.[currentLang] || n.type || 'note';
     return `<div class="note-item">
       <div class="note-meta">
-        <span class="note-type note-type-${n.type||'note'}">${n.type||'note'}</span>
+        <span class="note-type note-type-${n.type||'note'}">${noteLabel}</span>
         ${n.author||'Team'} · ${timeStr}
       </div>
       <div style="font-size:0.88rem;">${n.note}</div>
@@ -2311,7 +2369,7 @@ async function loadClients() {
 function renderClients(clients) {
   const list = document.getElementById('client-list');
   if (!clients.length) {
-    list.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No clients yet.</p></div>';
+    list.innerHTML = `<div class="empty-state"><div class="icon">👥</div><p>${t('dyn_no_clients')}</p></div>`;
     return;
   }
   list.innerHTML = clients.map(c => `
@@ -2323,7 +2381,7 @@ function renderClients(clients) {
         </div>
         <div style="text-align:right;">
           <div style="font-weight:700;color:var(--green);font-size:0.88rem;">$${(c.total_spent||0).toLocaleString()}</div>
-          <div style="font-size:0.72rem;color:var(--wood-mid);">${c.project_count||0} project${(c.project_count||0)!==1?'s':''}</div>
+          <div style="font-size:0.72rem;color:var(--wood-mid);">${c.project_count||0} ${t('dyn_projects_word')}</div>
         </div>
       </div>
     </div>`).join('');
@@ -2375,8 +2433,8 @@ async function openClient(id) {
       ${c.city?`<span style="font-size:0.82rem;color:var(--wood-mid);">📍 ${c.city}</span>`:''}
     </div>
     <div class="stats-row" style="margin-bottom:14px;">
-      <div class="stat-card"><div class="stat-num" style="font-size:1.2rem;">$${(c.total_spent||0).toLocaleString()}</div><div class="stat-label">Spent</div></div>
-      <div class="stat-card"><div class="stat-num" style="font-size:1.2rem;">${c.project_count||0}</div><div class="stat-label">Projects</div></div>
+      <div class="stat-card"><div class="stat-num" style="font-size:1.2rem;">$${(c.total_spent||0).toLocaleString()}</div><div class="stat-label">${t('client_spent')}</div></div>
+      <div class="stat-card"><div class="stat-num" style="font-size:1.2rem;">${c.project_count||0}</div><div class="stat-label">${t('client_projects')}</div></div>
     </div>
     ${projects.length?`<div style="margin-bottom:14px;"><div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">Projects</div>
     ${projects.map(p=>`<div style="font-size:0.85rem;padding:6px 0;border-bottom:1px solid var(--wood-pale);">
@@ -2533,7 +2591,7 @@ async function loadTimeLogs() {
         <div style="font-weight:600;">${fmt(l.duration_minutes||0)}</div>
         <div><button class="btn btn-red btn-sm" onclick="deleteTimeLog(${l.id})" style="padding:4px 8px;">🗑</button></div>
       </div>`;
-    }).join('') : '<div class="empty-state" style="padding:16px;"><p>No sessions today.</p></div>';
+    }).join('') : `<div class="empty-state" style="padding:16px;"><p>${t('dyn_no_sessions')}</p></div>`;
   // All users logs
   const all = document.getElementById('time-all-logs');
   // Group by user
@@ -2544,7 +2602,7 @@ async function loadTimeLogs() {
     byUser[l.user_email].total += l.duration_minutes||0;
   });
   if (!Object.keys(byUser).length) {
-    all.innerHTML = '<div class="empty-state" style="padding:16px;"><p>No time logged this period.</p></div>';
+    all.innerHTML = `<div class="empty-state" style="padding:16px;"><p>${t('dyn_no_time')}</p></div>`;
   } else {
     all.innerHTML = Object.entries(byUser).map(([email, t]) => `
       <div style="padding:10px 0;border-bottom:1px solid var(--wood-pale);">
@@ -2625,7 +2683,7 @@ function renderRevenue() {
   const typeEl = document.getElementById('rev-by-type');
   if (typeEl) {
     typeEl.innerHTML = Object.entries(byType).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([type,amt]) => `
-      <div class="price-row"><span class="price-label">${type}</span><span class="price-val">$${amt.toLocaleString()}</span></div>`).join('') || '<p style="color:var(--wood-mid);font-size:0.85rem;padding:10px 0;">No delivered projects yet.</p>';
+      <div class="price-row"><span class="price-label">${type}</span><span class="price-val">$${amt.toLocaleString()}</span></div>`).join('') || `<p style="color:var(--wood-mid);font-size:0.85rem;padding:10px 0;">${t('dyn_no_delivered')}</p>`;
   }
   // Top clients
   const byClient = {};
@@ -2636,7 +2694,7 @@ function renderRevenue() {
   const clientEl = document.getElementById('rev-top-clients');
   if (clientEl) {
     clientEl.innerHTML = Object.entries(byClient).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,amt]) => `
-      <div class="price-row"><span class="price-label">${name}</span><span class="price-val">$${amt.toLocaleString()}</span></div>`).join('') || '<p style="color:var(--wood-mid);font-size:0.85rem;padding:10px 0;">No delivered projects yet.</p>';
+      <div class="price-row"><span class="price-label">${name}</span><span class="price-val">$${amt.toLocaleString()}</span></div>`).join('') || `<p style="color:var(--wood-mid);font-size:0.85rem;padding:10px 0;">${t('dyn_no_delivered')}</p>`;
   }
 }
 
