@@ -1308,7 +1308,7 @@ async function loadWoodStock() {
 
   const list = document.getElementById('wood-list');
   if (!woodItems.length) {
-    list.innerHTML = `<div class="empty-state"><div class="icon">🌲</div><p>No materials tracked yet.<br>Tap + Add to get started.</p></div>`;
+    list.innerHTML = '<div class="empty-state"><div class="icon">🌲</div><p>' + (currentLang==='fr' ? 'Aucun matériau. Appuyez + Ajouter pour commencer.' : 'No materials yet. Tap + Add.') + '</p></div>';
     return;
   }
 
