@@ -272,7 +272,7 @@ var T = {
     dyn_no_time: 'No time logged this period.',
     dyn_no_delivered: 'No delivered projects yet.',
     dyn_no_results: 'No results found.',
-    dyn_loading: 'Loading...',
+    dyn_loading: currentLang==='fr'?'Chargement...':'Loading...',
     dyn_balance: 'Balance ($)',
     dyn_delivery: 'Target Delivery',
     dyn_review_q: 'Review?',
@@ -287,6 +287,7 @@ var T = {
     dyn_duplicate: '📋 Duplicate', dyn_pdf: '🧾 PDF Quote', dyn_delete: '🗑',
   },
     fr: {
+    login_subtitle: 'Studio Tools — Connectez-vous pour continuer',
     nav_quote: '💰 Estimations',
     nav_projects: '📋 Projets',
     nav_intake: '📝 Accueil client',
@@ -794,7 +795,7 @@ function applyTranslations() {
     if (el) el.textContent = text;
   });
   // Login screen
-  const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); };
+  const setTxt = (id, key) => { const el = document.getElementById(id); if (!el) return; if (el.querySelector('span.en,span.fr')) { el.querySelector('span.en').textContent = window.T.en[key]||key; el.querySelector('span.fr').textContent = window.T.fr[key]||key; } else { el.textContent = t(key); } };
   const setPlaceholder = (id, key) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); };
   const setInner = (id, key) => { const el = document.getElementById(id); if (el) el.innerHTML = t(key); };
   setTxt('login-subtitle-text', 'login_subtitle');
@@ -1088,6 +1089,29 @@ function getStatus() {
 var STATUS = getStatus();
 
 var allProjects = [];
+
+
+// Translate project type from DB value to current language
+var PROJECT_TYPE_MAP = {
+  'Epoxy River Table':    {fr:'Table rivière époxy',      en:'Epoxy River Table'},
+  'Dining / Coffee Table':{fr:'Table à manger / café',    en:'Dining / Coffee Table'},
+  'Wood Sink':            {fr:'Évier en bois',             en:'Wood Sink'},
+  'Bathroom Vanity':      {fr:'Meuble-lavabo',             en:'Bathroom Vanity'},
+  'Custom Desk':          {fr:'Bureau sur mesure',         en:'Custom Desk'},
+  'Staircase / Structure':{fr:'Escalier / Structure',      en:'Staircase / Structure'},
+  'Art Piece / Collectible':{fr:'Œuvre d\'art / Collectionnable', en:'Art Piece / Collectible'},
+  'Other Custom Piece':   {fr:'Autre pièce sur mesure',   en:'Other Custom Piece'},
+  'Custom Piece':         {fr:'Pièce sur mesure',          en:'Custom Piece'},
+  'Art Piece':            {fr:'Œuvre d\'art',              en:'Art Piece'},
+  'Wood Sink/Vanity':     {fr:'Évier/Lavabo en bois',      en:'Wood Sink/Vanity'},
+  'Staircase':            {fr:'Escalier',                  en:'Staircase'},
+};
+function translateProjectType(type) {
+  if (!type) return '—';
+  var map = PROJECT_TYPE_MAP[type];
+  if (map) return currentLang === 'fr' ? map.fr : map.en;
+  return type; // fallback: return as-is if not in map
+}
 
 async function loadProjects() {
   if (!sb) return;
@@ -2507,7 +2531,7 @@ var TABLE_SIZES = [
 ];
 
 var TABLE_TYPES = ['Dining Table','Epoxy River Table','Custom Desk'];
-var FBM_TYPES   = ['Wood Sink','Bathroom Vanity','Staircase','Art Piece',currentLang==='fr'?'Pièce sur mesure':'Custom Piece'];
+var FBM_TYPES   = ['Wood Sink','Bathroom Vanity','Staircase','Art Piece','Custom Piece'];
 var fbmBoards = [{t:1.75, w:8, l:96, qty:1}];
 var selectedTableSize = null;
 
