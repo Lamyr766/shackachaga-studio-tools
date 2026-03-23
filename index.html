@@ -32,6 +32,7 @@ var currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('
   }
 })();
 </script>
+<meta name="app-version" content="2.1.0-2024">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3473,7 +3474,7 @@ Any modifications after fabrication starts may incur additional charges.
 <script>
 if ('serviceWorker' in navigator) {
   const swCode = `
-const CACHE = 'shack-v1';
+const CACHE = 'shack-v21';
 const ASSETS = [location.href];
 self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))));
 self.addEventListener('fetch', e => e.respondWith(
