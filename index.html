@@ -3095,6 +3095,9 @@ async function initSupabaseWithAuth(url, key) {
   }
 }
 
+// Force init on script parse (belt + suspenders)
+try { if(typeof window.supabase!=="undefined" && window.supabase.createClient && typeof waitForSupabaseAndInit==="function") { waitForSupabaseAndInit(0); } } catch(e){}
+
 // Override saveConfig to use auth version
 function saveConfig() {
   // Credentials are pre-configured
