@@ -2804,6 +2804,154 @@ function initRevenueYears() {
     `<option value="${y}">${y}</option>`).join('');
 }
 
+
+
+// ══════════════════════════════════════════════════
+// SMART MATERIAL CALCULATOR
+// ══════════════════════════════════════════════════
+const TABLE_SIZES = [
+  {key:'coffee',  name:'Coffee Table',       name_fr:'Table basse',          l:48, w:24, t:1.75},
+  {key:'dining4', name:'Dining 4-person',    name_fr:'Salle à manger 4 pl.', l:60, w:36, t:1.75},
+  {key:'dining6', name:'Dining 6-person',    name_fr:'Salle à manger 6 pl.', l:72, w:36, t:1.75},
+  {key:'dining8', name:'Dining 8-person',    name_fr:'Salle à manger 8 pl.', l:84, w:40, t:1.75},
+  {key:'dining10',name:'Dining 10-person',   name_fr:'Salle à manger 10 pl.',l:96, w:42, t:1.75},
+  {key:'harvest', name:'Harvest / Farm',     name_fr:'Table de ferme',       l:96, w:30, t:2.0},
+  {key:'river6',  name:'River Table 6ft',    name_fr:'Table époxy 6pi',      l:72, w:40, t:2.0},
+  {key:'river8',  name:'River Table 8ft',    name_fr:'Table époxy 8pi',      l:96, w:42, t:2.0},
+  {key:'desk',    name:'Desk Standard',      name_fr:'Bureau standard',      l:60, w:24, t:1.5},
+  {key:'deskl',   name:'L-Shape Desk',       name_fr:'Bureau en L',          l:72, w:30, t:1.5},
+  {key:'custom',  name:'Custom Size',        name_fr:'Dimensions sur mesure',l:0,  w:0,  t:1.75},
+];
+
+const TABLE_TYPES = ['Dining Table','Epoxy River Table','Custom Desk'];
+const FBM_TYPES   = ['Wood Sink','Bathroom Vanity','Staircase','Art Piece','Custom Piece'];
+let fbmBoards = [{t:1.75, w:8, l:96, qty:1}];
+let selectedTableSize = null;
+
+function calcFBM(t, w, l) { return (t * w * l) / 144; }
+
+function onProjectTypeChange() {
+  const type = document.getElementById('q-type').value;
+  const isTable = TABLE_TYPES.includes(type);
+  const isFBM   = FBM_TYPES.includes(type);
+  const elT = document.getElementById('mat-section-tables');
+  const elF = document.getElementById('mat-section-fbm');
+  const elM = document.getElementById('mat-section-manual');
+  if (elT) elT.style.display = isTable ? 'block' : 'none';
+  if (elF) elF.style.display = isFBM   ? 'block' : 'none';
+  if (elM) elM.style.display = (!isTable && !isFBM) ? 'block' : 'none';
+  if (isTable) renderTableSizeChart();
+  if (isFBM)   renderFBMBoards();
+  if (!isTable && !isFBM) document.getElementById('q-mat').value = 0;
+}
+
+function renderTableSizeChart() {
+  const lang = currentLang;
+  const container = document.getElementById('size-chart-btns');
+  if (!container) return;
+  container.innerHTML = TABLE_SIZES.map(function(s) {
+    const fbm = s.l > 0 ? (Math.ceil(calcFBM(s.t, s.w, s.l) * 1.2 * 10) / 10) : '—';
+    const name = (lang === 'fr' && s.name_fr) ? s.name_fr : s.name;
+    const dims = s.l > 0 ? s.l+'" × '+s.w+'" × '+s.t+'"' : (lang==='fr'?'Sur mesure':'Custom');
+    const bfLabel = s.l > 0 ? '~'+fbm+' BF' : '';
+    const active = selectedTableSize === s.key ? ' active' : '';
+    return '<button class="size-btn'+active+'" onclick="selectTableSize(\''+s.key+'\')">'+
+      '<span class="size-name">'+name+'</span>'+
+      '<span class="size-dims">'+dims+'</span>'+
+      '<span class="size-fbm">'+bfLabel+'</span>'+
+      '</button>';
+  }).join('');
+  const title = document.getElementById('mat-title-tables');
+  if (title) title.textContent = lang === 'fr'
+    ? '📐 Dimensions standard — Sélectionnez une taille'
+    : '📐 Table Size Chart — Select a standard size';
+}
+
+function selectTableSize(key) {
+  selectedTableSize = key;
+  renderTableSizeChart();
+  const size = TABLE_SIZES.find(function(s){ return s.key===key; });
+  const isCustom = key === 'custom';
+  const cr = document.getElementById('custom-size-row');
+  const rr = document.getElementById('table-rate-row');
+  if (cr) cr.style.display = isCustom ? 'block' : 'none';
+  if (rr) rr.style.display = 'flex';
+  if (!isCustom && size && size.l > 0) {
+    document.getElementById('q-len').value = size.l;
+    document.getElementById('q-wid').value = size.w;
+    document.getElementById('q-thk').value = size.t;
+  }
+  calcTableFBM();
+}
+
+function calcTableFBM() {
+  const l    = parseFloat(document.getElementById('q-len').value) || 0;
+  const w    = parseFloat(document.getElementById('q-wid').value) || 0;
+  const thk  = parseFloat(document.getElementById('q-thk').value) || 1.75;
+  const rate = parseFloat(document.getElementById('q-bf-rate').value) || 8;
+  if (!l || !w) return;
+  const withWaste = Math.ceil(calcFBM(thk, w, l) * 1.2 * 10) / 10;
+  const cost = Math.ceil(withWaste * rate);
+  const rv = document.getElementById('table-fbm-result');
+  const fv = document.getElementById('table-fbm-val');
+  const cv = document.getElementById('table-mat-cost');
+  if (fv) fv.textContent = withWaste.toFixed(1);
+  if (cv) cv.textContent = cost.toLocaleString();
+  if (rv) rv.style.display = 'flex';
+  document.getElementById('q-mat').value = cost;
+}
+
+function renderFBMBoards() {
+  const container = document.getElementById('fbm-boards-list');
+  if (!container) return;
+  const lang = currentLang;
+  const h = lang==='fr'
+    ? ['Épaisseur (po)','Largeur (po)','Longueur (po)','Qté','']
+    : ['Thickness (in)','Width (in)','Length (in)','Qty',''];
+  container.innerHTML =
+    '<div class="fbm-board-row" style="font-size:0.68rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;">'+
+    h.map(function(x){return '<div>'+x+'</div>';}).join('')+'</div>'+
+    fbmBoards.map(function(b,i){
+      return '<div class="fbm-board-row">'+
+        '<input type="number" value="'+b.t+'" min="0.25" max="12" step="0.25" placeholder="1.75" oninput="fbmBoards['+i+'].t=parseFloat(this.value)||0;calcFBMTotal()">'+
+        '<input type="number" value="'+b.w+'" min="1" max="60" step="0.5" placeholder="8" oninput="fbmBoards['+i+'].w=parseFloat(this.value)||0;calcFBMTotal()">'+
+        '<input type="number" value="'+b.l+'" min="1" max="240" step="1" placeholder="96" oninput="fbmBoards['+i+'].l=parseFloat(this.value)||0;calcFBMTotal()">'+
+        '<input type="number" value="'+b.qty+'" min="1" max="99" step="1" placeholder="1" oninput="fbmBoards['+i+'].qty=parseInt(this.value)||1;calcFBMTotal()">'+
+        '<button class="btn btn-red btn-sm" onclick="removeFBMBoard('+i+')" style="padding:4px 8px;">🗑</button>'+
+        '</div>';
+    }).join('');
+  calcFBMTotal();
+}
+
+function addFBMBoard() {
+  fbmBoards.push({t:1.75, w:8, l:96, qty:1});
+  renderFBMBoards();
+}
+
+function removeFBMBoard(i) {
+  if (fbmBoards.length > 1) { fbmBoards.splice(i,1); renderFBMBoards(); }
+}
+
+function calcFBMTotal() {
+  const rate  = parseFloat(document.getElementById('q-fbm-rate')?.value) || 8;
+  const waste = parseFloat(document.getElementById('q-fbm-waste')?.value) || 20;
+  const wf = 1 + waste/100;
+  let total = 0;
+  fbmBoards.forEach(function(b){ total += calcFBM(b.t, b.w, b.l) * (b.qty||1); });
+  const withWaste = Math.ceil(total * wf * 10) / 10;
+  const cost = Math.ceil(withWaste * rate);
+  const tv = document.getElementById('fbm-total-val');
+  const cv = document.getElementById('fbm-mat-cost');
+  if (tv) tv.textContent = withWaste.toFixed(1);
+  if (cv) cv.textContent = cost.toLocaleString();
+  document.getElementById('q-mat').value = cost;
+}
+
+// Wire up project type change
+(function(){
+  const sel = document.getElementById('q-type');
+  if (sel) sel.addEventListener('change', onProjectTypeChange);
+})();
 </script>
 
 <!-- service worker removed for compatibility -->
