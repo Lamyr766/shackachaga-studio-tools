@@ -4372,3 +4372,201 @@ async function loadMapHistory() {
     }).join('');
   } catch(e) { el.innerHTML = '<p style="color:var(--wood-mid);">—</p>'; }
 }
+
+// ══════════════════════════════════════════════════════════════════
+// VOICE MESSAGES — record audio, send via broadcast, play back
+// ══════════════════════════════════════════════════════════════════
+
+var _mediaRecorder  = null;
+var _audioChunks    = [];
+var _recordTimer    = null;
+var _recordSecs     = 0;
+var _isRecording    = false;
+var _currentAudios  = {};
+
+function toggleVoicePanel() {
+  var wrap  = document.getElementById('voice-record-wrap');
+  var input = document.getElementById('chat-input');
+  if (!wrap) return;
+  var visible = wrap.style.display !== 'none';
+  wrap.style.display = visible ? 'none' : 'flex';
+  if (input) input.style.display = visible ? '' : 'none';
+  if (visible) cancelVoiceRecord();
+}
+
+async function toggleVoiceRecord() {
+  if (_isRecording) stopVoiceRecord();
+  else await startVoiceRecord();
+}
+
+async function startVoiceRecord() {
+  if (!_micGranted) {
+    var ok = await requestMicPermissionOnce();
+    if (!ok) return;
+  }
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    _audioChunks = [];
+    _recordSecs  = 0;
+    var mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus'
+      : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+    var opts = mimeType ? { mimeType: mimeType, audioBitsPerSecond: 32000 } : { audioBitsPerSecond: 32000 };
+    _mediaRecorder = new MediaRecorder(stream, opts);
+    _mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) _audioChunks.push(e.data); };
+    _mediaRecorder.onstop = function() {
+      stream.getTracks().forEach(function(t) { t.stop(); });
+      sendVoiceMessage();
+    };
+    _mediaRecorder.start(250);
+    _isRecording = true;
+    var btn = document.getElementById('voice-record-btn');
+    if (btn) { btn.textContent = '⏹'; btn.classList.add('recording'); }
+    var hint = document.getElementById('voice-record-hint');
+    if (hint) hint.textContent = currentLang === 'fr' ? '🔴 Enregistrement...' : '🔴 Recording...';
+    if (_recordTimer) clearInterval(_recordTimer);
+    _recordTimer = setInterval(function() {
+      _recordSecs++;
+      var t = document.getElementById('voice-timer');
+      if (t) t.textContent = Math.floor(_recordSecs/60) + ':' + ('0'+(_recordSecs%60)).slice(-2);
+      if (_recordSecs >= 120) stopVoiceRecord();
+    }, 1000);
+  } catch(e) {
+    toast('🎤 ' + (currentLang==='fr' ? 'Microphone refusé' : 'Mic denied'));
+  }
+}
+
+function stopVoiceRecord() {
+  if (!_isRecording || !_mediaRecorder) return;
+  _isRecording = false;
+  clearInterval(_recordTimer);
+  _mediaRecorder.stop();
+  var btn = document.getElementById('voice-record-btn');
+  if (btn) { btn.textContent = '🎤'; btn.classList.remove('recording'); }
+  var t = document.getElementById('voice-timer');
+  if (t) t.textContent = '0:00';
+  var hint = document.getElementById('voice-record-hint');
+  if (hint) hint.textContent = currentLang==='fr' ? 'Envoi...' : 'Sending...';
+}
+
+function cancelVoiceRecord() {
+  if (_isRecording && _mediaRecorder) {
+    _isRecording = false;
+    clearInterval(_recordTimer);
+    try { _mediaRecorder.stream?.getTracks().forEach(function(t){ t.stop(); }); } catch(e){}
+    _mediaRecorder = null;
+  }
+  _audioChunks = [];
+  _recordSecs  = 0;
+  var btn = document.getElementById('voice-record-btn');
+  if (btn) { btn.textContent = '🎤'; btn.classList.remove('recording'); }
+  var t = document.getElementById('voice-timer');
+  if (t) t.textContent = '0:00';
+  var wrap = document.getElementById('voice-record-wrap');
+  if (wrap) wrap.style.display = 'none';
+  var input = document.getElementById('chat-input');
+  if (input) input.style.display = '';
+  var hint = document.getElementById('voice-record-hint');
+  if (hint) hint.textContent = currentLang==='fr' ? 'Tenir pour enregistrer' : 'Tap to record';
+}
+
+async function sendVoiceMessage() {
+  if (!_audioChunks.length || !currentUserEmail) return;
+  var mimeType = _audioChunks[0].type || 'audio/webm';
+  var blob = new Blob(_audioChunks, { type: mimeType });
+  var durationSecs = _recordSecs;
+  var reader = new FileReader();
+  reader.onloadend = async function() {
+    var base64 = reader.result;
+    var msg = {
+      sender_email:    currentUserEmail,
+      sender_name:     currentUserName || currentUserEmail.split('@')[0],
+      content:         '__VOICE__',
+      room:            'team',
+      voice_data:      base64,
+      voice_duration:  durationSecs,
+      created_at:      new Date().toISOString()
+    };
+    appendVoiceMessage(msg, true);
+    if (window.chatSubscription && chatSubscription.send) {
+      chatSubscription.send({ type:'broadcast', event:'chat_msg', payload: msg });
+    }
+    cancelVoiceRecord();
+    toast('🎙️ ' + (currentLang==='fr' ? 'Message vocal envoyé!' : 'Voice message sent!'));
+  };
+  reader.readAsDataURL(blob);
+}
+
+function appendVoiceMessage(m, isMine) {
+  var el = document.getElementById('chat-messages');
+  if (!el) return;
+  var empty = el.querySelector('.empty-state');
+  if (empty) empty.remove();
+  var msgId = 'vm' + Date.now() + Math.floor(Math.random()*9999);
+  var name  = m.sender_name || (m.sender_email||'').split('@')[0];
+  var timeStr = new Date(m.created_at||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  var dur = m.voice_duration || 0;
+  var durStr = Math.floor(dur/60)+':'+('0'+(dur%60)).slice(-2);
+  var div = document.createElement('div');
+  div.className = 'chat-msg ' + (isMine ? 'mine' : 'theirs');
+  div.id = msgId;
+  if (m.voice_data) div.dataset.audioSrc = m.voice_data;
+  div.innerHTML =
+    (isMine ? '' : '<div class="chat-msg-name">'+escapeHtml(name)+'</div>') +
+    '<div class="voice-msg-wrap">' +
+      '<button class="voice-play-btn" id="pbtn-'+msgId+'">&#9654;</button>' +
+      '<div class="voice-waveform" id="wf-'+msgId+'">' +
+        '<div class="voice-progress" id="vprog-'+msgId+'"></div>' +
+      '</div>' +
+      '<span class="voice-duration" id="vdur-'+msgId+'">'+durStr+'</span>' +
+    '</div>' +
+    '<div class="chat-msg-time">&#127897; '+timeStr+'</div>';
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+  var pb = document.getElementById('pbtn-'+msgId);
+  var wf = document.getElementById('wf-'+msgId);
+  if (pb) pb.onclick = function(){ playVoiceMsg(msgId); };
+  if (wf) wf.onclick = function(){ playVoiceMsg(msgId); };
+}
+
+function playVoiceMsg(msgId) {
+  var div = document.getElementById(msgId);
+  if (!div || !div.dataset.audioSrc) {
+    toast(currentLang==='fr' ? '⚠️ Audio non disponible' : '⚠️ Audio not available');
+    return;
+  }
+  Object.keys(_currentAudios).forEach(function(id) {
+    if (id !== msgId && _currentAudios[id]) {
+      _currentAudios[id].pause();
+      var pb = document.getElementById('pbtn-'+id);
+      if (pb) { pb.textContent = '▶'; pb.classList.remove('playing'); }
+    }
+  });
+  var audio = _currentAudios[msgId];
+  if (!audio) {
+    audio = new Audio(div.dataset.audioSrc);
+    _currentAudios[msgId] = audio;
+    audio.ontimeupdate = function() {
+      var pct  = audio.duration ? (audio.currentTime/audio.duration*100) : 0;
+      var prog = document.getElementById('vprog-'+msgId);
+      if (prog) prog.style.width = pct + '%';
+      var dur  = document.getElementById('vdur-'+msgId);
+      var rem  = audio.duration - audio.currentTime;
+      if (dur && !isNaN(rem)) dur.textContent = Math.floor(rem/60)+':'+('0'+Math.floor(rem%60)).slice(-2);
+    };
+    audio.onended = function() {
+      var pb = document.getElementById('pbtn-'+msgId);
+      if (pb) { pb.textContent = '▶'; pb.classList.remove('playing'); }
+      var prog = document.getElementById('vprog-'+msgId);
+      if (prog) prog.style.width = '0%';
+    };
+  }
+  var pb = document.getElementById('pbtn-'+msgId);
+  if (audio.paused) {
+    audio.play().catch(function(){});
+    if (pb) { pb.textContent = '⏸'; pb.classList.add('playing'); }
+  } else {
+    audio.pause();
+    if (pb) { pb.textContent = '▶'; pb.classList.remove('playing'); }
+  }
+}
