@@ -20,7 +20,7 @@ function isAdmin(email) {
 }
 
 // Initialize currentLang early from localStorage (before any t() call)
-var currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('shack_lang')) || 'en';
+var currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('shack_lang')) || 'fr';
 
 
 // Handle GitHub Pages SPA routing — redirected from 404.html
@@ -375,6 +375,88 @@ textarea{resize:vertical;min-height:65px;}
 .voice-timer{font-size:0.78rem;color:var(--red);font-weight:700;min-width:36px;}
 
 
+
+/* ── ANDROID / MOBILE FIXES ────────────────────────── */
+@media (max-width: 480px) {
+  /* Header — prevent sign-out from being clipped */
+  .header-inner {
+    padding: 6px 10px;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .header-inner .logo div {
+    font-size: 0.8rem;
+  }
+  .header-inner .logo span {
+    display: none; /* hide "Studio Tools" sub-label on small screens */
+  }
+  .sync-status {
+    font-size: 0.65rem;
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Sign out button — always fully visible */
+  button[onclick="doLogout()"],
+  button[data-i18n="misc_sign_out"] {
+    font-size: 0.68rem !important;
+    padding: 6px 8px !important;
+    min-width: 64px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  /* Nav — horizontal scroll, never wraps */
+  #main-nav {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 0;
+    padding: 0;
+  }
+  #main-nav::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    padding: 10px 12px;
+    white-space: nowrap;
+  }
+  /* Pages — full width, no horizontal overflow */
+  .page {
+    padding: 12px 10px;
+    overflow-x: hidden;
+  }
+  /* Cards — full width */
+  .card { padding: 12px; }
+  /* Buttons — easier to tap */
+  .btn { min-height: 44px; font-size: 0.9rem; }
+  /* Tables / grids — scroll horizontally */
+  .call-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  /* Row-2 — stack on very small screens */
+  .row-2 { grid-template-columns: 1fr; }
+  /* Modal — full screen on mobile */
+  .modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    border-radius: 12px 12px 0 0 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+  }
+  .modal-overlay {
+    align-items: flex-end !important;
+  }
+  /* Revenue chart — scrollable */
+  #rev-chart { overflow-x: auto; }
+}
+
+@media (max-width: 360px) {
+  .nav-tab { font-size: 0.65rem; padding: 9px 9px; }
+  .btn-block { font-size: 0.88rem; }
+}
+
 /* AUTO-ANSWER TOGGLE */
 .auto-answer-bar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--wood-pale);border-radius:var(--radius-sm);margin-bottom:10px;font-size:0.82rem;}
 .auto-answer-bar .aa-label{flex:1;font-weight:600;color:var(--wood-dark);}
@@ -427,6 +509,105 @@ textarea{resize:vertical;min-height:65px;}
 .loc-btn.active.travel { background: var(--amber);  color: white; border-color: var(--amber); }
 .loc-btn.active.onsite { background: var(--blue);   color: white; border-color: var(--blue); }
 
+
+/* ── SECURE MESSAGES ─────────────────────────────── */
+.msg-compose { background:var(--wood-pale);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px; }
+.msg-compose input, .msg-compose textarea, .msg-compose select {
+  width:100%;margin-bottom:8px;padding:9px 12px;border:1px solid var(--wood-pale);
+  border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:0.85rem;
+  background:white;box-sizing:border-box;
+}
+.msg-compose textarea { min-height:80px;resize:vertical; }
+.msg-list { display:flex;flex-direction:column;gap:8px; }
+.msg-item { background:white;border-radius:var(--radius-sm);padding:12px 14px;
+  border-left:3px solid var(--wood-pale);cursor:pointer;transition:all 0.15s; }
+.msg-item.unread { border-left-color:var(--amber);background:#FFFBF4; }
+.msg-item:hover { box-shadow:var(--shadow); }
+.msg-item-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:4px; }
+.msg-item-from { font-weight:700;font-size:0.85rem; }
+.msg-item-time { font-size:0.7rem;color:var(--wood-mid); }
+.msg-item-subject { font-size:0.8rem;color:var(--wood-dark);margin-bottom:2px; }
+.msg-item-preview { font-size:0.75rem;color:var(--wood-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.msg-badge { background:var(--amber);color:white;border-radius:50%;width:18px;height:18px;
+  font-size:0.65rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-left:4px; }
+.msg-thread { background:white;border-radius:var(--radius-sm);padding:14px;border:1px solid var(--wood-pale); }
+.msg-thread-header { border-bottom:1px solid var(--wood-pale);padding-bottom:10px;margin-bottom:12px; }
+.msg-bubble { background:var(--wood-pale);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px; }
+.msg-bubble.mine { background:linear-gradient(135deg,var(--wood-dark),var(--wood-mid));color:white;margin-left:20%; }
+.msg-bubble.theirs { margin-right:20%; }
+.msg-bubble-meta { font-size:0.68rem;opacity:0.7;margin-top:4px; }
+.msg-lock { color:var(--green);font-size:0.7rem;margin-left:4px; }
+
+
+/* ── EMPLOYEE ROSTER ─────────────────────────────── */
+.roster-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px; }
+.roster-card { background:white;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);cursor:pointer;transition:all 0.15s;border:2px solid transparent; }
+.roster-card:hover { border-color:var(--amber);transform:translateY(-1px); }
+.roster-card.inactive { opacity:0.6; }
+.roster-avatar-wrap { position:relative;width:64px;height:64px;margin:0 auto 10px;flex-shrink:0; }
+.roster-avatar { width:64px;height:64px;border-radius:50%;object-fit:cover;background:var(--wood-pale);display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:700;color:var(--wood-dark); }
+.roster-avatar img { width:100%;height:100%;border-radius:50%;object-fit:cover; }
+.roster-avatar-upload { position:absolute;bottom:0;right:0;background:var(--amber);border:none;border-radius:50%;width:22px;height:22px;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white; }
+.roster-name { font-weight:700;font-size:0.95rem;text-align:center;margin-bottom:2px; }
+.roster-position { font-size:0.78rem;color:var(--wood-mid);text-align:center;margin-bottom:8px; }
+.roster-badge { display:inline-flex;align-items:center;gap:4px;background:var(--wood-pale);border-radius:10px;padding:2px 8px;font-size:0.7rem;font-weight:600; }
+.roster-badge.active-badge { background:#EAF4EE;color:var(--green); }
+.roster-badge.inactive-badge { background:#f5f5f5;color:#999; }
+.roster-stat-row { display:flex;justify-content:space-around;margin-top:10px;padding-top:10px;border-top:1px solid var(--wood-pale); }
+.roster-stat { text-align:center; }
+.roster-stat-val { font-weight:700;font-size:0.9rem; }
+.roster-stat-lbl { font-size:0.65rem;color:var(--wood-mid); }
+/* Profile modal */
+.profile-section { background:var(--wood-pale);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px; }
+.profile-section-title { font-size:0.72rem;font-weight:700;text-transform:uppercase;color:var(--wood-mid);margin-bottom:10px;letter-spacing:0.05em; }
+.profile-field { display:flex;flex-direction:column;gap:3px;margin-bottom:8px; }
+.profile-field label { font-size:0.75rem;font-weight:600;color:var(--wood-dark); }
+.profile-field input, .profile-field select, .profile-field textarea {
+  padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.85rem;
+  font-family:'DM Sans',sans-serif;background:white;
+}
+.pw-display { background:#FFF3E0;border:1px solid var(--amber);border-radius:6px;padding:8px 12px;font-family:monospace;font-size:0.9rem;letter-spacing:0.1em;display:flex;justify-content:space-between;align-items:center; }
+.pw-display button { background:none;border:none;cursor:pointer;font-size:0.8rem;color:var(--amber);font-weight:600; }
+
+/* ── ANDROID / MOBILE FIXES ─────────────────────────── */
+@media (max-width: 480px) {
+  .header-inner { padding: 8px 10px; gap: 6px; }
+  .header-inner button[onclick="doLogout()"] { min-width: 70px; padding: 8px 10px; font-size: 0.74rem; }
+  #main-nav { padding: 4px 6px; gap: 2px; }
+  .nav-tab { font-size: 0.69rem; padding: 6px 8px; min-height: 36px; white-space: nowrap; }
+  .btn { min-height: 42px; }
+  .btn-block { min-height: 52px; font-size: 1rem; }
+  #clock-btn { min-height: 58px; font-size: 1.05rem; font-weight: 800; }
+  .loc-btn { min-height: 46px; font-size: 0.84rem; }
+  .card { padding: 12px; }
+  .modal { margin: 0 6px; padding: 16px; max-height: 92vh; }
+  input, select, textarea { font-size: 16px !important; }
+  .stat-card { padding: 8px 6px; }
+}
+/* ── MESSAGES ─────────────────────────────────────────── */
+.msg-item{padding:12px 14px;border-radius:var(--radius-sm);background:var(--white);margin-bottom:8px;cursor:pointer;border:1px solid var(--wood-pale);transition:all 0.15s;}
+.msg-item:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
+.msg-item.unread{border-left:3px solid var(--amber);background:#FFFBF4;}
+.msg-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.msg-item-from{font-weight:700;font-size:0.82rem;}
+.msg-item-time{font-size:0.7rem;color:var(--wood-mid);}
+.msg-item-subject{font-weight:600;font-size:0.85rem;margin-bottom:2px;}
+.msg-item-preview{font-size:0.78rem;color:var(--wood-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.msg-badge{background:var(--amber);color:white;border-radius:10px;padding:1px 6px;font-size:0.65rem;font-weight:700;margin-left:6px;vertical-align:middle;}
+.msg-thread{padding:4px 0;}
+.msg-thread-header{padding:10px 12px;background:var(--wood-pale);border-radius:var(--radius-sm);margin-bottom:12px;font-size:0.82rem;}
+.msg-bubble{padding:12px 14px;border-radius:12px;margin-bottom:8px;max-width:90%;}
+.msg-bubble.mine{background:var(--wood-dark);color:white;margin-left:auto;border-bottom-right-radius:3px;}
+.msg-bubble.theirs{background:var(--wood-pale);border-bottom-left-radius:3px;}
+.msg-bubble-meta{font-size:0.68rem;opacity:0.6;margin-top:6px;}
+/* ── ROSTER ───────────────────────────────────────────── */
+.roster-grid{display:grid;gap:12px;}
+.roster-card{background:var(--white);border-radius:var(--radius-sm);padding:14px;cursor:pointer;border:1px solid var(--wood-pale);transition:all 0.15s;box-shadow:0 1px 4px rgba(46,26,0,0.06);}
+.roster-card:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
+.roster-card-inner{display:flex;gap:12px;align-items:center;}
+.roster-avatar{flex-shrink:0;}
+.roster-info{flex:1;min-width:0;}
+.roster-name{font-weight:700;font-size:0.92rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 </style>
 </head>
 <body>
@@ -592,14 +773,14 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   <button class="lang-btn" id="btn-fr" onclick="setLang('fr')">FR</button>
 </div>
 <header>
-  <div class="header-inner">
+  <div class="header-inner" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;min-width:0;">
     <div class="logo" style="display:flex;align-items:center;gap:8px;">
       <img src="data:image/png;base64,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" style="width:28px;height:28px;border-radius:4px;object-fit:contain;" alt="Le Shackachaga">
       <div>Le Shackachaga<span>Studio Tools</span></div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <div class="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-label">Connecting...</span></div>
-      <button onclick="doLogout()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);font-size:0.72rem;padding:8px 12px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.03em;min-height:36px;-webkit-tap-highlight-color:transparent;" title="Sign out" data-i18n="misc_sign_out">Sign out</button>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);font-size:0.72rem;padding:6px 10px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:34px;flex-shrink:0;white-space:nowrap;-webkit-tap-highlight-color:transparent;" title="Sign out" data-i18n="misc_sign_out">Sign out</button>
     </div>
   </div>
   <nav id="main-nav">
@@ -611,7 +792,9 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="nav-tab" onclick="showPage('revenue')" id="tab-revenue">📊 Revenue</div>
     <div class="nav-tab" onclick="showPage('wood')" id="tab-wood">🌲 Wood Stock</div>
     <div class="nav-tab" onclick="showPage('post')" id="tab-post">✨ Post Gen</div>
+    <div class="nav-tab" onclick="showPage('messages')" id="tab-messages"><span class="en">🔒 Messages</span><span class="fr">🔒 Messages</span></div>
     <div class="nav-tab" onclick="showPage('team')" id="tab-team"><span class="en">👥 Team</span><span class="fr">👥 Équipe</span></div>
+    <div class="nav-tab" onclick="showPage('roster')" id="tab-roster" style="display:none;"><span class="en">👤 Roster</span><span class="fr">👤 Équipe</span></div>
     <div class="nav-tab" onclick="showPage('map')" id="tab-map" style="display:none;"><span class="en">🗺️ Map</span><span class="fr">🗺️ Carte</span></div>
   </nav>
   <div id="nav-hint" style="background:var(--wood-dark);text-align:center;padding:3px;font-size:0.62rem;color:rgba(255,255,255,0.35);letter-spacing:0.05em;display:none;" data-i18n="misc_swipe">← SWIPE FOR MORE TABS →</div>
@@ -1153,6 +1336,85 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
 </div>
 
+
+
+<!-- ═══ SECURE MESSAGES PAGE ═══ -->
+<div id="page-messages" class="page">
+  <div class="section-header">
+    <div class="section-title"><span class="en">🔒 Messages</span><span class="fr">🔒 Messages</span></div>
+    <button class="btn btn-amber btn-sm" onclick="showComposeMessage()" id="btn-compose-msg">
+      <span class="en">✉️ New Message</span><span class="fr">✉️ Nouveau</span>
+    </button>
+  </div>
+
+  <!-- Compose form -->
+  <div class="msg-compose" id="compose-form" style="display:none;">
+    <div class="card-title" style="margin-bottom:10px;">
+      <span class="en">✉️ New Encrypted Message</span><span class="fr">✉️ Nouveau message chiffré</span>
+    </div>
+    <select id="msg-to">
+      <option value=""><span class="en">— Select recipient —</span><span class="fr">— Choisir destinataire —</span></option>
+    </select>
+    <input type="text" id="msg-subject" placeholder="Subject / Sujet">
+    <textarea id="msg-body" placeholder="Message..."></textarea>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-green btn-sm" onclick="sendSecureMessage()">
+        🔒 <span class="en">Send Encrypted</span><span class="fr">Envoyer chiffré</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="hideComposeMessage()">✕</button>
+    </div>
+  </div>
+
+  <!-- Inbox / Sent tabs -->
+  <div class="team-tabs" style="margin-bottom:14px;">
+    <div class="team-tab active" id="mtab-inbox"  onclick="showMsgTab('inbox')">
+      <span class="en">📥 Inbox</span><span class="fr">📥 Reçus</span>
+      <span class="msg-badge" id="msg-unread-count" style="display:none;">0</span>
+    </div>
+    <div class="team-tab" id="mtab-sent" onclick="showMsgTab('sent')">
+      <span class="en">📤 Sent</span><span class="fr">📤 Envoyés</span>
+    </div>
+  </div>
+
+  <div class="msg-list" id="msg-list">
+    <div class="empty-state"><div class="icon">🔒</div>
+      <p><span class="en">No messages yet</span><span class="fr">Aucun message</span></p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ EMPLOYEE ROSTER PAGE (admin only) ═══ -->
+<div id="page-roster" class="page">
+  <div class="section-header">
+    <div class="section-title"><span class="en">👤 Employee Roster</span><span class="fr">👤 Registre employés</span></div>
+    <button class="btn btn-amber btn-sm" onclick="openNewEmployee()">
+      <span class="en">+ Add Employee</span><span class="fr">+ Ajouter</span>
+    </button>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stat-row" style="margin-bottom:14px;">
+    <div class="stat-card"><div class="stat-val" id="roster-total">—</div><div class="stat-label"><span class="en">Total</span><span class="fr">Total</span></div></div>
+    <div class="stat-card"><div class="stat-val" id="roster-active">—</div><div class="stat-label"><span class="en">Active</span><span class="fr">Actifs</span></div></div>
+    <div class="stat-card"><div class="stat-val" id="roster-positions">—</div><div class="stat-label"><span class="en">Positions</span><span class="fr">Postes</span></div></div>
+  </div>
+
+  <div class="roster-grid" id="roster-grid">
+    <div class="empty-state"><div class="icon">👤</div>
+      <p><span class="en">No employees yet. Add one to get started.</span><span class="fr">Aucun employé. Ajoutez-en un pour commencer.</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EMPLOYEE PROFILE MODAL ═══ -->
+<div class="modal-overlay" id="employee-modal">
+  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto;">
+    <button class="modal-close" onclick="closeModal('employee-modal')">×</button>
+    <div class="modal-title" id="emp-modal-title">Employee Profile</div>
+    <div id="emp-modal-body"></div>
+  </div>
+</div>
 
 <!-- ═══ GPS MAP PAGE (admin only) ═══ -->
 <div id="page-map" class="page">
@@ -2135,7 +2397,7 @@ function setLang(lang) {
 }
 
 function initLang() {
-  const saved = localStorage.getItem('shack_lang') || 'en';
+  const saved = localStorage.getItem('shack_lang') || 'fr';
   currentLang = saved;
   document.getElementById('btn-en')?.classList.toggle('active', saved === 'en');
   document.getElementById('btn-fr')?.classList.toggle('active', saved === 'fr');
@@ -2212,6 +2474,8 @@ function showPage(page) {
   if (page === 'time') initTimeTracker();
   if (page === 'revenue') { initRevenueYears(); renderRevenue(); }
   if (page === 'team') initTeam();
+  if (page === 'messages') initMessages();
+  if (page === 'roster') initRosterPage();
   if (page === 'map') { initTeam().then(function(){ initMap(); loadMapTimeSummary(); loadMapHistory(); }); }
 }
 
@@ -3076,6 +3340,88 @@ function exportQuotePDF(p) {
 .voice-timer{font-size:0.78rem;color:var(--red);font-weight:700;min-width:36px;}
 
 
+
+/* ── ANDROID / MOBILE FIXES ────────────────────────── */
+@media (max-width: 480px) {
+  /* Header — prevent sign-out from being clipped */
+  .header-inner {
+    padding: 6px 10px;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .header-inner .logo div {
+    font-size: 0.8rem;
+  }
+  .header-inner .logo span {
+    display: none; /* hide "Studio Tools" sub-label on small screens */
+  }
+  .sync-status {
+    font-size: 0.65rem;
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Sign out button — always fully visible */
+  button[onclick="doLogout()"],
+  button[data-i18n="misc_sign_out"] {
+    font-size: 0.68rem !important;
+    padding: 6px 8px !important;
+    min-width: 64px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  /* Nav — horizontal scroll, never wraps */
+  #main-nav {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 0;
+    padding: 0;
+  }
+  #main-nav::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    padding: 10px 12px;
+    white-space: nowrap;
+  }
+  /* Pages — full width, no horizontal overflow */
+  .page {
+    padding: 12px 10px;
+    overflow-x: hidden;
+  }
+  /* Cards — full width */
+  .card { padding: 12px; }
+  /* Buttons — easier to tap */
+  .btn { min-height: 44px; font-size: 0.9rem; }
+  /* Tables / grids — scroll horizontally */
+  .call-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  /* Row-2 — stack on very small screens */
+  .row-2 { grid-template-columns: 1fr; }
+  /* Modal — full screen on mobile */
+  .modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    border-radius: 12px 12px 0 0 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+  }
+  .modal-overlay {
+    align-items: flex-end !important;
+  }
+  /* Revenue chart — scrollable */
+  #rev-chart { overflow-x: auto; }
+}
+
+@media (max-width: 360px) {
+  .nav-tab { font-size: 0.65rem; padding: 9px 9px; }
+  .btn-block { font-size: 0.88rem; }
+}
+
 /* AUTO-ANSWER TOGGLE */
 .auto-answer-bar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--wood-pale);border-radius:var(--radius-sm);margin-bottom:10px;font-size:0.82rem;}
 .auto-answer-bar .aa-label{flex:1;font-weight:600;color:var(--wood-dark);}
@@ -3871,11 +4217,17 @@ function updateMapTabVisibility() {
   // Post Gen tab — admins only
   var postTab = document.getElementById('tab-post');
   if (postTab) postTab.style.display = admin ? '' : 'none';
+  // Roster tab — admins only
+  var rosterTab = document.getElementById('tab-roster');
+  if (rosterTab) rosterTab.style.display = admin ? '' : 'none';
+  // Messages tab — all users
+  var msgTab = document.getElementById('tab-messages');
+  if (msgTab) msgTab.style.display = '';
   // If current page is restricted and user is not admin, redirect to quote
   var activePage = document.querySelector('.page.active');
   if (activePage && !admin) {
     var id = activePage.id;
-    if (id === 'page-team' || id === 'page-map' || id === 'page-post') showPage('quote');
+    if (id === 'page-team' || id === 'page-map' || id === 'page-post' || id === 'page-roster') showPage('quote');
   }
 }
 
@@ -4789,531 +5141,514 @@ function escapeHtml(s) {
 
 
 
+
 // ══════════════════════════════════════════════════
-// PROTECTIVE FEATURES
+// SECURE ENCRYPTED MESSAGING
+// AES-GCM via Web Crypto API (built-in, no library)
 // ══════════════════════════════════════════════════
 
-// Log a client interaction (timestamped, with author)
-async function logClientInteraction(clientId) {
-  if (!sb || !currentUserEmail) return;
-  var type  = document.getElementById('cm-itype')?.value || 'note';
-  var notes = document.getElementById('cm-inote')?.value.trim() || '';
-  if (!notes) { toast(currentLang==='fr'?'⚠️ Ajoutez une note':'⚠️ Add a note first'); return; }
+var _msgTab = 'inbox';
+var _allMessages = [];
+// Shared symmetric key derived from app secret
+var _CRYPTO_SECRET = 'LeShackachaga-SecureComms-2024-v1';
+
+async function getMsgCryptoKey() {
+  var enc = new TextEncoder();
+  var keyMaterial = await window.crypto.subtle.importKey(
+    'raw', enc.encode(_CRYPTO_SECRET), 'PBKDF2', false, ['deriveKey']
+  );
+  return window.crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt:enc.encode('shackachaga-salt'), iterations:100000, hash:'SHA-256' },
+    keyMaterial,
+    { name:'AES-GCM', length:256 },
+    false, ['encrypt','decrypt']
+  );
+}
+
+async function encryptMessage(text) {
+  var key = await getMsgCryptoKey();
+  var enc = new TextEncoder();
+  var iv  = window.crypto.getRandomValues(new Uint8Array(12));
+  var encrypted = await window.crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc.encode(text));
+  return {
+    body_enc: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
+    iv:       btoa(String.fromCharCode(...iv))
+  };
+}
+
+async function decryptMessage(body_enc, iv_b64) {
   try {
-    await sb.from('client_interactions').insert([{
-      client_id:   clientId,
-      type:        type,
-      notes:       notes,
-      created_by:  currentUserEmail,
-      author_name: currentUserName || currentUserEmail.split('@')[0],
-      created_at:  new Date().toISOString()
+    var key = await getMsgCryptoKey();
+    var dec = new TextDecoder();
+    var encrypted = Uint8Array.from(atob(body_enc), c => c.charCodeAt(0));
+    var iv        = Uint8Array.from(atob(iv_b64),   c => c.charCodeAt(0));
+    var decrypted = await window.crypto.subtle.decrypt({name:'AES-GCM', iv}, key, encrypted);
+    return dec.decode(decrypted);
+  } catch(e) { return '[Could not decrypt]'; }
+}
+
+function showMsgTab(tab) {
+  _msgTab = tab;
+  ['inbox','sent'].forEach(function(t) {
+    var el = document.getElementById('mtab-'+t);
+    if (el) el.classList.toggle('active', t === tab);
+  });
+  renderMessages();
+}
+
+function showComposeMessage() {
+  var form = document.getElementById('compose-form');
+  if (form) form.style.display = 'block';
+  // Populate recipient list
+  var sel = document.getElementById('msg-to');
+  if (sel && sb) {
+    sb.from('employee_profiles').select('email,display_name,first_name,last_name')
+      .eq('is_active', true).then(function(res) {
+        if (!res.data) return;
+        sel.innerHTML = '<option value="">— ' + (currentLang==='fr'?'Choisir destinataire':'Select recipient') + ' —</option>';
+        res.data.forEach(function(e) {
+          if (e.email === currentUserEmail) return;
+          var name = e.display_name || (e.first_name+' '+e.last_name).trim() || e.email;
+          sel.innerHTML += '<option value="'+e.email+'">'+name+'</option>';
+        });
+      });
+  }
+}
+
+function hideComposeMessage() {
+  var form = document.getElementById('compose-form');
+  if (form) form.style.display = 'none';
+}
+
+async function sendSecureMessage() {
+  var to      = document.getElementById('msg-to')?.value.trim();
+  var subject = document.getElementById('msg-subject')?.value.trim();
+  var body    = document.getElementById('msg-body')?.value.trim();
+  if (!to)   { toast(currentLang==='fr'?'⚠️ Choisissez un destinataire':'⚠️ Choose a recipient'); return; }
+  if (!body) { toast(currentLang==='fr'?'⚠️ Écrivez un message':'⚠️ Write a message'); return; }
+  if (!sb)   return;
+  try {
+    var enc = await encryptMessage(body);
+    await sb.from('secure_messages').insert([{
+      from_email: currentUserEmail,
+      to_email:   to,
+      subject:    subject || (currentLang==='fr'?'(sans sujet)':'(no subject)'),
+      body_enc:   enc.body_enc,
+      iv:         enc.iv
     }]);
-    if (document.getElementById('cm-inote')) document.getElementById('cm-inote').value = '';
-    toast(currentLang==='fr'?'✅ Interaction consignée':'✅ Interaction logged');
-    loadClientInteractions(clientId);
+    toast('🔒 '+(currentLang==='fr'?'Message envoyé de façon sécurisée!':'Message sent securely!'));
+    hideComposeMessage();
+    document.getElementById('msg-subject').value = '';
+    document.getElementById('msg-body').value    = '';
+    loadMessages();
   } catch(e) { toast('⚠️ '+e.message); }
 }
 
-async function loadClientInteractions(clientId) {
-  if (!sb) return;
-  var el = document.getElementById('client-interaction-list');
-  if (!el) return;
+async function loadMessages() {
+  if (!sb || !currentUserEmail) return;
   try {
-    var res = await sb.from('client_interactions').select('*')
-      .eq('client_id', clientId).order('created_at', {ascending:false});
-    if (res.error || !res.data || !res.data.length) {
-      el.innerHTML = '<div style="color:var(--wood-mid);font-size:0.8rem;padding:8px 0;">'+t('prot_no_interactions')+'</div>';
-      return;
-    }
-    var icons = {call:'📞', visit:'🏠', meeting:'🏗️', email:'📧', quote:'💰', followup:'🔄', other:'📝'};
-    el.innerHTML = res.data.map(function(i) {
-      var d = new Date(i.created_at);
-      var dateStr = d.toLocaleDateString(currentLang==='fr'?'fr-CA':'en-CA', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-      return '<div style="padding:6px 0;border-bottom:1px solid var(--wood-pale);">'+
-        '<div style="display:flex;justify-content:space-between;">'+
-          '<span style="font-weight:600;">'+(icons[i.type]||'📝')+' '+escapeHtml(i.notes)+'</span>'+
-          '<span style="font-size:0.68rem;color:var(--wood-mid);white-space:nowrap;margin-left:8px;">'+dateStr+'</span>'+
-        '</div>'+
-        '<div style="font-size:0.68rem;color:var(--wood-mid);">'+escapeHtml(i.author_name||'')+'</div>'+
-      '</div>';
-    }).join('');
-  } catch(e) { el.innerHTML = '<p style="color:var(--wood-mid);font-size:0.8rem;">—</p>'; }
-}
-
-// Quote audit log — show all quotes with who created them
-async function loadQuoteAuditLog() {
-  if (!sb) return;
-  try {
-    var res = await sb.from('projects').select('id,client_name,type,amount,created_by,created_at')
-      .not('created_by','is',null)
+    var res = await sb.from('secure_messages')
+      .select('*')
+      .or('to_email.eq.'+currentUserEmail+',from_email.eq.'+currentUserEmail)
       .order('created_at', {ascending:false})
       .limit(50);
-    return res.data || [];
-  } catch(e) { return []; }
-}
-
-// GPS anomaly detection — check for unknown locations during work hours
-async function checkGPSAnomalies() {
-  if (!sb || !isAdmin(currentUserEmail)) return;
-  try {
-    var today = new Date().toISOString().split('T')[0];
-    var res = await sb.from('time_logs').select('*')
-      .gte('created_at', today+'T00:00:00Z')
-      .eq('location_type', 'onsite');
-    if (!res.data) return;
-    // Flag logs where GPS is far from known client sites
-    var anomalies = res.data.filter(function(l) {
-      if (!l.lat || !l.lng) return false;
-      var distFromShop = distanceMeters(l.lat, l.lng, SHOP_LAT, SHOP_LNG);
-      return distFromShop > 50000; // more than 50km from shop
-    });
-    if (anomalies.length > 0) {
-      var el = document.getElementById('gps-anomaly-banner');
-      if (el) {
-        el.style.display = 'block';
-        el.innerHTML = '🚩 '+anomalies.length+' GPS anomal'+(anomalies.length>1?'ies':'y')+' detected today';
-      }
-      console.warn('GPS anomalies:', anomalies);
+    _allMessages = res.data || [];
+    // Decrypt all messages
+    for (var i = 0; i < _allMessages.length; i++) {
+      _allMessages[i]._decrypted = await decryptMessage(_allMessages[i].body_enc, _allMessages[i].iv);
     }
-  } catch(e) {}
+    renderMessages();
+    updateMsgBadge();
+  } catch(e) { console.error('loadMessages:', e); }
 }
 
-// Revenue per employee — admin dashboard
-async function loadEmployeeDashboard() {
-  if (!sb || !isAdmin(currentUserEmail)) return;
-  try {
-    var res = await sb.from('projects').select('created_by,amount,status,client_name,type,created_at')
-      .not('created_by','is',null);
-    if (res.error || !res.data) return {};
-    var byEmp = {};
-    res.data.forEach(function(p) {
-      var emp = p.created_by || 'unknown';
-      if (!byEmp[emp]) byEmp[emp] = {quotes:0, projects:0, revenue:0, delivered:0};
-      byEmp[emp].quotes++;
-      if (p.amount) byEmp[emp].revenue += p.amount;
-      if (p.status === 'done') byEmp[emp].delivered++;
-    });
-    return byEmp;
-  } catch(e) { return {}; }
-}
-
-// ══════════════════════════════════════════════════
-// INIT HOOK — called from launchApp & showPage
-// ══════════════════════════════════════════════════
-
-
-// ══════════════════════════════════════════════════
-// GPS MAP TAB (admin: thebigjay766, matg32)
-// Uses Leaflet.js — no API key needed
-// ══════════════════════════════════════════════════
-var _leafletMap    = null;
-var _mapMarkers    = [];
-var _leafletLoaded = false;
-
-function loadLeaflet(cb) {
-  if (_leafletLoaded) { cb(); return; }
-  // Load Leaflet CSS
-  var css = document.createElement('link');
-  css.rel = 'stylesheet';
-  css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-  document.head.appendChild(css);
-  // Load Leaflet JS
-  var s = document.createElement('script');
-  s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-  s.onload = function() { _leafletLoaded = true; cb(); };
-  document.head.appendChild(s);
-}
-
-function initMap() {
-  loadLeaflet(function() {
-    if (_leafletMap) { _leafletMap.invalidateSize(); updateMap(teamMembers); return; }
-    _leafletMap = L.map('leaflet-map').setView([SHOP_LAT, SHOP_LNG], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
-      maxZoom: 19
-    }).addTo(_leafletMap);
-    // Shop marker
-    var shopIcon = L.divIcon({
-      html: '<div style="background:#3E1F00;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 6px rgba(0,0,0,0.4);">🏭</div>',
-      iconSize: [28,28], iconAnchor: [14,14], className: ''
-    });
-    L.marker([SHOP_LAT, SHOP_LNG], {icon: shopIcon})
-      .addTo(_leafletMap)
-      .bindPopup('<strong>Le Shackachaga</strong><br>Shop / Atelier');
-    updateMap(teamMembers);
-    loadMapHistory();
-    loadMapTimeSummary();
+function renderMessages() {
+  var list = document.getElementById('msg-list');
+  if (!list) return;
+  var msgs = _allMessages.filter(function(m) {
+    return _msgTab === 'inbox' ? m.to_email === currentUserEmail : m.from_email === currentUserEmail;
   });
-}
-
-var _memberColors = ['#2E7D32','#1565C0','#6A1B9A','#E65100','#00695C','#AD1457'];
-
-function updateMap(members) {
-  if (!_leafletMap || !_leafletLoaded || typeof L === 'undefined') return;
-  // Clear old markers
-  _mapMarkers.forEach(function(m){ _leafletMap.removeLayer(m); });
-  _mapMarkers = [];
-  var bounds = [[SHOP_LAT, SHOP_LNG]];
-  (members || []).forEach(function(m, i) {
-    if (!m.lat || !m.lng) return;
-    var color = _memberColors[i % _memberColors.length];
-    var initials = (m.display_name || m.user_email || '?').substring(0,2).toUpperCase();
-    var isMe = m.user_email === currentUserEmail;
-    var icon = L.divIcon({
-      html: '<div style="background:'+color+';color:white;border-radius:50%;width:'+(isMe?'32':'26')+'px;height:'+(isMe?'32':'26')+'px;display:flex;align-items:center;justify-content:center;font-size:'+(isMe?'13':'11')+'px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:'+(isMe?'2px solid white':'none')+';">'+initials+'</div>',
-      iconSize: [isMe?32:26, isMe?32:26],
-      iconAnchor: [isMe?16:13, isMe?16:13],
-      className: ''
-    });
-    var locLabels = {shop:'🏭 At Shop', travel:'🚗 Travelling', onsite:'🏗️ On-site', offline:'⬛ Offline'};
-    var locLabel = locLabels[m.location_type] || m.location_type;
-    var popup = '<strong>'+(m.display_name||(m.user_email||'').split('@')[0])+'</strong>'+(isMe?' (me)':'')+'<br>'+locLabel+'<br><small>'+m.lat.toFixed(4)+', '+m.lng.toFixed(4)+'</small>';
-    var marker = L.marker([m.lat, m.lng], {icon:icon}).addTo(_leafletMap).bindPopup(popup);
-    _mapMarkers.push(marker);
-    bounds.push([m.lat, m.lng]);
-  });
-  if (bounds.length > 1) {
-    try { _leafletMap.fitBounds(bounds, {padding:[30,30], maxZoom:15}); } catch(e) {}
-  }
-  // Update last update time
-  var el = document.getElementById('map-last-update');
-  if (el) el.textContent = (currentLang==='fr'?'Mis à jour: ':'Updated: ') + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  renderMapTeamList(members);
-}
-
-function renderMapTeamList(members) {
-  var el = document.getElementById('map-team-list');
-  if (!el) return;
-  var locColors = {shop:'#2E7D32', travel:'#E65100', onsite:'#1565C0', offline:'#90A4AE'};
-  var locLabels = {shop:'🏭 Shop', travel:'🚗 Travel', onsite:'🏗️ On-site', offline:'⬛ Offline'};
-  el.innerHTML = (members||[]).map(function(m, i) {
-    var name = m.display_name || (m.user_email||'').split('@')[0];
-    var color = _memberColors[i % _memberColors.length];
-    var locKey = m.status==='offline'?'offline':(m.location_type||'shop');
-    var locColor = locColors[locKey] || '#90A4AE';
-    var locLabel = locLabels[locKey] || locKey;
-    var lastSeen = new Date(m.last_seen);
-    var minsAgo = Math.round((Date.now()-lastSeen)/60000);
-    var timeStr = minsAgo < 2 ? 'now' : minsAgo+'min ago';
-    var gps = m.lat ? '📍 '+m.lat.toFixed(3)+', '+m.lng.toFixed(3) : 'No GPS';
-    return '<div class="map-user-row">'+
-      '<div class="map-loc-dot" style="background:'+color+';"></div>'+
-      '<div style="flex:1;">'+
-        '<div style="font-weight:600;font-size:0.88rem;">'+escapeHtml(name)+'</div>'+
-        '<div style="font-size:0.72rem;color:var(--wood-mid);">'+gps+' · '+timeStr+'</div>'+
-      '</div>'+
-      '<div style="font-size:0.75rem;font-weight:700;color:'+locColor+';">'+locLabel+'</div>'+
-    '</div>';
-  }).join('') || '<div class="empty-state"><p>No GPS data yet</p></div>';
-}
-
-async function loadMapTimeSummary() {
-  if (!sb) return;
-  var el = document.getElementById('map-time-summary');
-  if (!el) return;
-  try {
-    var today = new Date().toISOString().split('T')[0];
-    var res = await sb.from('time_logs').select('*').gte('created_at', today+'T00:00:00Z');
-    if (res.error || !res.data) { el.innerHTML = '<p style="color:var(--wood-mid);font-size:0.85rem;">No time data</p>'; return; }
-    var byUser = {};
-    res.data.forEach(function(l) {
-      var u = l.user_email || 'unknown';
-      if (!byUser[u]) byUser[u] = {shop:0, travel:0, onsite:0, total:0};
-      var mins = l.duration_minutes || 0;
-      byUser[u][l.location_type || 'shop'] += mins;
-      byUser[u].total += mins;
-    });
-    el.innerHTML = Object.entries(byUser).map(function(entry) {
-      var user = entry[0], data = entry[1];
-      var name = user.split('@')[0];
-      var totalH = (data.total/60).toFixed(1);
-      var shopPct  = data.total ? Math.round(data.shop/data.total*100) : 0;
-      var travelPct= data.total ? Math.round(data.travel/data.total*100) : 0;
-      var onsitePct= data.total ? Math.round(data.onsite/data.total*100) : 0;
-      return '<div style="margin-bottom:14px;">'+
-        '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">'+
-          '<strong style="font-size:0.85rem;">'+escapeHtml(name)+'</strong>'+
-          '<span style="font-size:0.8rem;color:var(--wood-mid);">'+totalH+'h total</span>'+
-        '</div>'+
-        '<div style="display:flex;gap:4px;font-size:0.68rem;margin-bottom:4px;">'+
-          '<span style="color:#2E7D32;">🏭 '+data.shop+'min</span>'+
-          '<span style="color:#E65100;margin-left:8px;">🚗 '+data.travel+'min</span>'+
-          '<span style="color:#1565C0;margin-left:8px;">🏗️ '+data.onsite+'min</span>'+
-        '</div>'+
-        '<div class="map-time-bar">'+
-          '<div style="display:flex;height:100%;">'+
-            '<div style="width:'+shopPct+'%;background:#2E7D32;border-radius:4px 0 0 4px;"></div>'+
-            '<div style="width:'+travelPct+'%;background:#E65100;"></div>'+
-            '<div style="width:'+onsitePct+'%;background:#1565C0;border-radius:0 4px 4px 0;"></div>'+
-          '</div>'+
-        '</div>'+
-      '</div>';
-    }).join('') || '<p style="color:var(--wood-mid);font-size:0.85rem;">No time logged today</p>';
-  } catch(e) { el.innerHTML = '<p style="color:var(--wood-mid);font-size:0.85rem;">Time data unavailable</p>'; }
-}
-
-async function loadMapHistory() {
-  if (!sb) return;
-  var el = document.getElementById('map-history-list');
-  var filterEl = document.getElementById('map-user-filter');
-  var filterUser = filterEl ? filterEl.value : 'all';
-  if (!el) return;
-  try {
-    var today = new Date().toISOString().split('T')[0];
-    var query = sb.from('time_logs').select('*').gte('created_at', today+'T00:00:00Z').order('created_at', {ascending:false});
-    if (filterUser !== 'all') query = query.eq('user_email', filterUser);
-    var res = await query;
-    if (res.error || !res.data || !res.data.length) {
-      el.innerHTML = '<div class="empty-state"><p>No GPS logs today</p></div>'; return;
-    }
-    // Populate user filter dropdown
-    if (filterEl && teamMembers.length) {
-      var currentVal = filterEl.value;
-      filterEl.innerHTML = '<option value="all">All Team Members</option>'+
-        teamMembers.map(function(m){ return '<option value="'+m.user_email+'">'+(m.display_name||(m.user_email||'').split('@')[0])+'</option>'; }).join('');
-      filterEl.value = currentVal;
-    }
-    var icons = {shop:'🏭', travel:'🚗', onsite:'🏗️'};
-    el.innerHTML = res.data.map(function(l) {
-      var name = (l.user_email||'').split('@')[0];
-      var cin  = new Date(l.clock_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-      var cout = l.clock_out ? new Date(l.clock_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
-      var dur  = l.duration_minutes ? Math.round(l.duration_minutes)+'min' : 'active';
-      var gps  = (l.lat && l.lng) ? l.lat.toFixed(4)+', '+l.lng.toFixed(4) : 'no GPS';
-      return '<div class="price-row">'+
-        '<span class="price-label" style="font-size:0.8rem;">'+
-          '<strong>'+escapeHtml(name)+'</strong> — '+(icons[l.location_type]||'📍')+' '+cin+' → '+cout+
-          '<br><span style="font-size:0.7rem;color:var(--wood-mid);">'+gps+(l.notes?' · '+escapeHtml(l.notes):'')+'</span>'+
-        '</span>'+
-        '<span class="price-val">'+dur+'</span>'+
-      '</div>';
-    }).join('');
-  } catch(e) { el.innerHTML = '<div class="empty-state"><p>History unavailable</p></div>'; }
-}
-
-// ══════════════════════════════════════════════════
-// VOICE MESSAGES
-// ══════════════════════════════════════════════════
-var _mediaRecorder  = null;
-var _audioChunks    = [];
-var _recordTimer    = null;
-var _recordSecs     = 0;
-var _isRecording    = false;
-var _currentAudios  = {}; // id → Audio object
-
-function toggleVoicePanel() {
-  var wrap = document.getElementById('voice-record-wrap');
-  if (!wrap) return;
-  var visible = wrap.style.display !== 'none';
-  wrap.style.display = visible ? 'none' : 'flex';
-  if (!visible) document.getElementById('chat-input').style.display = 'none';
-  else { document.getElementById('chat-input').style.display = ''; cancelVoiceRecord(); }
-}
-
-async function toggleVoiceRecord() {
-  if (_isRecording) {
-    stopVoiceRecord();
-  } else {
-    await startVoiceRecord();
-  }
-}
-
-async function startVoiceRecord() {
-  if (!_micGranted) { var ok = await requestMicPermissionOnce(); if (!ok) return; }
-  try {
-    var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    _audioChunks = [];
-    _recordSecs  = 0;
-    // Use webm/opus for best compression — fallback to default
-    var mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-      ? 'audio/webm;codecs=opus'
-      : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
-    var opts = mimeType ? { mimeType: mimeType, audioBitsPerSecond: 32000 } : { audioBitsPerSecond: 32000 };
-    _mediaRecorder = new MediaRecorder(stream, opts);
-    _mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) _audioChunks.push(e.data); };
-    _mediaRecorder.onstop = function() {
-      stream.getTracks().forEach(function(t) { t.stop(); });
-      sendVoiceMessage();
-    };
-    _mediaRecorder.start(250); // collect data every 250ms
-    _isRecording = true;
-    var btn = document.getElementById('voice-record-btn');
-    if (btn) { btn.textContent = '⏹'; btn.classList.add('recording'); }
-    var hint = document.getElementById('voice-record-hint');
-    if (hint) hint.textContent = currentLang === 'fr' ? '🔴 Enregistrement...' : '🔴 Recording...';
-    // Timer
-    _recordTimer = setInterval(function() {
-      _recordSecs++;
-      var t = document.getElementById('voice-timer');
-      if (t) t.textContent = Math.floor(_recordSecs/60) + ':' + ('0'+(_recordSecs%60)).slice(-2);
-      if (_recordSecs >= 120) stopVoiceRecord(); // max 2 min
-    }, 1000);
-  } catch(e) {
-    toast('⚠️ ' + (currentLang==='fr' ? 'Micro refusé' : 'Mic denied'));
-  }
-}
-
-function stopVoiceRecord() {
-  if (!_isRecording || !_mediaRecorder) return;
-  _isRecording = false;
-  clearInterval(_recordTimer);
-  _mediaRecorder.stop();
-  var btn = document.getElementById('voice-record-btn');
-  if (btn) { btn.textContent = '🎤'; btn.classList.remove('recording'); }
-  var t = document.getElementById('voice-timer');
-  if (t) t.textContent = '0:00';
-  var hint = document.getElementById('voice-record-hint');
-  if (hint) hint.textContent = currentLang==='fr' ? 'Envoi...' : 'Sending...';
-}
-
-function cancelVoiceRecord() {
-  if (_isRecording && _mediaRecorder) {
-    _isRecording = false;
-    clearInterval(_recordTimer);
-    _mediaRecorder.stream && _mediaRecorder.stream.getTracks().forEach(function(t){ t.stop(); });
-    _mediaRecorder = null;
-  }
-  _audioChunks = [];
-  _recordSecs = 0;
-  var btn = document.getElementById('voice-record-btn');
-  if (btn) { btn.textContent = '🎤'; btn.classList.remove('recording'); }
-  var t = document.getElementById('voice-timer');
-  if (t) t.textContent = '0:00';
-  var wrap = document.getElementById('voice-record-wrap');
-  if (wrap) wrap.style.display = 'none';
-  var input = document.getElementById('chat-input');
-  if (input) input.style.display = '';
-}
-
-async function sendVoiceMessage() {
-  if (!_audioChunks.length || !currentUserEmail || !chatSubscription) return;
-  var mimeType = _audioChunks[0].type || 'audio/webm';
-  var blob = new Blob(_audioChunks, { type: mimeType });
-  var durationSecs = _recordSecs;
-  // Convert to base64 for storage/broadcast
-  var reader = new FileReader();
-  reader.onloadend = async function() {
-    var base64 = reader.result; // data:audio/webm;base64,...
-    var msg = {
-      sender_email: currentUserEmail,
-      sender_name:  currentUserName || currentUserEmail.split('@')[0],
-      content:      '__VOICE__',
-      room:         'team',
-      voice_data:   base64,
-      voice_duration: durationSecs,
-      created_at:   new Date().toISOString()
-    };
-    // Show in own chat immediately
-    appendVoiceMessage(msg, true);
-    // Broadcast to all
-    if (chatSubscription && chatSubscription.send) {
-      chatSubscription.send({ type:'broadcast', event:'chat_msg', payload: msg });
-    }
-    // Save to DB (store voice as content with base64 in separate field)
-    try {
-      await sb.from('messages').insert([{
-        sender_email: msg.sender_email,
-        sender_name:  msg.sender_name,
-        content:      '__VOICE__:'+durationSecs+'s',
-        room:         msg.room,
-        // Note: base64 audio is broadcast-only for bandwidth reasons
-        // For persistence store URL if Supabase Storage is set up
-      }]);
-    } catch(e) { /* ok */ }
-    cancelVoiceRecord();
-    toast(currentLang==='fr' ? '🎙️ Message vocal envoyé!' : '🎙️ Voice message sent!');
-  };
-  reader.readAsDataURL(blob);
-}
-
-function appendVoiceMessage(m, isMine) {
-  var el = document.getElementById('chat-messages');
-  if (!el) return;
-  var empty = el.querySelector('.empty-state');
-  if (empty) empty.remove();
-  var msgId = 'vm' + Date.now() + Math.floor(Math.random()*9999);
-  var name = m.sender_name || (m.sender_email||'').split('@')[0];
-  var timeStr = new Date(m.created_at||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  var durationSecs = m.voice_duration || 0;
-  var durStr = Math.floor(durationSecs/60)+':'+('0'+(durationSecs%60)).slice(-2);
-  var div = document.createElement('div');
-  div.className = 'chat-msg ' + (isMine ? 'mine' : 'theirs');
-  div.id = msgId;
-  if (m.voice_data) div.dataset.audioSrc = m.voice_data;
-  // Build HTML safely without nested quotes
-  var nameHtml = isMine ? '' : '<div class="chat-msg-name">'+escapeHtml(name)+'</div>';
-  div.innerHTML = nameHtml +
-    '<div class="voice-msg-wrap">' +
-      '<button class="voice-play-btn" id="pbtn-'+msgId+'">&#9654;</button>' +
-      '<div class="voice-waveform" id="wf-'+msgId+'">' +
-        '<div class="voice-progress" id="vprog-'+msgId+'"></div>' +
-      '</div>' +
-      '<span class="voice-duration" id="vdur-'+msgId+'">'+durStr+'</span>' +
-    '</div>' +
-    '<div class="chat-msg-time">&#127897; '+timeStr+'</div>';
-  el.appendChild(div);
-  el.scrollTop = el.scrollHeight;
-  // Wire click handlers after DOM insert
-  var pb = document.getElementById('pbtn-'+msgId);
-  var wf = document.getElementById('wf-'+msgId);
-  if (pb) pb.onclick = function(){ playVoiceMsg(msgId); };
-  if (wf) wf.onclick = function(){ playVoiceMsg(msgId); };
-}
-
-function playVoiceMsg(msgId) {
-  var div = document.getElementById(msgId);
-  if (!div || !div.dataset.audioSrc) {
-    toast(currentLang==='fr' ? '⚠️ Audio non disponible' : '⚠️ Audio not available (live only)');
+  if (!msgs.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">🔒</div><p>'+
+      (currentLang==='fr'?'Aucun message':'No messages yet')+'</p></div>';
     return;
   }
-  // Stop any currently playing
-  Object.keys(_currentAudios).forEach(function(id) {
-    if (id !== msgId && _currentAudios[id]) {
-      _currentAudios[id].pause();
-      var pb = document.getElementById('pbtn-'+id);
-      if (pb) { pb.textContent = '▶'; pb.classList.remove('playing'); }
-    }
-  });
-  var audio = _currentAudios[msgId];
-  if (!audio) {
-    audio = new Audio(div.dataset.audioSrc);
-    _currentAudios[msgId] = audio;
-    audio.ontimeupdate = function() {
-      var pct = audio.duration ? (audio.currentTime / audio.duration * 100) : 0;
-      var prog = document.getElementById('vprog-'+msgId);
-      if (prog) prog.style.width = pct + '%';
-      var dur = document.getElementById('vdur-'+msgId);
-      var rem = audio.duration - audio.currentTime;
-      if (dur && !isNaN(rem)) dur.textContent = Math.floor(rem/60)+':'+('0'+Math.floor(rem%60)).slice(-2);
-    };
-    audio.onended = function() {
-      var pb = document.getElementById('pbtn-'+msgId);
-      if (pb) { pb.textContent = '▶'; pb.classList.remove('playing'); }
-      var prog = document.getElementById('vprog-'+msgId);
-      if (prog) prog.style.width = '0%';
-    };
+  list.innerHTML = msgs.map(function(m) {
+    var isUnread = !m.read_at && m.to_email === currentUserEmail;
+    var other    = _msgTab==='inbox' ? m.from_email : m.to_email;
+    var otherName= other.split('@')[0];
+    var timeStr  = new Date(m.created_at).toLocaleDateString(currentLang==='fr'?'fr-CA':'en-CA',
+      {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    var preview  = (m._decrypted||'').substring(0,60)+'...';
+    return '<div class="msg-item'+(isUnread?' unread':'')+'" onclick="openMessage('+m.id+')">'+
+      '<div class="msg-item-header">'+
+        '<span class="msg-item-from">'+
+          (_msgTab==='inbox'?'📨 ':'📤 ')+otherName+
+          ' <span class="msg-lock">🔒</span>'+
+        '</span>'+
+        '<span class="msg-item-time">'+timeStr+'</span>'+
+      '</div>'+
+      '<div class="msg-item-subject">'+escapeHtml(m.subject||'')+'</div>'+
+      '<div class="msg-item-preview">'+escapeHtml(preview)+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+async function openMessage(id) {
+  var m = _allMessages.find(function(x){ return x.id === id; });
+  if (!m) return;
+  // Mark as read
+  if (!m.read_at && m.to_email === currentUserEmail) {
+    await sb.from('secure_messages').update({read_at:new Date().toISOString()}).eq('id',id);
+    m.read_at = new Date().toISOString();
+    updateMsgBadge();
   }
-  var pb = document.getElementById('pbtn-'+msgId);
-  if (audio.paused) {
-    audio.play().catch(function(){});
-    if (pb) { pb.textContent = '⏸'; pb.classList.add('playing'); }
-  } else {
-    audio.pause();
-    if (pb) { pb.textContent = '▶'; pb.classList.remove('playing'); }
+  var timeStr = new Date(m.created_at).toLocaleDateString(currentLang==='fr'?'fr-CA':'en-CA',
+    {weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  var overlay = document.getElementById('employee-modal');
+  if (!overlay) return;
+  document.getElementById('emp-modal-title').textContent = m.subject || (currentLang==='fr'?'(sans sujet)':'(no subject)');
+
+  var body = document.createElement('div');
+  body.className = 'msg-thread';
+
+  // Header
+  var hdr = document.createElement('div');
+  hdr.className = 'msg-thread-header';
+  hdr.innerHTML =
+    '<div style="font-size:0.82rem;"><strong>'+(currentLang==='fr'?'De: ':'From: ')+escapeHtml(m.from_email)+'</strong></div>'+
+    '<div style="font-size:0.82rem;color:var(--wood-mid);">'+(currentLang==='fr'?'À: ':'To: ')+escapeHtml(m.to_email)+'</div>'+
+    '<div style="font-size:0.75rem;color:var(--wood-mid);margin-top:4px;">'+timeStr+' 🔒 '+(currentLang==='fr'?'Chiffré AES-256':'AES-256 Encrypted')+'</div>';
+  body.appendChild(hdr);
+
+  // Message bubble
+  var bubble = document.createElement('div');
+  bubble.className = 'msg-bubble ' + (m.from_email===currentUserEmail ? 'mine' : 'theirs');
+  var msgText = document.createElement('div');
+  msgText.style.cssText = 'font-size:0.88rem;white-space:pre-wrap;';
+  msgText.textContent = m._decrypted || '';
+  var meta = document.createElement('div');
+  meta.className = 'msg-bubble-meta';
+  meta.textContent = '🔒 ' + timeStr;
+  bubble.appendChild(msgText);
+  bubble.appendChild(meta);
+  body.appendChild(bubble);
+
+  // Action buttons
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;margin-top:12px;';
+
+  if (m.to_email === currentUserEmail) {
+    var replyBtn = document.createElement('button');
+    replyBtn.className = 'btn btn-amber btn-sm';
+    replyBtn.textContent = currentLang==='fr' ? '↩ Répondre' : '↩ Reply';
+    replyBtn.onclick = function() { replyToMessage(m.from_email, 'Re: '+(m.subject||'')); };
+    btnRow.appendChild(replyBtn);
+  }
+
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'btn btn-ghost btn-sm';
+  closeBtn.textContent = currentLang==='fr' ? 'Fermer' : 'Close';
+  closeBtn.onclick = function() { closeModal('employee-modal'); };
+  btnRow.appendChild(closeBtn);
+
+  var delBtn = document.createElement('button');
+  delBtn.className = 'btn btn-ghost btn-sm';
+  delBtn.style.color = 'var(--red)';
+  delBtn.textContent = '🗑';
+  delBtn.onclick = function() { deleteMessage(id); };
+  btnRow.appendChild(delBtn);
+  body.appendChild(btnRow);
+
+  var bodyWrap = document.getElementById('emp-modal-body');
+  bodyWrap.innerHTML = '';
+  bodyWrap.appendChild(body);
+  overlay.classList.add('open');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// COMPLETE MESSAGES + ROSTER IMPLEMENTATION
+// ══════════════════════════════════════════════════════════════════
+
+// ── Message helpers ───────────────────────────────────────────────
+function updateMsgBadge() {
+  var unread = (_allMessages||[]).filter(function(m){
+    return m.to_email === currentUserEmail && !m.read_at;
+  }).length;
+  var badge = document.getElementById('msg-unread-count');
+  if (badge) { badge.textContent = unread; badge.style.display = unread ? 'inline' : 'none'; }
+  var tabEl = document.getElementById('tab-messages');
+  if (tabEl) {
+    var existing = tabEl.querySelector('.msg-nav-badge');
+    if (unread > 0) {
+      if (!existing) {
+        var b = document.createElement('span');
+        b.className = 'msg-nav-badge';
+        b.style.cssText = 'background:var(--amber);color:white;border-radius:10px;padding:1px 5px;font-size:0.62rem;font-weight:700;margin-left:4px;';
+        tabEl.appendChild(b);
+        existing = b;
+      }
+      existing.textContent = unread;
+    } else if (existing) { existing.remove(); }
   }
 }
-</script>
 
-<!-- service worker removed for compatibility -->
-<script>
-window.addEventListener('beforeunload', function() {
-  if (window.sb && currentUserEmail) {
-    window.sb.from('user_locations')
-      .update({status:'offline', last_seen: new Date().toISOString()})
-      .eq('user_email', currentUserEmail)
-      .then(function(){});
+function initMessages() {
+  loadMessages();
+  setupMessageRealtime();
+  showComposeMessage(); // init recipient list
+  hideComposeMessage(); // then hide it
+}
+
+function setupMessageRealtime() {
+  if (!sb || !currentUserEmail) return;
+  sb.channel('secure-msg-' + currentUserEmail.replace(/[@.]/g,'_'))
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'secure_messages'}, function(payload) {
+      var m = payload.new;
+      if (m.to_email !== currentUserEmail) return;
+      var name = m.from_email.split('@')[0];
+      toast('🔒 ' + (currentLang==='fr' ? 'Nouveau message de ' : 'New message from ') + name);
+      if (navigator.vibrate) navigator.vibrate([200]);
+      loadMessages();
+    })
+    .subscribe();
+}
+
+function replyToMessage(toEmail, subject) {
+  closeModal('employee-modal');
+  var form = document.getElementById('compose-form');
+  if (form) form.style.display = 'block';
+  showComposeMessage();
+  setTimeout(function() {
+    var sel = document.getElementById('msg-to');
+    if (sel) sel.value = toEmail;
+    var subj = document.getElementById('msg-subject');
+    if (subj) subj.value = subject;
+    document.getElementById('msg-body')?.focus();
+  }, 100);
+}
+
+async function deleteMessage(id) {
+  if (!sb || !confirm(currentLang==='fr' ? 'Supprimer ce message?' : 'Delete this message?')) return;
+  await sb.from('secure_messages').delete().eq('id', id);
+  closeModal('employee-modal');
+  _allMessages = (_allMessages||[]).filter(function(m){ return m.id !== id; });
+  renderMessages();
+  updateMsgBadge();
+  toast(currentLang==='fr' ? '🗑 Message supprimé' : '🗑 Message deleted');
+}
+
+// ══════════════════════════════════════════════════════════════════
+// EMPLOYEE ROSTER
+// ══════════════════════════════════════════════════════════════════
+var _rosterUsers   = [];
+var _editingUserId = null;
+
+async function initRosterPage() {
+  if (!isAdmin(currentUserEmail)) { showPage('quote'); return; }
+  await loadRosterUsers();
+}
+
+async function loadRosterUsers() {
+  if (!sb) return;
+  var grid = document.getElementById('roster-grid');
+  if (grid) grid.innerHTML = '<div class="empty-state"><div class="icon">⏳</div></div>';
+  try {
+    var res = await sb.from('employee_profiles').select('*').order('display_name');
+    _rosterUsers = res.data || [];
+    window._rosterUsers = _rosterUsers;
+    var total     = _rosterUsers.length;
+    var active    = _rosterUsers.filter(function(p){ return p.status !== 'inactive'; }).length;
+    var positions = (function(){ var s=new Set(); _rosterUsers.forEach(function(p){ if(p.position) s.add(p.position); }); return s.size; })();
+    var sv = function(id, v) { var e = document.getElementById(id); if(e) e.textContent = v; };
+    sv('roster-total', total); sv('roster-active', active); sv('roster-positions', positions);
+    if (!grid) return;
+    if (!_rosterUsers.length) {
+      grid.innerHTML = '<div class="empty-state"><div class="icon">👤</div><p>' +
+        (currentLang==='fr' ? 'Aucun employé. Cliquez + Ajouter.' : 'No employees yet. Click + Add.') + '</p></div>';
+      return;
+    }
+    grid.innerHTML = _rosterUsers.map(function(p){ return renderEmployeeCard(p); }).join('');
+  } catch(e) {
+    if (grid) grid.innerHTML = '<div class="empty-state"><p>⚠️ ' + e.message + '</p></div>';
   }
-});
-</script>
-</body>
-</html>
+}
+
+function renderEmployeeCard(p) {
+  var initials = ((p.display_name || p.email || '?').charAt(0)).toUpperCase();
+  var avatar = p.photo_url
+    ? '<img src="'+escapeHtml(p.photo_url)+'" style="width:54px;height:54px;border-radius:50%;object-fit:cover;flex-shrink:0;">'
+    : '<div style="width:54px;height:54px;border-radius:50%;background:var(--wood-mid);color:white;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;flex-shrink:0;">'+initials+'</div>';
+  var statusColor = p.status==='active' ? 'var(--green)' : p.status==='on-leave' ? 'var(--amber)' : '#999';
+  var statusLbl   = p.status==='active' ? (currentLang==='fr'?'Actif':'Active') :
+                    p.status==='on-leave' ? (currentLang==='fr'?'En congé':'On Leave') :
+                    (currentLang==='fr'?'Inactif':'Inactive');
+  return '<div class="roster-card" onclick="openEmployeeEditor(\''+p.id+'\')">' +
+    '<div class="roster-card-inner">' +
+      '<div class="roster-avatar">' + avatar + '</div>' +
+      '<div class="roster-info">' +
+        '<div class="roster-name">' + escapeHtml(p.display_name || p.email || '—') + '</div>' +
+        '<div class="roster-position">' + escapeHtml(p.position || (currentLang==='fr'?'Poste non défini':'No position')) + '</div>' +
+        '<div style="font-size:0.7rem;color:var(--wood-mid);">' + escapeHtml(p.email||'') + '</div>' +
+        (p.phone ? '<div style="font-size:0.7rem;color:var(--wood-mid);">📞 '+escapeHtml(p.phone)+'</div>' : '') +
+      '</div>' +
+      '<div style="text-align:right;flex-shrink:0;">' +
+        '<div style="font-size:0.7rem;font-weight:700;color:'+statusColor+';margin-bottom:6px;">● '+statusLbl+'</div>' +
+        (p.pw_temp ? '<div style="font-size:0.65rem;background:#FFF3E0;color:#E65100;padding:2px 7px;border-radius:4px;font-weight:600;font-family:monospace;margin-bottom:4px;">🔑 '+escapeHtml(p.pw_temp)+'</div>' : '') +
+      '</div>' +
+    '</div>' +
+    (p.admin_notes ? '<div style="font-size:0.72rem;color:var(--wood-mid);margin-top:8px;padding-top:8px;border-top:1px solid var(--wood-pale);font-style:italic;">📝 '+escapeHtml(p.admin_notes.substring(0,100))+'</div>' : '') +
+  '</div>';
+}
+
+function openNewEmployee() {
+  _editingUserId = null;
+  window._pendingPhotoData = null;
+  buildEmployeeModal(null);
+}
+
+async function openEmployeeEditor(profileId) {
+  _editingUserId = profileId;
+  window._pendingPhotoData = null;
+  var p = (_rosterUsers||[]).find(function(u){ return u.id === profileId; });
+  buildEmployeeModal(p);
+}
+
+function buildEmployeeModal(p) {
+  var overlay = document.getElementById('employee-modal');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'employee-modal';
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = '<div class="modal" id="emp-modal-inner" style="max-width:500px;max-height:90vh;overflow-y:auto;"></div>';
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.add('open');
+  var isEdit = !!p;
+  var m = p || {};
+  var inner = document.getElementById('emp-modal-inner');
+  if (!inner) { inner = overlay.querySelector('.modal'); }
+
+  inner.innerHTML =
+    '<button class="modal-close" onclick="closeEmpModal()">×</button>' +
+    '<div class="modal-title">' + (isEdit ? (currentLang==='fr'?'✏️ Modifier employé':'✏️ Edit Employee') : (currentLang==='fr'?'➕ Nouvel employé':'➕ New Employee')) + '</div>' +
+    // Avatar
+    '<div style="text-align:center;margin-bottom:16px;">' +
+      '<div id="emp-avatar-preview" style="width:76px;height:76px;border-radius:50%;background:var(--wood-mid);color:white;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 10px;overflow:hidden;cursor:pointer;" onclick="document.getElementById(\'emp-photo-file\').click()">' +
+        (m.photo_url ? '<img src="'+escapeHtml(m.photo_url)+'" style="width:100%;height:100%;object-fit:cover;">' : '👤') +
+      '</div>' +
+      '<label style="cursor:pointer;font-size:0.78rem;color:var(--amber);font-weight:600;" onclick="document.getElementById(\'emp-photo-file\').click()">📷 ' + (currentLang==='fr'?'Modifier la photo':'Change photo') + '</label>' +
+      '<input type="file" id="emp-photo-file" accept="image/*" style="display:none;" onchange="previewEmpPhoto(this)">' +
+    '</div>' +
+    // Basic info
+    '<label>' + (currentLang==='fr'?'Nom d\'affichage *':'Display Name *') + '</label>' +
+    '<input type="text" id="emp-name" value="'+escapeHtml(m.display_name||'')+'" placeholder="Jean Tremblay">' +
+    '<label>Email *</label>' +
+    '<input type="email" id="emp-email" value="'+escapeHtml(m.email||'')+'"'+(isEdit?' readonly style="opacity:0.65;background:#f9f9f9;"':'')+' placeholder="jean@example.com">' +
+    '<div class="row-2">' +
+      '<div><label>' + (currentLang==='fr'?'Poste':'Position') + '</label>' +
+      '<input type="text" id="emp-position" value="'+escapeHtml(m.position||'')+'" placeholder="' + (currentLang==='fr'?'Ébéniste':'Woodworker') + '"></div>' +
+      '<div><label>' + (currentLang==='fr'?'Téléphone':'Phone') + '</label>' +
+      '<input type="tel" id="emp-phone" value="'+escapeHtml(m.phone||'')+'"></div>' +
+    '</div>' +
+    '<label>' + (currentLang==='fr'?'Statut':'Status') + '</label>' +
+    '<select id="emp-status">' +
+      '<option value="active"'+(m.status==='active'||!m.status?' selected':'')+'>' + (currentLang==='fr'?'✅ Actif':'✅ Active') + '</option>' +
+      '<option value="on-leave"'+(m.status==='on-leave'?' selected':'')+'>' + (currentLang==='fr'?'🟡 En congé':'🟡 On Leave') + '</option>' +
+      '<option value="inactive"'+(m.status==='inactive'?' selected':'')+'>' + (currentLang==='fr'?'⛔ Inactif':'⛔ Inactive') + '</option>' +
+    '</select>' +
+    // Password section
+    '<div style="background:var(--wood-pale);border-radius:var(--radius-sm);padding:12px;margin:12px 0;">' +
+      '<div style="font-size:0.72rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:10px;">🔑 ' + (currentLang==='fr'?'Accès & Mot de passe':'Access & Password') + '</div>' +
+      '<label style="font-size:0.78rem;">' + (currentLang==='fr'?'Mot de passe actuel (admin seulement)':'Current Password (admin only)') + '</label>' +
+      '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<input type="text" id="emp-pw" value="'+escapeHtml(m.pw_temp||'')+'" placeholder="'+(currentLang==='fr'?'Non défini':'Not set')+'" style="flex:1;font-family:monospace;font-size:0.9rem;">' +
+        '<button class="btn btn-amber btn-sm" onclick="generateTempPassword()" style="flex-shrink:0;min-width:40px;" title="Generate">🔄</button>' +
+      '</div>' +
+      '<div style="font-size:0.68rem;color:var(--wood-mid);margin-top:4px;">' + (currentLang==='fr'?'Ce mot de passe est visible uniquement aux admins. Utilisez Supabase Auth pour le définir réellement.':'This password is visible to admins only. Use Supabase Auth to actually set it.') + '</div>' +
+    '</div>' +
+    // Admin notes
+    '<label>' + (currentLang==='fr'?'Notes admin (privées)':'Admin Notes (private)') + '</label>' +
+    '<textarea id="emp-notes" placeholder="'+(currentLang==='fr'?'Notes confidentielles...':'Confidential notes...')+'" style="min-height:70px;">' + escapeHtml(m.admin_notes||'') + '</textarea>' +
+    // Buttons
+    '<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">' +
+      '<button class="btn btn-green" onclick="saveEmployee()">✅ ' + (currentLang==='fr'?'Sauvegarder':'Save') + '</button>' +
+      (isEdit ? '<button class="btn btn-amber btn-sm" onclick="generateTempPassword()">🔑 ' + (currentLang==='fr'?'Nouveau MDP':'New PW') + '</button>' : '') +
+      (isEdit ? '<button class="btn btn-red btn-sm" onclick="confirmDeactivate()">⛔ ' + (currentLang==='fr'?'Désactiver':'Deactivate') + '</button>' : '') +
+      '<button class="btn btn-ghost" onclick="closeEmpModal()">✕ ' + (currentLang==='fr'?'Annuler':'Cancel') + '</button>' +
+    '</div>';
+}
+
+function closeEmpModal() {
+  var overlay = document.getElementById('employee-modal');
+  if (overlay) overlay.classList.remove('open');
+  window._pendingPhotoData = null;
+  _editingUserId = null;
+}
+
+function previewEmpPhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var preview = document.getElementById('emp-avatar-preview');
+    if (preview) preview.innerHTML = '<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;">';
+    window._pendingPhotoData = e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function generateTempPassword() {
+  var chars = 'abcdefghjkmnpqrstuvwxyz23456789!@#';
+  var pw = '';
+  for (var i = 0; i < 10; i++) pw += chars[Math.floor(Math.random()*chars.length)];
+  var el = document.getElementById('emp-pw');
+  if (el) el.value = pw;
+  toast('🔑 ' + (currentLang==='fr'?'Mot de passe généré — sauvegardez!':'Password generated — save it!'));
+}
+
+async function saveEmployee() {
+  var name     = (document.getElementById('emp-name')?.value || '').trim();
+  var email    = (document.getElementById('emp-email')?.value || '').trim().toLowerCase();
+  var position = (document.getElementById('emp-position')?.value || '').trim();
+  var phone    = (document.getElementById('emp-phone')?.value || '').trim();
+  var status   = document.getElementById('emp-status')?.value || 'active';
+  var notes    = (document.getElementById('emp-notes')?.value || '').trim();
+  var pwTemp   = (document.getElementById('emp-pw')?.value || '').trim();
+
+  if (!name)  { toast(currentLang==='fr'?'⚠️ Nom requis':'⚠️ Name required'); return; }
+  if (!email) { toast(currentLang==='fr'?'⚠️ Email requis':'⚠️ Email required'); return; }
+
+  var data = {
+    display_name: name, email: email,
+    position: position || null, phone: phone || null,
+    status: status, admin_notes: notes || null,
+    pw_temp: pwTemp || null, updated_at: new Date().toISOString()
+  };
+  if (window._pendingPhotoData) { data.photo_url = window._pendingPhotoData; window._pendingPhotoData = null; }
+
+  try {
+    var res;
+    if (_editingUserId) {
+      res = await sb.from('employee_profiles').update(data).eq('id', _editingUserId);
+    } else {
+      data.created_at = new Date().toISOString();
+      res = await sb.from('employee_profiles').insert([data]);
+    }
+    if (res.error) { toast('⚠️ ' + res.error.message); return; }
+    toast('✅ ' + (currentLang==='fr'?'Employé sauvegardé!':'Employee saved!'));
+    closeEmpModal();
+    loadRosterUsers();
+  } catch(e) { toast('⚠️ ' + e.message); }
+}
+
+async function confirmDeactivate() {
+  if (!_editingUserId) return;
+  if (!confirm(currentLang==='fr'?'Désactiver cet employé?':'Deactivate this employee?')) return;
+  var res = await sb.from('employee_profiles').update({status:'inactive'}).eq('id', _editingUserId);
+  if (!res.error) {
+    toast(currentLang==='fr'?'⛔ Employé désactivé':'⛔ Employee deactivated');
+    closeEmpModal();
+    loadRosterUsers();
+  }
+}
+
