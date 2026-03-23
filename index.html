@@ -988,6 +988,20 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div style="font-size:0.72rem;color:var(--wood-mid);" id="team-online-count">— online</div>
   </div>
 
+  <!-- Auto-answer persistent bar — visible on all Team sub-tabs -->
+  <div class="auto-answer-bar" id="team-aa-bar" style="margin-bottom:10px;">
+    <div style="flex:1;">
+      <div style="font-weight:700;font-size:0.82rem;">🤖 <span class="en">Auto-answer calls</span><span class="fr">Réponse automatique</span></div>
+      <div style="font-size:0.68rem;color:var(--wood-mid);" class="en">Answers after 5s — toggle per device</div>
+      <div style="font-size:0.68rem;color:var(--wood-mid);" class="fr">Répond après 5s — par appareil</div>
+    </div>
+    <span class="aa-countdown" id="aa-countdown" style="font-size:0.85rem;font-weight:700;color:var(--amber);min-width:28px;text-align:center;"></span>
+    <label class="aa-toggle">
+      <input type="checkbox" id="aa-toggle-input" onchange="toggleAutoAnswer(this.checked)">
+      <span class="aa-slider"></span>
+    </label>
+  </div>
+
   <!-- Sub-tabs -->
   <div class="team-tabs">
     <div class="team-tab active" id="ttab-chat"   onclick="showTeamTab('chat')">   💬 <span class="en">Chat</span><span class="fr">Clavardage</span></div>
@@ -1047,6 +1061,19 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="card" style="margin-bottom:12px;">
       <div class="card-title" id="lbl-team-calls" data-i18n="team_calls_title">Voice &amp; Video Calls</div>
       <div class="card-sub" id="lbl-calls-sub" data-i18n="team_calls_sub">Tap a team member to start a call. Both must have the app open.</div>
+      <!-- Auto-answer also shown in top bar above -->
+      <div class="auto-answer-bar" style="margin-top:12px;display:none;">
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.85rem;">🤖 <span class="en">Auto-answer incoming calls</span><span class="fr">Répondre automatiquement</span></div>
+          <div style="font-size:0.72rem;color:var(--wood-mid);margin-top:2px;" class="en">Calls answer automatically after 5 seconds</div>
+          <div style="font-size:0.72rem;color:var(--wood-mid);margin-top:2px;" class="fr">Les appels répondent automatiquement après 5 secondes</div>
+        </div>
+        <span class="aa-countdown" id="aa-countdown"></span>
+        <label class="aa-toggle">
+          <input type="checkbox" onchange="toggleAutoAnswer(this.checked)">
+          <span class="aa-slider"></span>
+        </label>
+      </div>
     </div>
     <div class="call-grid" id="call-grid">
       <div class="empty-state"><p id="calls-loading-text" data-i18n="team_calls_loading">Loading team members...</p></div>
@@ -3967,8 +3994,9 @@ document.addEventListener('DOMContentLoaded', function() {
   var saved = localStorage.getItem('shack_auto_answer');
   if (saved === '1') {
     _autoAnswer = true;
-    var toggle = document.getElementById('aa-toggle-input');
-    if (toggle) toggle.checked = true;
+    // Restore all toggles with this id
+    var toggles = document.querySelectorAll('#aa-toggle-input');
+    toggles.forEach(function(t) { t.checked = true; });
   }
 });
 
