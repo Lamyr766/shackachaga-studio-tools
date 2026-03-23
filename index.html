@@ -3809,9 +3809,9 @@ async function initTeam() {
 
 function updateMapTabVisibility() {
   var admin = isAdmin(currentUserEmail);
-  // Team tab — ALL users can see
+  // Team tab — admins only
   var teamTab = document.getElementById('tab-team');
-  if (teamTab) teamTab.style.display = '';
+  if (teamTab) teamTab.style.display = admin ? '' : 'none';
   // Map tab — admins only
   var mapTab = document.getElementById('tab-map');
   if (mapTab) mapTab.style.display = admin ? '' : 'none';
@@ -3822,7 +3822,7 @@ function updateMapTabVisibility() {
   var activePage = document.querySelector('.page.active');
   if (activePage && !admin) {
     var id = activePage.id;
-    if (id === 'page-map' || id === 'page-post') showPage('quote');
+    if (id === 'page-team' || id === 'page-map' || id === 'page-post') showPage('quote');
   }
 }
 
