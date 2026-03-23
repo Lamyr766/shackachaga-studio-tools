@@ -253,6 +253,71 @@ textarea{resize:vertical;min-height:65px;}
 .fbm-rate-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
 .custom-dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
 
+
+/* ── TEAM TAB ─────────────────────────────────────── */
+.team-tabs{display:flex;gap:0;background:var(--wood-pale);border-radius:var(--radius-sm);padding:3px;margin-bottom:16px;}
+.team-tab{flex:1;padding:8px 4px;text-align:center;font-size:0.72rem;font-weight:600;border-radius:6px;cursor:pointer;color:var(--wood-mid);transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+.team-tab.active{background:var(--wood-dark);color:var(--white);}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:420px;background:var(--white);border-radius:var(--radius-sm);overflow:hidden;box-shadow:0 2px 8px rgba(46,26,0,0.08);}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+.chat-msg{max-width:78%;padding:8px 12px;border-radius:16px;font-size:0.85rem;line-height:1.45;word-break:break-word;}
+.chat-msg.mine{align-self:flex-end;background:var(--wood-dark);color:var(--white);border-bottom-right-radius:4px;}
+.chat-msg.theirs{align-self:flex-start;background:var(--wood-pale);color:var(--wood-dark);border-bottom-left-radius:4px;}
+.chat-msg-name{font-size:0.65rem;font-weight:700;margin-bottom:2px;opacity:0.7;}
+.chat-msg-time{font-size:0.6rem;opacity:0.5;margin-top:3px;text-align:right;}
+.chat-input-wrap{display:flex;gap:8px;padding:10px;border-top:1px solid var(--wood-pale);background:var(--wood-cream);}
+.chat-input-wrap input{flex:1;padding:9px 14px;border:1.5px solid var(--wood-pale);border-radius:30px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;}
+.chat-input-wrap input:focus{border-color:var(--wood-mid);}
+.chat-send-btn{background:var(--wood-dark);border:none;color:var(--white);border-radius:50%;width:38px;height:38px;font-size:1.1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+
+/* GPS TEAM MAP */
+.team-map{background:var(--wood-pale);border-radius:var(--radius-sm);height:200px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:var(--wood-mid);margin-bottom:12px;overflow:hidden;position:relative;}
+.team-member-card{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white);border-radius:var(--radius-sm);box-shadow:0 2px 8px rgba(46,26,0,0.07);margin-bottom:8px;}
+.member-avatar{width:36px;height:36px;border-radius:50%;background:var(--wood-mid);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;}
+.member-info{flex:1;}
+.member-name{font-weight:600;font-size:0.88rem;}
+.member-status{font-size:0.72rem;color:var(--wood-mid);}
+.member-loc-badge{font-size:0.68rem;padding:2px 8px;border-radius:10px;font-weight:700;}
+.loc-shop-badge{background:#EAF4EE;color:var(--green);}
+.loc-travel-badge{background:#FDF8EC;color:#7a5c00;}
+.loc-onsite-badge{background:#E8F4FD;color:var(--blue);}
+.loc-offline-badge{background:var(--wood-pale);color:var(--wood-mid);}
+.online-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-green{background:var(--green-light);}
+.dot-amber{background:var(--amber);}
+.dot-grey{background:#90A4AE;}
+
+/* CALL UI */
+.call-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px;}
+.call-user-card{background:var(--white);border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:0 2px 8px rgba(46,26,0,0.08);cursor:pointer;transition:all 0.15s;}
+.call-user-card:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
+.call-avatar{width:48px;height:48px;border-radius:50%;background:var(--wood-mid);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;margin:0 auto 8px;}
+.call-user-name{font-size:0.82rem;font-weight:600;margin-bottom:6px;}
+.call-btns{display:flex;gap:6px;justify-content:center;}
+.call-btn{border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
+.call-btn-voice{background:#EAF4EE;color:var(--green);}
+.call-btn-video{background:#E8F4FD;color:var(--blue);}
+
+/* ACTIVE CALL OVERLAY */
+.call-overlay{position:fixed;inset:0;background:rgba(46,26,0,0.92);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.call-overlay.hidden{display:none;}
+.call-video-wrap{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;}
+.call-video-wrap video{border-radius:12px;background:#111;width:160px;height:120px;object-fit:cover;}
+.call-video-wrap video.main-video{width:280px;height:200px;}
+.call-status-text{color:var(--white);font-size:1rem;margin-bottom:20px;text-align:center;}
+.call-controls{display:flex;gap:14px;}
+.call-ctrl-btn{border:none;border-radius:50%;width:52px;height:52px;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.call-ctrl-btn.hangup{background:var(--red);}
+.call-ctrl-btn.mute{background:rgba(255,255,255,0.2);}
+.call-ctrl-btn.cam{background:rgba(255,255,255,0.2);}
+
+/* INCOMING CALL */
+.incoming-call{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--wood-dark);color:var(--white);border-radius:var(--radius);padding:16px 20px;z-index:400;box-shadow:0 8px 32px rgba(0,0,0,0.4);min-width:260px;text-align:center;display:none;}
+.incoming-call.show{display:block;animation:slideUp 0.3s ease;}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+
 </style>
 </head>
 <body>
@@ -302,6 +367,45 @@ ALTER TABLE saved_posts ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "auth_all" ON projects FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "auth_all" ON wood_stock FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY "auth_all" ON saved_posts FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+
+CREATE TABLE IF NOT EXISTS messages (
+  id bigint primary key generated always as identity,
+  sender_email text not null,
+  sender_name text,
+  content text not null,
+  room text default 'team',
+  created_at timestamptz default now()
+);
+CREATE TABLE IF NOT EXISTS webrtc_signals (
+  id bigint primary key generated always as identity,
+  from_user text, to_user text,
+  signal_type text,
+  payload jsonb,
+  created_at timestamptz default now()
+);
+CREATE TABLE IF NOT EXISTS user_locations (
+  id bigint primary key generated always as identity,
+  user_email text unique,
+  display_name text,
+  lat numeric, lng numeric,
+  status text default 'offline',
+  location_type text default 'shop',
+  last_seen timestamptz default now()
+);
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE webrtc_signals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_locations ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='messages' AND policyname='auth_all') THEN
+    CREATE POLICY "auth_all" ON messages FOR ALL USING (auth.role()='authenticated') WITH CHECK (auth.role()='authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='webrtc_signals' AND policyname='auth_all') THEN
+    CREATE POLICY "auth_all" ON webrtc_signals FOR ALL USING (auth.role()='authenticated') WITH CHECK (auth.role()='authenticated');
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='user_locations' AND policyname='auth_all') THEN
+    CREATE POLICY "auth_all" ON user_locations FOR ALL USING (auth.role()='authenticated') WITH CHECK (auth.role()='authenticated');
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS clients (
   id bigint primary key generated always as identity,
@@ -803,6 +907,97 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   <div class="card">
     <div class="card-title">Top Clients by Revenue</div>
     <div id="rev-top-clients"></div>
+  </div>
+</div>
+
+
+<!-- ═══ TEAM PAGE ═══ -->
+<div id="page-team" class="page">
+  <div class="section-header">
+    <div class="section-title" id="section-team-title">Team</div>
+    <div style="font-size:0.72rem;color:var(--wood-mid);" id="team-online-count">— online</div>
+  </div>
+
+  <!-- Sub-tabs -->
+  <div class="team-tabs">
+    <div class="team-tab active" id="ttab-chat"   onclick="showTeamTab('chat')">   💬 <span class="en">Chat</span><span class="fr">Clavardage</span></div>
+    <div class="team-tab"        id="ttab-gps"    onclick="showTeamTab('gps')">    📍 <span class="en">GPS</span><span class="fr">GPS</span></div>
+    <div class="team-tab"        id="ttab-calls"  onclick="showTeamTab('calls')">  📞 <span class="en">Calls</span><span class="fr">Appels</span></div>
+  </div>
+
+  <!-- CHAT -->
+  <div id="team-panel-chat">
+    <div class="chat-wrap">
+      <div class="chat-messages" id="chat-messages">
+        <div class="empty-state" style="padding:30px;"><div class="icon">💬</div><p id="chat-empty-text">No messages yet. Say hello!</p></div>
+      </div>
+      <div class="chat-input-wrap">
+        <input type="text" id="chat-input" placeholder="Type a message..." data-i18n-ph="ph_chat"
+          onkeydown="if(event.key==='Enter')sendMessage()">
+        <button class="chat-send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GPS TEAM VIEW -->
+  <div id="team-panel-gps" style="display:none;">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-title" id="lbl-your-location">Your Location</div>
+      <div id="my-location-info" style="font-size:0.85rem;color:var(--wood-mid);padding:8px 0;">—</div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+        <button class="btn btn-green btn-sm" onclick="updateMyLocation()" id="btn-update-loc">📍 <span class="en">Update Location</span><span class="fr">Mettre à jour</span></button>
+        <select id="manual-loc-type" style="font-size:0.8rem;padding:7px 10px;width:auto;">
+          <option value="shop">🏭 <span class="en">Shop</span></option>
+          <option value="travel">🚗 <span class="en">Travel</span></option>
+          <option value="onsite">🏗️ <span class="en">On-site</span></option>
+          <option value="offline">⬛ <span class="en">Offline</span></option>
+        </select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="lbl-team-locations">Team Locations</div>
+      <div id="team-location-list"><div class="empty-state"><p id="gps-loading-text">Loading team positions...</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="lbl-gps-history">GPS History — Today</div>
+      <div id="gps-history-list"><div class="empty-state"><p>—</p></div></div>
+    </div>
+  </div>
+
+  <!-- CALLS -->
+  <div id="team-panel-calls" style="display:none;">
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-title" id="lbl-team-calls">Voice &amp; Video Calls</div>
+      <div class="card-sub" id="lbl-calls-sub">Tap a team member to start a call. Both must have the app open.</div>
+    </div>
+    <div class="call-grid" id="call-grid">
+      <div class="empty-state"><p id="calls-loading-text">Loading team members...</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- CALL OVERLAY -->
+<div class="call-overlay hidden" id="call-overlay">
+  <div class="call-status-text" id="call-status-text">Calling...</div>
+  <div class="call-video-wrap" id="call-video-wrap">
+    <video id="local-video"  autoplay muted playsinline></video>
+    <video id="remote-video" autoplay playsinline></video>
+  </div>
+  <div class="call-controls">
+    <button class="call-ctrl-btn mute"   id="btn-mute"   onclick="toggleMute()">🎤</button>
+    <button class="call-ctrl-btn cam"    id="btn-cam"    onclick="toggleCamera()" style="display:none;">📷</button>
+    <button class="call-ctrl-btn hangup" onclick="hangup()">📵</button>
+  </div>
+</div>
+
+<!-- INCOMING CALL BANNER -->
+<div class="incoming-call" id="incoming-call-banner">
+  <div style="font-size:1.2rem;margin-bottom:6px;" id="incoming-call-icon">📞</div>
+  <div style="font-weight:700;margin-bottom:4px;" id="incoming-caller-name">Unknown</div>
+  <div style="font-size:0.8rem;color:rgba(255,255,255,0.7);margin-bottom:14px;" id="incoming-call-type">Voice call</div>
+  <div style="display:flex;gap:12px;justify-content:center;">
+    <button class="btn btn-red" onclick="rejectCall()">📵 <span class="en">Decline</span><span class="fr">Refuser</span></button>
+    <button class="btn btn-green" onclick="acceptCall()" id="btn-accept-call">📞 <span class="en">Accept</span><span class="fr">Accepter</span></button>
   </div>
 </div>
 
@@ -1546,6 +1741,7 @@ function showPage(page) {
   if (page === 'clients') loadClients();
   if (page === 'time') initTimeTracker();
   if (page === 'revenue') { initRevenueYears(); renderRevenue(); }
+  if (page === 'team') initTeam();
 }
 
 function toast(msg, dur=2400) {
@@ -2105,6 +2301,7 @@ function launchApp() {
   loadSavedPosts();
   loadClients();
   initRevenueYears();
+  initTeam();
   setupRealtimeSync();
   // Add global search bar to header
   const headerInner = document.querySelector('.header-inner');
@@ -2305,6 +2502,71 @@ function exportQuotePDF(p) {
 .fbm-total-val{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--green);}
 .fbm-rate-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
 .custom-dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
+
+
+/* ── TEAM TAB ─────────────────────────────────────── */
+.team-tabs{display:flex;gap:0;background:var(--wood-pale);border-radius:var(--radius-sm);padding:3px;margin-bottom:16px;}
+.team-tab{flex:1;padding:8px 4px;text-align:center;font-size:0.72rem;font-weight:600;border-radius:6px;cursor:pointer;color:var(--wood-mid);transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+.team-tab.active{background:var(--wood-dark);color:var(--white);}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:420px;background:var(--white);border-radius:var(--radius-sm);overflow:hidden;box-shadow:0 2px 8px rgba(46,26,0,0.08);}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+.chat-msg{max-width:78%;padding:8px 12px;border-radius:16px;font-size:0.85rem;line-height:1.45;word-break:break-word;}
+.chat-msg.mine{align-self:flex-end;background:var(--wood-dark);color:var(--white);border-bottom-right-radius:4px;}
+.chat-msg.theirs{align-self:flex-start;background:var(--wood-pale);color:var(--wood-dark);border-bottom-left-radius:4px;}
+.chat-msg-name{font-size:0.65rem;font-weight:700;margin-bottom:2px;opacity:0.7;}
+.chat-msg-time{font-size:0.6rem;opacity:0.5;margin-top:3px;text-align:right;}
+.chat-input-wrap{display:flex;gap:8px;padding:10px;border-top:1px solid var(--wood-pale);background:var(--wood-cream);}
+.chat-input-wrap input{flex:1;padding:9px 14px;border:1.5px solid var(--wood-pale);border-radius:30px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;}
+.chat-input-wrap input:focus{border-color:var(--wood-mid);}
+.chat-send-btn{background:var(--wood-dark);border:none;color:var(--white);border-radius:50%;width:38px;height:38px;font-size:1.1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+
+/* GPS TEAM MAP */
+.team-map{background:var(--wood-pale);border-radius:var(--radius-sm);height:200px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:var(--wood-mid);margin-bottom:12px;overflow:hidden;position:relative;}
+.team-member-card{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white);border-radius:var(--radius-sm);box-shadow:0 2px 8px rgba(46,26,0,0.07);margin-bottom:8px;}
+.member-avatar{width:36px;height:36px;border-radius:50%;background:var(--wood-mid);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;}
+.member-info{flex:1;}
+.member-name{font-weight:600;font-size:0.88rem;}
+.member-status{font-size:0.72rem;color:var(--wood-mid);}
+.member-loc-badge{font-size:0.68rem;padding:2px 8px;border-radius:10px;font-weight:700;}
+.loc-shop-badge{background:#EAF4EE;color:var(--green);}
+.loc-travel-badge{background:#FDF8EC;color:#7a5c00;}
+.loc-onsite-badge{background:#E8F4FD;color:var(--blue);}
+.loc-offline-badge{background:var(--wood-pale);color:var(--wood-mid);}
+.online-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-green{background:var(--green-light);}
+.dot-amber{background:var(--amber);}
+.dot-grey{background:#90A4AE;}
+
+/* CALL UI */
+.call-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px;}
+.call-user-card{background:var(--white);border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:0 2px 8px rgba(46,26,0,0.08);cursor:pointer;transition:all 0.15s;}
+.call-user-card:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
+.call-avatar{width:48px;height:48px;border-radius:50%;background:var(--wood-mid);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;margin:0 auto 8px;}
+.call-user-name{font-size:0.82rem;font-weight:600;margin-bottom:6px;}
+.call-btns{display:flex;gap:6px;justify-content:center;}
+.call-btn{border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
+.call-btn-voice{background:#EAF4EE;color:var(--green);}
+.call-btn-video{background:#E8F4FD;color:var(--blue);}
+
+/* ACTIVE CALL OVERLAY */
+.call-overlay{position:fixed;inset:0;background:rgba(46,26,0,0.92);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.call-overlay.hidden{display:none;}
+.call-video-wrap{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;}
+.call-video-wrap video{border-radius:12px;background:#111;width:160px;height:120px;object-fit:cover;}
+.call-video-wrap video.main-video{width:280px;height:200px;}
+.call-status-text{color:var(--white);font-size:1rem;margin-bottom:20px;text-align:center;}
+.call-controls{display:flex;gap:14px;}
+.call-ctrl-btn{border:none;border-radius:50%;width:52px;height:52px;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.call-ctrl-btn.hangup{background:var(--red);}
+.call-ctrl-btn.mute{background:rgba(255,255,255,0.2);}
+.call-ctrl-btn.cam{background:rgba(255,255,255,0.2);}
+
+/* INCOMING CALL */
+.incoming-call{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--wood-dark);color:var(--white);border-radius:var(--radius);padding:16px 20px;z-index:400;box-shadow:0 8px 32px rgba(0,0,0,0.4);min-width:260px;text-align:center;display:none;}
+.incoming-call.show{display:block;animation:slideUp 0.3s ease;}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
 
 </style></head><body>
 <div class="logo">Le Shackachaga</div>
@@ -2574,7 +2836,7 @@ async function deleteClient(id) {
 let clockInterval = null;
 let clockStart = null;
 let currentLocType = 'shop';
-let currentUserEmail = '';
+// currentUserEmail declared above
 let currentGPS = null;
 
 function setLocType(type) {
@@ -2952,6 +3214,500 @@ function calcFBMTotal() {
   const sel = document.getElementById('q-type');
   if (sel) sel.addEventListener('change', onProjectTypeChange);
 })();
+
+// ══════════════════════════════════════════════════
+// TEAM FEATURE — CHAT + GPS + WEBRTC
+// ══════════════════════════════════════════════════
+
+// currentUserEmail already declared above
+let currentUserName  = currentUserName || '';
+let chatSubscription = null;
+let signalSubscription = null;
+let locSubscription = null;
+let teamMembers = [];
+
+// ── SHOP ADDRESS (used for auto-detecting location type) ──────────────
+const SHOP_LAT = 45.4765;  // Gatineau QC approximate — update if needed
+const SHOP_LNG = -75.7013;
+const SHOP_RADIUS_M = 200; // within 200m = at shop
+
+function distanceMeters(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLng = (lng2-lng1)*Math.PI/180;
+  const a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+    Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+    Math.sin(dLng/2)*Math.sin(dLng/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+async function initTeam() {
+  if (!sb) return;
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
+  currentUserEmail = user.email;
+  currentUserName  = user.email.split('@')[0];
+  // Update time-user-label too
+  const lbl = document.getElementById('time-user-label');
+  if (lbl) lbl.textContent = (currentLang==='fr'?'Connecté: ':'Logged in as: ') + currentUserEmail;
+  // Load everything
+  await loadChat();
+  await loadTeamLocations();
+  await loadCallGrid();
+  setupChatRealtime();
+  setupSignalRealtime();
+  setupLocationRealtime();
+  // Update my presence
+  await upsertMyLocation(null, null, 'online', 'shop');
+}
+
+// ── SUB-TAB NAVIGATION ─────────────────────────────────────────────
+function showTeamTab(tab) {
+  ['chat','gps','calls'].forEach(t => {
+    document.getElementById('team-panel-'+t).style.display = t===tab ? 'block' : 'none';
+    const el = document.getElementById('ttab-'+t);
+    if (el) el.classList.toggle('active', t===tab);
+  });
+  if (tab==='gps') loadTeamLocations();
+  if (tab==='calls') loadCallGrid();
+}
+
+// ══════════════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════════════
+async function loadChat() {
+  if (!sb) return;
+  const { data } = await sb.from('messages').select('*')
+    .eq('room','team').order('created_at', {ascending:true}).limit(100);
+  renderMessages(data || []);
+}
+
+function renderMessages(msgs) {
+  const el = document.getElementById('chat-messages');
+  if (!el) return;
+  if (!msgs.length) {
+    el.innerHTML = '<div class="empty-state" style="padding:30px;"><div class="icon">💬</div><p>'+(currentLang==='fr'?'Aucun message. Dites bonjour!':'No messages yet. Say hello!')+'</p></div>';
+    return;
+  }
+  el.innerHTML = msgs.map(function(m) {
+    const mine = m.sender_email === currentUserEmail;
+    const d = new Date(m.created_at);
+    const timeStr = d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const name = m.sender_name || m.sender_email.split('@')[0];
+    return '<div class="chat-msg '+(mine?'mine':'theirs')+'">' +
+      (!mine ? '<div class="chat-msg-name">'+escapeHtml(name)+'</div>' : '') +
+      '<div>'+escapeHtml(m.content)+'</div>' +
+      '<div class="chat-msg-time">'+timeStr+'</div>' +
+      '</div>';
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const content = input?.value.trim();
+  if (!content || !sb) return;
+  input.value = '';
+  const { error } = await sb.from('messages').insert([{
+    sender_email: currentUserEmail,
+    sender_name:  currentUserName,
+    content:      content,
+    room:         'team'
+  }]);
+  if (error) toast('⚠️ Message failed');
+}
+
+function setupChatRealtime() {
+  if (!sb || chatSubscription) return;
+  chatSubscription = sb.channel('team-chat')
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'messages', filter:'room=eq.team'},
+      function(payload) {
+        const el = document.getElementById('chat-messages');
+        if (!el) return;
+        const m = payload.new;
+        const mine = m.sender_email === currentUserEmail;
+        const d = new Date(m.created_at);
+        const timeStr = d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        const name = m.sender_name || m.sender_email.split('@')[0];
+        // Remove empty state
+        const empty = el.querySelector('.empty-state');
+        if (empty) empty.remove();
+        const div = document.createElement('div');
+        div.className = 'chat-msg '+(mine?'mine':'theirs');
+        div.innerHTML = (!mine?'<div class="chat-msg-name">'+escapeHtml(name)+'</div>':'')+
+          '<div>'+escapeHtml(m.content)+'</div>'+
+          '<div class="chat-msg-time">'+timeStr+'</div>';
+        el.appendChild(div);
+        el.scrollTop = el.scrollHeight;
+        if (!mine) toast('💬 '+name+': '+m.content.substring(0,40));
+      })
+    .subscribe();
+}
+
+// ══════════════════════════════════════════════════
+// GPS TRACKING
+// ══════════════════════════════════════════════════
+async function upsertMyLocation(lat, lng, status, locType) {
+  if (!sb || !currentUserEmail) return;
+  const update = {
+    user_email:    currentUserEmail,
+    display_name:  currentUserName,
+    status:        status || 'online',
+    location_type: locType || 'shop',
+    last_seen:     new Date().toISOString()
+  };
+  if (lat !== null && lng !== null) { update.lat = lat; update.lng = lng; }
+  await sb.from('user_locations').upsert([update], {onConflict:'user_email'});
+}
+
+async function updateMyLocation() {
+  const locType = document.getElementById('manual-loc-type')?.value || 'shop';
+  const infoEl = document.getElementById('my-location-info');
+  if (infoEl) infoEl.textContent = currentLang==='fr' ? '📍 Obtention du GPS...' : '📍 Getting GPS...';
+  if (!navigator.geolocation) {
+    await upsertMyLocation(null, null, 'online', locType);
+    if (infoEl) infoEl.textContent = currentLang==='fr' ? '⚠️ GPS non disponible' : '⚠️ GPS not available';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(async function(pos) {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    const acc = Math.round(pos.coords.accuracy);
+    // Auto-detect location type if not manually set
+    let detectedType = locType;
+    const distShop = distanceMeters(lat, lng, SHOP_LAT, SHOP_LNG);
+    if (locType === 'shop' || locType === 'onsite') {
+      detectedType = distShop < SHOP_RADIUS_M ? 'shop' : locType;
+    }
+    await upsertMyLocation(lat, lng, 'online', detectedType);
+    // Also log to time_logs if clocked in
+    const timeStr = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const distStr = distShop < 1000 ? Math.round(distShop)+'m from shop' : (distShop/1000).toFixed(1)+'km from shop';
+    if (infoEl) infoEl.innerHTML =
+      '<strong>'+lat.toFixed(5)+', '+lng.toFixed(5)+'</strong><br>'+
+      '<span style="font-size:0.75rem;color:var(--wood-mid);">Acc: ±'+acc+'m · '+distStr+' · '+timeStr+'</span>';
+    toast(currentLang==='fr' ? '📍 Position mise à jour!' : '📍 Location updated!');
+    loadTeamLocations();
+  }, function() {
+    upsertMyLocation(null, null, 'online', locType);
+    if (infoEl) infoEl.textContent = currentLang==='fr' ? '⚠️ GPS refusé — position manuelle' : '⚠️ GPS denied — manual location set';
+    toast('📍 Location type set to '+locType);
+    loadTeamLocations();
+  }, {enableHighAccuracy:true, timeout:10000});
+}
+
+async function loadTeamLocations() {
+  if (!sb) return;
+  const { data } = await sb.from('user_locations').select('*').order('last_seen', {ascending:false});
+  teamMembers = data || [];
+  renderTeamLocations(teamMembers);
+  // Update online count
+  const online = teamMembers.filter(function(m){ return m.status !== 'offline'; }).length;
+  const el = document.getElementById('team-online-count');
+  if (el) el.textContent = online + (currentLang==='fr' ? ' en ligne' : ' online');
+}
+
+function renderTeamLocations(members) {
+  const el = document.getElementById('team-location-list');
+  if (!el) return;
+  if (!members.length) {
+    el.innerHTML = '<div class="empty-state"><p>'+(currentLang==='fr'?'Aucun membre en ligne':'No team members online yet')+'</p></div>';
+    return;
+  }
+  const locLabels = {
+    shop:   {en:'At Shop',    fr:'À l\'atelier',   cls:'loc-shop-badge',    icon:'🏭'},
+    travel: {en:'Travelling', fr:'En déplacement',  cls:'loc-travel-badge',  icon:'🚗'},
+    onsite: {en:'On-site',    fr:'Sur le chantier', cls:'loc-onsite-badge',  icon:'🏗️'},
+    offline:{en:'Offline',    fr:'Hors ligne',       cls:'loc-offline-badge', icon:'⬛'},
+  };
+  el.innerHTML = members.map(function(m) {
+    const initials = (m.display_name||m.user_email||'?').substring(0,2).toUpperCase();
+    const loc = locLabels[m.status==='offline'?'offline':(m.location_type||'shop')];
+    const locLabel = currentLang==='fr' ? loc.fr : loc.en;
+    const lastSeen = new Date(m.last_seen);
+    const minsAgo = Math.round((Date.now()-lastSeen)/60000);
+    const timeLabel = minsAgo < 2 ? (currentLang==='fr'?'maintenant':'just now') :
+                      minsAgo < 60 ? minsAgo+(currentLang==='fr'?' min':'min ago') :
+                      lastSeen.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const isMe = m.user_email === currentUserEmail;
+    const lat = m.lat ? m.lat.toFixed(4) : '—';
+    const lng = m.lng ? m.lng.toFixed(4) : '—';
+    const gpsStr = m.lat ? lat+', '+lng : (currentLang==='fr'?'GPS non disponible':'No GPS');
+    return '<div class="team-member-card">' +
+      '<div class="member-avatar" style="background:'+(isMe?'var(--wood-dark)':'var(--wood-mid)')+'">'+initials+'</div>'+
+      '<div class="member-info">'+
+        '<div class="member-name">'+(m.display_name||m.user_email.split('@')[0])+(isMe?' ('+( currentLang==='fr'?'moi':'me')+')':'')+'</div>'+
+        '<div class="member-status">'+gpsStr+' · '+timeLabel+'</div>'+
+      '</div>'+
+      '<div class="member-loc-badge '+loc.cls+'">'+loc.icon+' '+locLabel+'</div>'+
+      '</div>';
+  }).join('');
+  // Also load GPS history
+  loadGPSHistory();
+}
+
+async function loadGPSHistory() {
+  if (!sb) return;
+  const today = new Date().toISOString().split('T')[0];
+  const { data } = await sb.from('time_logs').select('*')
+    .eq('user_email', currentUserEmail)
+    .gte('created_at', today+'T00:00:00Z')
+    .order('created_at', {ascending:false});
+  const el = document.getElementById('gps-history-list');
+  if (!el) return;
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="empty-state"><p>'+(currentLang==='fr'?'Aucun pointage aujourd\'hui':'No clock-ins today')+'</p></div>';
+    return;
+  }
+  const locMap = {shop:'🏭',travel:'🚗',onsite:'🏗️'};
+  el.innerHTML = data.map(function(l) {
+    const cin  = new Date(l.clock_in).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const cout = l.clock_out ? new Date(l.clock_out).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+    const dur  = l.duration_minutes ? Math.round(l.duration_minutes)+'min' : '—';
+    const gps  = (l.lat && l.lng) ? l.lat.toFixed(3)+', '+l.lng.toFixed(3) : '';
+    return '<div class="price-row">'+
+      '<span class="price-label">'+(locMap[l.location_type]||'📍')+' '+cin+' → '+cout+
+      (gps?' <span style="font-size:0.68rem;color:var(--wood-mid);">('+gps+')</span>':'')+
+      (l.notes?'<br><span style="font-size:0.72rem;font-style:italic;">'+escapeHtml(l.notes)+'</span>':'')+
+      '</span><span class="price-val">'+dur+'</span></div>';
+  }).join('');
+}
+
+function setupLocationRealtime() {
+  if (!sb || locSubscription) return;
+  locSubscription = sb.channel('team-locations')
+    .on('postgres_changes', {event:'*', schema:'public', table:'user_locations'},
+      function() { loadTeamLocations(); })
+    .subscribe();
+}
+
+// ══════════════════════════════════════════════════
+// WEBRTC CALLS
+// ══════════════════════════════════════════════════
+let localStream    = null;
+let remoteStream   = null;
+let peerConnection = null;
+let callTarget     = null;
+let callIsVideo    = false;
+let isMuted        = false;
+let isCamOff       = false;
+let incomingSignal = null;
+
+const ICE_SERVERS = {iceServers:[
+  {urls:'stun:stun.l.google.com:19302'},
+  {urls:'stun:stun1.l.google.com:19302'},
+  {urls:'stun:stun2.l.google.com:19302'}
+]};
+
+async function loadCallGrid() {
+  if (!sb) return;
+  const { data } = await sb.from('user_locations').select('*')
+    .neq('user_email', currentUserEmail || '');
+  const el = document.getElementById('call-grid');
+  if (!el) return;
+  if (!data || !data.length) {
+    el.innerHTML = '<div class="empty-state"><p>'+(currentLang==='fr'?'Aucun autre membre en ligne':'No other team members yet')+'</p></div>';
+    return;
+  }
+  el.innerHTML = data.map(function(m) {
+    const name = m.display_name || m.user_email.split('@')[0];
+    const initials = name.substring(0,2).toUpperCase();
+    const online = m.status !== 'offline';
+    const email = m.user_email;
+    return '<div class="call-user-card">'+
+      '<div class="call-avatar" style="background:'+(online?'var(--green)':'#90A4AE')+'">'+initials+'</div>'+
+      '<div class="call-user-name">'+escapeHtml(name)+'</div>'+
+      '<div style="font-size:0.7rem;color:var(--wood-mid);margin-bottom:8px;">'+(online?(currentLang==='fr'?'En ligne':'Online'):(currentLang==='fr'?'Hors ligne':'Offline'))+'</div>'+
+      '<div class="call-btns">'+
+        '<button class="call-btn call-btn-voice" onclick="startCall(\''+email+'\',false)" title="Voice call">📞</button>'+
+        '<button class="call-btn call-btn-video" onclick="startCall(\''+email+'\',true)"  title="Video call">🎥</button>'+
+      '</div>'+
+      '</div>';
+  }).join('');
+}
+
+async function getMedia(video) {
+  try {
+    return await navigator.mediaDevices.getUserMedia({audio:true, video:video});
+  } catch(e) {
+    toast('⚠️ '+(currentLang==='fr'?'Micro/caméra refusé':'Mic/camera denied'));
+    return null;
+  }
+}
+
+function createPeer() {
+  const pc = new RTCPeerConnection(ICE_SERVERS);
+  pc.onicecandidate = async function(e) {
+    if (e.candidate && callTarget) {
+      await sb.from('webrtc_signals').insert([{
+        from_user: currentUserEmail, to_user: callTarget,
+        signal_type: 'ice', payload: {candidate: e.candidate}
+      }]);
+    }
+  };
+  pc.ontrack = function(e) {
+    const rv = document.getElementById('remote-video');
+    if (rv) { rv.srcObject = e.streams[0]; remoteStream = e.streams[0]; }
+  };
+  pc.onconnectionstatechange = function() {
+    const s = pc.connectionState;
+    const st = document.getElementById('call-status-text');
+    if (st) st.textContent = {
+      connecting: currentLang==='fr'?'Connexion...':'Connecting...',
+      connected:  currentLang==='fr'?'Connecté':'Connected',
+      disconnected: currentLang==='fr'?'Déconnecté':'Disconnected',
+      failed: currentLang==='fr'?'Échec de connexion':'Connection failed'
+    }[s] || s;
+    if (s==='disconnected'||s==='failed') hangup();
+  };
+  return pc;
+}
+
+async function startCall(targetEmail, withVideo) {
+  callTarget  = targetEmail;
+  callIsVideo = withVideo;
+  localStream = await getMedia(withVideo);
+  if (!localStream) return;
+  peerConnection = createPeer();
+  localStream.getTracks().forEach(function(t){ peerConnection.addTrack(t, localStream); });
+  // Show local video
+  const lv = document.getElementById('local-video');
+  if (lv) lv.srcObject = localStream;
+  document.getElementById('btn-cam').style.display = withVideo ? 'flex' : 'none';
+  showCallOverlay(currentLang==='fr'?'Appel en cours...':'Calling...');
+  // Create offer
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+  // Send signal
+  await sb.from('webrtc_signals').insert([{
+    from_user: currentUserEmail, to_user: targetEmail,
+    signal_type: 'offer', payload: {sdp: offer, is_video: withVideo}
+  }]);
+}
+
+async function acceptCall() {
+  if (!incomingSignal) return;
+  document.getElementById('incoming-call-banner').classList.remove('show');
+  document.getElementById('incoming-call-banner').style.display = 'none';
+  const { from_user, payload } = incomingSignal;
+  callTarget  = from_user;
+  callIsVideo = payload.is_video;
+  localStream = await getMedia(callIsVideo);
+  if (!localStream) return;
+  peerConnection = createPeer();
+  localStream.getTracks().forEach(function(t){ peerConnection.addTrack(t, localStream); });
+  const lv = document.getElementById('local-video');
+  if (lv) lv.srcObject = localStream;
+  document.getElementById('btn-cam').style.display = callIsVideo ? 'flex' : 'none';
+  showCallOverlay(currentLang==='fr'?'Connexion...':'Connecting...');
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.sdp));
+  const answer = await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+  await sb.from('webrtc_signals').insert([{
+    from_user: currentUserEmail, to_user: from_user,
+    signal_type: 'answer', payload: {sdp: answer}
+  }]);
+  incomingSignal = null;
+}
+
+function rejectCall() {
+  incomingSignal = null;
+  const b = document.getElementById('incoming-call-banner');
+  b.classList.remove('show'); b.style.display = 'none';
+  if (callTarget) {
+    sb.from('webrtc_signals').insert([{
+      from_user: currentUserEmail, to_user: callTarget,
+      signal_type: 'reject', payload: {}
+    }]);
+  }
+}
+
+function showCallOverlay(statusText) {
+  const overlay = document.getElementById('call-overlay');
+  overlay.classList.remove('hidden');
+  const st = document.getElementById('call-status-text');
+  if (st) st.textContent = statusText;
+  const lv = document.getElementById('local-video');
+  const rv = document.getElementById('remote-video');
+  if (lv) lv.style.display = callIsVideo ? 'block' : 'none';
+  if (rv) rv.style.display = callIsVideo ? 'block' : 'none';
+}
+
+async function hangup() {
+  if (peerConnection) { peerConnection.close(); peerConnection = null; }
+  if (localStream)    { localStream.getTracks().forEach(function(t){ t.stop(); }); localStream = null; }
+  if (callTarget) {
+    await sb.from('webrtc_signals').insert([{
+      from_user: currentUserEmail, to_user: callTarget,
+      signal_type: 'hangup', payload: {}
+    }]);
+  }
+  callTarget = null;
+  document.getElementById('call-overlay').classList.add('hidden');
+  const lv = document.getElementById('local-video');
+  const rv = document.getElementById('remote-video');
+  if (lv) lv.srcObject = null;
+  if (rv) rv.srcObject = null;
+}
+
+function toggleMute() {
+  if (!localStream) return;
+  isMuted = !isMuted;
+  localStream.getAudioTracks().forEach(function(t){ t.enabled = !isMuted; });
+  const btn = document.getElementById('btn-mute');
+  if (btn) btn.textContent = isMuted ? '🔇' : '🎤';
+}
+
+function toggleCamera() {
+  if (!localStream) return;
+  isCamOff = !isCamOff;
+  localStream.getVideoTracks().forEach(function(t){ t.enabled = !isCamOff; });
+  const btn = document.getElementById('btn-cam');
+  if (btn) btn.textContent = isCamOff ? '📷' : '📹';
+}
+
+function setupSignalRealtime() {
+  if (!sb || signalSubscription) return;
+  signalSubscription = sb.channel('webrtc-signals')
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'webrtc_signals'},
+      async function(payload) {
+        const sig = payload.new;
+        if (sig.to_user !== currentUserEmail) return;
+        if (sig.signal_type === 'offer') {
+          incomingSignal = sig;
+          callTarget = sig.from_user;
+          const callerName = sig.from_user.split('@')[0];
+          const isVideo = sig.payload.is_video;
+          const banner = document.getElementById('incoming-call-banner');
+          const nameEl = document.getElementById('incoming-caller-name');
+          const typeEl = document.getElementById('incoming-call-type');
+          const iconEl = document.getElementById('incoming-call-icon');
+          if (nameEl) nameEl.textContent = callerName;
+          if (typeEl) typeEl.textContent = isVideo ? (currentLang==='fr'?'Appel vidéo':'Video call') : (currentLang==='fr'?'Appel vocal':'Voice call');
+          if (iconEl) iconEl.textContent = isVideo ? '🎥' : '📞';
+          if (banner) { banner.style.display='block'; banner.classList.add('show'); }
+        } else if (sig.signal_type === 'answer' && peerConnection) {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(sig.payload.sdp));
+        } else if (sig.signal_type === 'ice' && peerConnection) {
+          try { await peerConnection.addIceCandidate(new RTCIceCandidate(sig.payload.candidate)); } catch(e) {}
+        } else if (sig.signal_type === 'hangup') {
+          hangup();
+          toast(sig.from_user.split('@')[0]+' '+(currentLang==='fr'?'a raccroché':'hung up'));
+        } else if (sig.signal_type === 'reject') {
+          hangup();
+          toast(currentLang==='fr'?'Appel refusé':'Call declined');
+        }
+      })
+    .subscribe();
+}
+
+// ══════════════════════════════════════════════════
+// INIT HOOK — called from launchApp & showPage
+// ══════════════════════════════════════════════════
 </script>
 
 <!-- service worker removed for compatibility -->
