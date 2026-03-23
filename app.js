@@ -1466,7 +1466,7 @@ async function doLogin() {
   const { error } = await sb.auth.signInWithPassword({ email, password: pw });
   if (error) {
     showLoginError('Incorrect email or password. Try again.');
-    btn.disabled = false; btn.textContent = 'Sign In';
+    btn.disabled = false; btn.textContent = currentLang==='fr'?'Se connecter':'Sign In';
   }
   // onAuthStateChange will handle the transition
 }
@@ -2507,7 +2507,7 @@ var TABLE_SIZES = [
 ];
 
 var TABLE_TYPES = ['Dining Table','Epoxy River Table','Custom Desk'];
-var FBM_TYPES   = ['Wood Sink','Bathroom Vanity','Staircase','Art Piece','Custom Piece'];
+var FBM_TYPES   = ['Wood Sink','Bathroom Vanity','Staircase','Art Piece',currentLang==='fr'?'Pièce sur mesure':'Custom Piece'];
 var fbmBoards = [{t:1.75, w:8, l:96, qty:1}];
 var selectedTableSize = null;
 
