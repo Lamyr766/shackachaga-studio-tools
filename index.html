@@ -19,6 +19,9 @@ function isAdmin(email) {
   });
 }
 
+// Initialize currentLang early from localStorage (before any t() call)
+var currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('shack_lang')) || 'en';
+
 
 // Handle GitHub Pages SPA routing — redirected from 404.html
 (function(){
@@ -1787,9 +1790,14 @@ var T = {
     overdue_msg_pl: 'projets en retard'
   }
 };
+// Expose T globally so t() works from any context
+window.T = T;
 
 function t(key) {
-  return (T[currentLang] && T[currentLang][key]) || T['en'][key] || key;
+  var _T = (typeof T !== 'undefined') ? T : window.T;
+  var _lang = (typeof currentLang !== 'undefined' && currentLang) ? currentLang : 'en';
+  if (!_T) return key;
+  return (_T[_lang] && _T[_lang][key]) || _T['en'][key] || key;
 }
 
 
