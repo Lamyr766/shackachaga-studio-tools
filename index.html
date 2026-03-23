@@ -235,6 +235,24 @@ textarea{resize:vertical;min-height:65px;}
 .lang-btn:hover:not(.active){border-color:var(--wood-light);color:var(--wood-light);}
 
 
+
+/* WOOD MATERIAL CALCULATOR */
+.mat-section{background:var(--wood-pale);border-radius:var(--radius-sm);padding:14px;margin:12px 0;border-left:3px solid var(--wood-mid);}
+.mat-section-title{font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+.size-chart{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px;}
+.size-btn{padding:8px 10px;border:1.5px solid var(--wood-pale);border-radius:var(--radius-sm);background:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;text-align:center;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+.size-btn:hover,.size-btn.active{border-color:var(--wood-mid);background:var(--wood-pale);font-weight:600;}
+.size-btn .size-name{font-weight:600;color:var(--wood-dark);display:block;}
+.size-btn .size-dims{font-size:0.68rem;color:var(--wood-mid);display:block;margin-top:2px;}
+.size-btn .size-fbm{font-size:0.65rem;color:var(--green);display:block;margin-top:1px;}
+.fbm-board-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:6px;align-items:center;margin-bottom:6px;}
+@media(max-width:480px){.fbm-board-row{grid-template-columns:1fr 1fr;gap:5px;}}
+.fbm-total-box{background:var(--white);border-radius:var(--radius-sm);padding:10px 14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.fbm-total-label{font-size:0.8rem;color:var(--wood-mid);}
+.fbm-total-val{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--green);}
+.fbm-rate-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+.custom-dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
+
 </style>
 </head>
 <body>
@@ -414,8 +432,70 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
         </select>
       </div>
     </div>
-    <div class="row-3">
-      <div><label data-i18n="lbl_materials">Materials ($)</label><input type="number" id="q-mat" placeholder="280" min="0"></div>
+    <!-- DYNAMIC MATERIAL SECTION — switches based on project type -->
+    <div id="mat-section-tables" class="mat-section" style="display:none;">
+      <div class="mat-section-title" id="mat-title-tables">📐 Table Size Chart — Select a standard size</div>
+      <div class="size-chart" id="size-chart-btns"></div>
+      <div id="custom-size-row" style="display:none;">
+        <div style="font-size:0.78rem;color:var(--wood-mid);margin-bottom:6px;" id="lbl-custom-dims">Custom dimensions:</div>
+        <div class="custom-dims">
+          <div><label style="font-size:0.72rem;">Length (in)</label><input type="number" id="q-len" placeholder="72" min="12" max="240" oninput="calcTableFBM()"></div>
+          <div><label style="font-size:0.72rem;">Width (in)</label><input type="number" id="q-wid" placeholder="36" min="10" max="72" oninput="calcTableFBM()"></div>
+          <div><label style="font-size:0.72rem;">Thickness (in)</label><input type="number" id="q-thk" placeholder="1.75" min="0.5" max="6" step="0.25" oninput="calcTableFBM()"></div>
+        </div>
+      </div>
+      <div class="fbm-total-box" id="table-fbm-result" style="display:none;">
+        <div>
+          <div class="fbm-total-label" id="lbl-fbm-needed">Board feet needed (incl. 20% waste)</div>
+          <div class="fbm-total-val"><span id="table-fbm-val">—</span> <span style="font-size:0.85rem;color:var(--wood-mid);">BF</span></div>
+        </div>
+        <div style="text-align:right;">
+          <div class="fbm-total-label" id="lbl-mat-cost">Est. material cost</div>
+          <div class="fbm-total-val" style="color:var(--wood-mid);">$<span id="table-mat-cost">—</span></div>
+        </div>
+      </div>
+      <div class="fbm-rate-row" id="table-rate-row" style="display:none;">
+        <label style="font-size:0.78rem;color:var(--wood-mid);flex-shrink:0;" id="lbl-cost-per-bf">Cost per BF ($):</label>
+        <input type="number" id="q-bf-rate" value="8" min="1" max="50" step="0.5" style="width:80px;" oninput="calcTableFBM()">
+        <span style="font-size:0.72rem;color:var(--wood-mid);" id="lbl-bf-tip">Maple ~$6-8 · Walnut ~$12-18 · Pine ~$4-6</span>
+      </div>
+    </div>
+
+    <div id="mat-section-fbm" class="mat-section" style="display:none;">
+      <div class="mat-section-title" id="mat-title-fbm">🪵 Wood Calculator — Board Feet / Prix au Pied de Planche</div>
+      <div style="font-size:0.75rem;color:var(--wood-mid);margin-bottom:10px;" id="lbl-fbm-formula">Formula: (Thickness × Width × Length) ÷ 144 = Board Feet</div>
+      <div id="fbm-boards-list"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addFBMBoard()" id="btn-add-board" style="margin-bottom:10px;">+ Add Board</button>
+      <div class="fbm-total-box">
+        <div>
+          <div class="fbm-total-label" id="lbl-total-fbm">Total Board Feet</div>
+          <div class="fbm-total-val"><span id="fbm-total-val">0</span> BF</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="fbm-total-label" id="lbl-mat-cost2">Material Cost</div>
+          <div class="fbm-total-val" style="color:var(--wood-mid);">$<span id="fbm-mat-cost">0</span></div>
+        </div>
+      </div>
+      <div class="fbm-rate-row">
+        <label style="font-size:0.78rem;color:var(--wood-mid);flex-shrink:0;" id="lbl-cost-per-bf2">Cost per BF ($):</label>
+        <input type="number" id="q-fbm-rate" value="8" min="1" max="50" step="0.5" style="width:80px;" oninput="calcFBMTotal()">
+        <label style="font-size:0.78rem;color:var(--wood-mid);margin-left:10px;flex-shrink:0;" id="lbl-waste-pct">Waste %:</label>
+        <input type="number" id="q-fbm-waste" value="20" min="5" max="40" step="5" style="width:60px;" oninput="calcFBMTotal()">
+        <span style="font-size:0.72rem;color:var(--wood-mid);" id="lbl-waste-tip">(incl. saw kerf & defects)</span>
+      </div>
+    </div>
+
+    <div id="mat-section-manual" class="mat-section" style="display:none;">
+      <div class="mat-section-title" id="mat-title-manual">💰 Materials</div>
+      <div class="row-2">
+        <div><label data-i18n="lbl_materials" style="font-size:0.78rem;">Materials ($)</label><input type="number" id="q-mat-manual" placeholder="280" min="0" oninput="document.getElementById('q-mat').value=this.value"></div>
+      </div>
+    </div>
+
+    <!-- Hidden input keeps calcQuote() working -->
+    <input type="hidden" id="q-mat" value="0">
+
+    <div class="row-2">
       <div><label data-i18n="lbl_epoxy_hw">Epoxy / Hardware ($)</label><input type="number" id="q-extra" placeholder="0" value="0" min="0"></div>
       <div><label data-i18n="lbl_delivery_cost">Delivery ($)</label><input type="number" id="q-del" placeholder="0" value="0" min="0"></div>
     </div>
@@ -2207,6 +2287,24 @@ function exportQuotePDF(p) {
 .lang-btn.active{background:var(--wood-light);border-color:var(--wood-light);color:var(--wood-dark);}
 .lang-btn:hover:not(.active){border-color:var(--wood-light);color:var(--wood-light);}
 
+
+
+/* WOOD MATERIAL CALCULATOR */
+.mat-section{background:var(--wood-pale);border-radius:var(--radius-sm);padding:14px;margin:12px 0;border-left:3px solid var(--wood-mid);}
+.mat-section-title{font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
+.size-chart{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px;}
+.size-btn{padding:8px 10px;border:1.5px solid var(--wood-pale);border-radius:var(--radius-sm);background:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;text-align:center;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+.size-btn:hover,.size-btn.active{border-color:var(--wood-mid);background:var(--wood-pale);font-weight:600;}
+.size-btn .size-name{font-weight:600;color:var(--wood-dark);display:block;}
+.size-btn .size-dims{font-size:0.68rem;color:var(--wood-mid);display:block;margin-top:2px;}
+.size-btn .size-fbm{font-size:0.65rem;color:var(--green);display:block;margin-top:1px;}
+.fbm-board-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:6px;align-items:center;margin-bottom:6px;}
+@media(max-width:480px){.fbm-board-row{grid-template-columns:1fr 1fr;gap:5px;}}
+.fbm-total-box{background:var(--white);border-radius:var(--radius-sm);padding:10px 14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.fbm-total-label{font-size:0.8rem;color:var(--wood-mid);}
+.fbm-total-val{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--green);}
+.fbm-rate-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+.custom-dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
 
 </style></head><body>
 <div class="logo">Le Shackachaga</div>
