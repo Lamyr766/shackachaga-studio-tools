@@ -114,7 +114,7 @@ var T = {
     empty_time: 'No sessions today.',
     empty_posts: 'No results found',
     // Sync
-    sync_live: 'Live sync', sync_connecting: 'Connecting...', sync_signed_out: 'Please sign in',
+    sync_live: 'Live sync', sync_connecting: 'Connecting...', sync_signed_out: currentLang==='fr'?'Veuillez vous connecter':'Please sign in',
     // ── Protective features ──────────────────────
     prot_assigned_to: 'Assigned To',
     prot_referred_by: 'Referred By',
@@ -851,7 +851,7 @@ function applyTranslations() {
   setTxt('label-wood-modal', 'wm_add_title');
   // Sync label
   const syncLabel = document.getElementById('sync-label');
-  if (syncLabel && syncLabel.textContent === 'Please sign in' || syncLabel?.textContent === 'Veuillez vous connecter') {
+  if (syncLabel && syncLabel.textContent === currentLang==='fr'?'Veuillez vous connecter':'Please sign in' || syncLabel?.textContent === 'Veuillez vous connecter') {
     setSyncStatus('', t('sync_signed_out'));
   }
   // Translate all dropdowns
@@ -889,7 +889,8 @@ function applyTranslations() {
 function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('shack_lang', lang);
-  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.body.classList.toggle('lang-fr',lang==='fr');document.body.classList.toggle('lang-en',lang==='en');
+  document.getElementById('btn-en')?.classList.toggle('active', lang === 'en');
   document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
   applyTranslations();
 }
@@ -897,6 +898,7 @@ function setLang(lang) {
 function initLang() {
   const saved = localStorage.getItem('shack_lang') || 'fr';
   currentLang = saved;
+  document.body.classList.toggle('lang-fr',saved==='fr');document.body.classList.toggle('lang-en',saved==='en');
   document.getElementById('btn-en')?.classList.toggle('active', saved === 'en');
   document.getElementById('btn-fr')?.classList.toggle('active', saved === 'fr');
   applyTranslations();
@@ -916,7 +918,7 @@ var currentWoodId = null;
 function setupRealtimeSync() {
   if (!sb) return;
   sb.channel('db-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => { loadProjects(); setSyncStatus('live','Live sync'); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, () => { loadProjects(); setSyncStatus('live',currentLang==='fr'?'Synchronisé':'Live sync'); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'wood_stock' }, () => { loadWoodStock(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'saved_posts' }, () => { loadSavedPosts(); })
     .subscribe();
@@ -990,7 +992,7 @@ function calcQuote() {
   const type  = document.getElementById('q-type').value;
   const client= document.getElementById('q-client').value;
 
-  if (!mat && !hrs) { toast('⚠️ Enter materials and/or hours.'); return; }
+  if (!mat && !hrs) { toast(currentLang==='fr'?'⚠️ Entrez les matériaux et/ou les heures.':'⚠️ Enter materials and/or hours.'); return; }
 
   const matT  = (mat + extra) * wm;
   const lab   = hrs * rate * cp;
@@ -1045,8 +1047,8 @@ async function saveQuoteAsProject() {
   };
   setSyncStatus('syncing','Saving...');
   const { error } = await sb.from('projects').insert([p]);
-  if (error) { toast('⚠️ Save failed.'); console.error(error); }
-  else { toast('✅ Saved as project!'); setSyncStatus('live','Live sync'); }
+  if (error) { toast(currentLang==='fr'?'⚠️ Échec de la sauvegarde.':'⚠️ Save failed.'); console.error(error); }
+  else { toast(currentLang==='fr'?'✅ Sauvegardé comme projet!':'✅ Saved as project!'); setSyncStatus('live',currentLang==='fr'?'Synchronisé':'Live sync'); }
 }
 
 function copyQuote() {
@@ -1054,7 +1056,7 @@ function copyQuote() {
   const q = lastQuote;
   navigator.clipboard.writeText(
     `LE SHACKACHAGA — QUOTE\n${q.client ? 'Client: ' + q.client + '\n' : ''}Type: ${q.type}\nSuggested: $${q.sug.toLocaleString()}\nDeposit (50%): $${q.dep.toLocaleString()}\nTotal w/ taxes: $${q.total.toFixed(2)}\nValid 30 days.`
-  ).then(() => toast('📋 Copied!'));
+  ).then(() => toast(currentLang==='fr'?'📋 Copié!':'📋 Copied!'));
 }
 
 // ══════════════════════════════════════════════════
@@ -1188,7 +1190,7 @@ async function submitNote(projectId) {
   const notes = await loadProjectNotes(projectId);
   const el = document.getElementById('notes-list-'+projectId);
   if (el) el.innerHTML = renderNotes(notes);
-  toast('✅ Note added!');
+  toast(currentLang==='fr'?'✅ Note ajoutée!':'✅ Note added!');
 }
 
 async function updateProject(id) {
@@ -1203,20 +1205,20 @@ async function updateProject(id) {
     notes: document.getElementById('pm-nt').value,
     updated_at: new Date().toISOString()
   }).eq('id', id);
-  if (error) toast('⚠️ Update failed.');
-  else { toast('✅ Project updated!'); closeModal('proj-modal'); setSyncStatus('live','Live sync'); }
+  if (error) toast(currentLang==='fr'?'⚠️ Mise à jour échouée.':'⚠️ Update failed.');
+  else { toast(currentLang==='fr'?'✅ Projet mis à jour!':'✅ Project updated!'); closeModal('proj-modal'); setSyncStatus('live',currentLang==='fr'?'Synchronisé':'Live sync'); }
 }
 
 async function advanceProject(id, newStatus) {
   if (!sb) return;
   await sb.from('projects').update({status: newStatus, updated_at: new Date().toISOString()}).eq('id', id);
-  toast('→ Status updated!'); closeModal('proj-modal');
+  toast(currentLang==='fr'?'→ Statut mis à jour!':'→ Status updated!'); closeModal('proj-modal');
 }
 
 async function deleteProject(id) {
-  if (!confirm('Delete this project?')) return;
+  if (!confirm(currentLang==='fr'?'Supprimer ce projet?':'Delete this project?')) return;
   await sb.from('projects').delete().eq('id', id);
-  toast('🗑 Deleted.'); closeModal('proj-modal');
+  toast(currentLang==='fr'?'🗑 Supprimé.':'🗑 Deleted.'); closeModal('proj-modal');
 }
 
 // ══════════════════════════════════════════════════
@@ -1224,7 +1226,7 @@ async function deleteProject(id) {
 // ══════════════════════════════════════════════════
 async function saveIntake() {
   const fn = document.getElementById('i-fn').value.trim();
-  if (!fn) { toast('⚠️ First name required.'); return; }
+  if (!fn) { toast(currentLang==='fr'?'⚠️ Prénom requis.':'⚠️ First name required.'); return; }
   const pieces = [...document.querySelectorAll('#i-pieces input:checked')].map(c => c.value);
   const styles = [...document.querySelectorAll('#i-styles input:checked')].map(c => c.value);
   const p = {
@@ -1249,11 +1251,11 @@ async function saveIntake() {
   };
   setSyncStatus('syncing','Saving...');
   const { error } = await sb.from('projects').insert([p]);
-  if (error) { toast('⚠️ Save failed.'); console.error(error); return; }
+  if (error) { toast(currentLang==='fr'?'⚠️ Échec de la sauvegarde.':'⚠️ Save failed.'); console.error(error); return; }
   // Reset form
   ['i-fn','i-ln','i-em','i-ph','i-ci','i-dim','i-vis','i-dl','i-nt','i-amt'].forEach(id => document.getElementById(id).value = '');
   document.querySelectorAll('#i-pieces input, #i-styles input').forEach(cb => cb.checked = false);
-  toast('✅ Client saved!'); setSyncStatus('live','Live sync');
+  toast(currentLang==='fr'?'✅ Client sauvegardé!':'✅ Client saved!'); setSyncStatus('live',currentLang==='fr'?'Synchronisé':'Live sync');
   setTimeout(() => showPage('dashboard'), 600);
 }
 
@@ -1332,7 +1334,7 @@ function openEditWood(id) {
 async function saveWood() {
   if (!sb) return;
   const species = document.getElementById('wm-species').value.trim();
-  if (!species) { toast('⚠️ Material name required.'); return; }
+  if (!species) { toast(currentLang==='fr'?'⚠️ Nom du matériau requis.':'⚠️ Material name required.'); return; }
   const data = {
     species, grade: document.getElementById('wm-grade').value,
     supplier: document.getElementById('wm-supplier').value,
@@ -1349,14 +1351,14 @@ async function saveWood() {
   } else {
     ({ error } = await sb.from('wood_stock').insert([data]));
   }
-  if (error) { toast('⚠️ Save failed.'); console.error(error); }
-  else { toast('✅ Material saved!'); closeModal('wood-modal'); setSyncStatus('live','Live sync'); loadWoodStock(); }
+  if (error) { toast(currentLang==='fr'?'⚠️ Échec de la sauvegarde.':'⚠️ Save failed.'); console.error(error); }
+  else { toast(currentLang==='fr'?'✅ Matériau sauvegardé!':'✅ Material saved!'); closeModal('wood-modal'); setSyncStatus('live',currentLang==='fr'?'Synchronisé':'Live sync'); loadWoodStock(); }
 }
 
 async function deleteWood() {
-  if (!currentWoodId || !confirm('Delete this material?')) return;
+  if (!currentWoodId || !confirm(currentLang==='fr'?'Supprimer ce matériau?':'Delete this material?')) return;
   await sb.from('wood_stock').delete().eq('id', currentWoodId);
-  toast('🗑 Deleted.'); closeModal('wood-modal'); loadWoodStock();
+  toast(currentLang==='fr'?'🗑 Supprimé.':'🗑 Deleted.'); closeModal('wood-modal'); loadWoodStock();
 }
 
 // ══════════════════════════════════════════════════
@@ -1399,7 +1401,7 @@ Reply ONLY with this JSON (no markdown):
     document.getElementById('post-out').scrollIntoView({behavior:'smooth'});
     lastPost = {...parsed, product:prod, tone, platform:plat};
   } catch(e) {
-    toast('⚠️ Generation failed. Check connection.'); console.error(e);
+    toast(currentLang==='fr'?'⚠️ Génération échouée. Vérifiez la connexion.':'⚠️ Generation failed. Check connection.'); console.error(e);
   }
   btn.disabled = false;
   btn.innerHTML = '✨ Generate Caption';
@@ -1407,15 +1409,15 @@ Reply ONLY with this JSON (no markdown):
 
 function copyCaption(textId, tagsId) {
   const text = document.getElementById(textId).textContent + '\n\n' + document.getElementById(tagsId).textContent;
-  navigator.clipboard.writeText(text).then(() => toast('📋 Copied!'));
+  navigator.clipboard.writeText(text).then(() => toast(currentLang==='fr'?'📋 Copié!':'📋 Copied!'));
 }
 
 async function savePost() {
   if (!lastPost || !sb) return;
   setSyncStatus('syncing','Saving...');
   const { error } = await sb.from('saved_posts').insert([lastPost]);
-  if (error) toast('⚠️ Save failed.');
-  else { toast('💾 Caption saved!'); setSyncStatus('live','Live sync'); loadSavedPosts(); }
+  if (error) toast(currentLang==='fr'?'⚠️ Échec de la sauvegarde.':'⚠️ Save failed.');
+  else { toast(currentLang==='fr'?'💾 Légende sauvegardée!':'💾 Caption saved!'); setSyncStatus('live',currentLang==='fr'?'Synchronisé':'Live sync'); loadSavedPosts(); }
 }
 
 async function loadSavedPosts() {
@@ -1437,12 +1439,12 @@ async function loadSavedPosts() {
 
 async function deletePost(id) {
   await sb.from('saved_posts').delete().eq('id', id);
-  toast('🗑 Removed.'); loadSavedPosts();
+  toast(currentLang==='fr'?'🗑 Supprimé.':'🗑 Removed.'); loadSavedPosts();
 }
 
 function copySQL() {
   const sql = document.getElementById('sql-block').textContent;
-  navigator.clipboard.writeText(sql).then(() => toast('📋 SQL copied!'));
+  navigator.clipboard.writeText(sql).then(() => toast(currentLang==='fr'?'📋 SQL copié!':'📋 SQL copied!'));
 }
 
 // ══════════════════════════════════════════════════
@@ -1473,7 +1475,7 @@ async function doLogout() {
   document.querySelector('nav').style.display = 'none';
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   setSyncStatus('', 'Signed out');
-  toast('Signed out.');
+  toast(currentLang==='fr'?'Déconnecté.':'Signed out.');
 }
 
 function showLoginError(msg) {
@@ -1490,8 +1492,8 @@ async function sendReset() {
   const email = document.getElementById('reset-email').value.trim();
   if (!email) return;
   const { error } = await sb.auth.resetPasswordForEmail(email);
-  if (!error) toast('✅ Reset link sent — check your email.');
-  else toast('⚠️ Could not send reset email.');
+  if (!error) toast(currentLang==='fr'?'✅ Lien de réinitialisation envoyé — vérifiez vos courriels.':'✅ Reset link sent — check your email.');
+  else toast(currentLang==='fr'?'⚠️ Impossible d\'envoyer le courriel de réinitialisation.':'⚠️ Could not send reset email.');
 }
 
 function resetSetup() {
@@ -1523,7 +1525,7 @@ function launchApp() {
   updateMapTabVisibility();
   // Update time-user-label with current user
   var timeLabel = document.getElementById('time-user-label');
-  if (timeLabel && currentUserEmail) timeLabel.textContent = 'Logged in as: ' + currentUserEmail;
+  if (timeLabel && currentUserEmail) timeLabel.textContent = currentLang==='fr'?'Connecté: ':'Logged in as: ' + currentUserEmail;
   // Request GPS permission once — skip if already granted
   requestGPSPermissionOnce();
   initTeam();
@@ -1569,7 +1571,7 @@ async function initSupabaseWithAuth(url, key) {
         document.querySelector('header').style.display = 'none';
         document.querySelector('nav').style.display = 'none';
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        setSyncStatus('', 'Please sign in');
+        setSyncStatus('', currentLang==='fr'?'Veuillez vous connecter':'Please sign in');
       }
     });
     // Check existing session
@@ -1582,8 +1584,8 @@ async function initSupabaseWithAuth(url, key) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     }
   } catch(e) {
-    setSyncStatus('', 'Connection failed');
-    toast('⚠️ Connection failed. Check credentials.');
+    setSyncStatus('', currentLang==='fr'?'Connexion échouée':'Connection failed');
+    toast(currentLang==='fr'?'⚠️ Connexion échouée. Vérifiez les identifiants.':'⚠️ Connection failed. Check credentials.');
     console.error(e);
   }
 }
@@ -1619,7 +1621,7 @@ function waitForSupabaseAndInit(attempts) {
       initSupabaseWithAuth(PRECONFIGURED_URL, PRECONFIGURED_KEY);
     } catch(e) {
       console.error('Init error:', e);
-      setSyncStatus('', 'Erreur — actualisez / Error — refresh');
+      setSyncStatus('', currentLang==='fr'?'Erreur — actualisez':'Error — refresh');
     }
   } else if (attempts < 100) {
     // Retry faster on first attempts (handles slow CDN on mobile)
@@ -1680,8 +1682,8 @@ async function duplicateProject(id) {
   clone.review = 'No';
   clone.created = new Date().toLocaleDateString();
   const { error } = await sb.from('projects').insert([clone]);
-  if (!error) { toast('📋 Project duplicated!'); closeModal('proj-modal'); }
-  else toast('⚠️ Duplicate failed.');
+  if (!error) { toast(currentLang==='fr'?'📋 Projet dupliqué!':'📋 Project duplicated!'); closeModal('proj-modal'); }
+  else toast(currentLang==='fr'?'⚠️ Duplication échouée.':'⚠️ Duplicate failed.');
 }
 
 // ══════════════════════════════════════════════════
@@ -2221,16 +2223,16 @@ async function saveClient() {
     preferred_wood: document.getElementById('cm-wd').value.trim(),
     notes: document.getElementById('cm-nt').value.trim(),
   };
-  if (!data.first_name) { toast('⚠️ First name required.'); return; }
+  if (!data.first_name) { toast(currentLang==='fr'?'⚠️ Prénom requis.':'⚠️ First name required.'); return; }
   const { error } = await sb.from('clients').insert([data]);
-  if (!error) { toast('✅ Client saved!'); closeModal('client-modal'); loadClients(); }
-  else toast('⚠️ Save failed.');
+  if (!error) { toast(currentLang==='fr'?'✅ Client sauvegardé!':'✅ Client saved!'); closeModal('client-modal'); loadClients(); }
+  else toast(currentLang==='fr'?'⚠️ Échec de la sauvegarde.':'⚠️ Save failed.');
 }
 
 async function deleteClient(id) {
-  if (!confirm('Delete this client?')) return;
+  if (!confirm(currentLang==='fr'?'Supprimer ce client?':'Delete this client?')) return;
   await sb.from('clients').delete().eq('id', id);
-  toast('🗑 Deleted.'); closeModal('client-modal'); loadClients();
+  toast(currentLang==='fr'?'🗑 Supprimé.':'🗑 Deleted.'); closeModal('client-modal'); loadClients();
 }
 
 // ══════════════════════════════════════════════════
@@ -2265,7 +2267,7 @@ async function initTimeTracker() {
     var now = new Date();
     welcomeDate.textContent = now.toLocaleDateString(currentLang==='fr'?'fr-CA':'en-CA', {weekday:'long',month:'long',day:'numeric'});
   }
-  document.getElementById('time-user-label').textContent = 'Logged in as: ' + currentUserEmail;
+  document.getElementById('time-user-label').textContent = currentLang==='fr'?'Connecté: ':'Logged in as: ' + currentUserEmail;
   // Populate project selector
   const sel = document.getElementById('time-project-sel');
   sel.innerHTML = '<option value="">— No project —</option>' +
@@ -2393,7 +2395,7 @@ async function loadTimeLogs() {
 
 async function deleteTimeLog(id) {
   await sb.from('time_logs').delete().eq('id', id);
-  toast('🗑 Log removed.'); loadTimeLogs();
+  toast(currentLang==='fr'?'🗑 Entrée supprimée.':'🗑 Log removed.'); loadTimeLogs();
 }
 
 // ══════════════════════════════════════════════════
