@@ -394,6 +394,39 @@ textarea{resize:vertical;min-height:65px;}
 .aa-user-status.on{background:#EAF4EE;color:var(--green);}
 .aa-user-status.off{background:#f5f5f5;color:#999;}
 
+
+/* ── EMPLOYEE UX ───────────────────────────────── */
+/* Larger tap targets on mobile */
+.btn { min-height: 42px; }
+.btn-block { font-size: 1rem; min-height: 48px; }
+
+/* Time tracker — big clear clock-in button */
+#clock-btn { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.5px; min-height: 56px; border-radius: var(--radius); }
+
+/* Friendlier empty states */
+.empty-state { text-align:center; padding: 32px 20px; }
+.empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+.empty-state p { color: var(--wood-mid); font-size: 0.88rem; }
+
+/* Employee welcome banner */
+.emp-welcome { 
+  background: linear-gradient(135deg, var(--wood-dark), var(--wood-mid));
+  color: white; border-radius: var(--radius); padding: 14px 18px;
+  margin-bottom: 14px; display: flex; align-items: center; gap: 12px;
+}
+.emp-welcome .emp-name { font-weight: 700; font-size: 1rem; }
+.emp-welcome .emp-sub  { font-size: 0.75rem; opacity: 0.8; margin-top: 2px; }
+
+/* Cleaner location buttons */
+.loc-btn { 
+  flex: 1; padding: 12px 8px; font-size: 0.9rem; font-weight: 700;
+  border-radius: var(--radius-sm); border: 2px solid transparent;
+  transition: all 0.15s; min-height: 48px;
+}
+.loc-btn.active.shop   { background: var(--green);  color: white; border-color: var(--green); }
+.loc-btn.active.travel { background: var(--amber);  color: white; border-color: var(--amber); }
+.loc-btn.active.onsite { background: var(--blue);   color: white; border-color: var(--blue); }
+
 </style>
 </head>
 <body>
@@ -2744,14 +2777,8 @@ function launchApp() {
   // Update time-user-label with current user
   var timeLabel = document.getElementById('time-user-label');
   if (timeLabel && currentUserEmail) timeLabel.textContent = 'Logged in as: ' + currentUserEmail;
-  // Request GPS permission immediately on login (before initTeam)
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      function(pos) { console.log('GPS permission granted'); },
-      function(err) { console.warn('GPS permission denied or unavailable'); },
-      { enableHighAccuracy: false, timeout: 5000 }
-    );
-  }
+  // Request GPS permission once — skip if already granted
+  requestGPSPermissionOnce();
   initTeam();
   setupRealtimeSync();
   // Add global search bar to header
@@ -3393,6 +3420,17 @@ async function initTimeTracker() {
   // Get current user email
   const { data: { user } } = await sb.auth.getUser();
   currentUserEmail = user?.email || 'unknown';
+  // Update welcome banner
+  var welcomeName = document.getElementById('emp-welcome-name');
+  var welcomeDate = document.getElementById('emp-welcome-date');
+  if (welcomeName) {
+    var name = currentUserName || currentUserEmail.split('@')[0];
+    welcomeName.textContent = (currentLang==='fr' ? 'Bonjour, ' : 'Welcome, ') + name + '!';
+  }
+  if (welcomeDate) {
+    var now = new Date();
+    welcomeDate.textContent = now.toLocaleDateString(currentLang==='fr'?'fr-CA':'en-CA', {weekday:'long',month:'long',day:'numeric'});
+  }
   document.getElementById('time-user-label').textContent = 'Logged in as: ' + currentUserEmail;
   // Populate project selector
   const sel = document.getElementById('time-project-sel');
@@ -3815,7 +3853,7 @@ async function initTeam() {
     await loadChat();
     await loadTeamLocations();
     await loadCallGrid();
-    toast(currentLang==='fr' ? '👥 Équipe connectée!' : '👥 Team connected!');
+    // presence toast removed
   } catch(e) {
     console.error('initTeam error:', e);
     setTimeout(initTeam, 2000);
@@ -3867,7 +3905,7 @@ function setupLocationRealtime() {
   })
   .on('presence', { event: 'join' }, function(p) {
     console.log('Team join:', p.key);
-    toast('👋 '+( p.key ? p.key.split('@')[0] : '?') + (currentLang==='fr'?' est en ligne':' is online'));
+    // online toast removed
     loadTeamLocations();
   })
   .on('presence', { event: 'leave' }, function(p) {
@@ -4046,6 +4084,145 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('#aa-toggle-input').forEach(function(t) { t.checked = true; });
   }
 });
+
+
+// ══════════════════════════════════════════════════
+// PERMISSION MANAGER — request once, remember
+// ══════════════════════════════════════════════════
+
+var _gpsGranted = localStorage.getItem('shack_gps_granted') === '1';
+var _micGranted = localStorage.getItem('shack_mic_granted') === '1';
+
+function requestGPSPermissionOnce() {
+  if (_gpsGranted) {
+    // Already granted — start tracking silently
+    startBackgroundGPS();
+    return;
+  }
+  if (!navigator.geolocation) return;
+  // Check permission API first (no popup if already decided)
+  if (navigator.permissions) {
+    navigator.permissions.query({name:'geolocation'}).then(function(result) {
+      if (result.state === 'granted') {
+        _gpsGranted = true;
+        localStorage.setItem('shack_gps_granted', '1');
+        startBackgroundGPS();
+      } else if (result.state === 'prompt') {
+        // Show friendly explanation before asking
+        showPermissionRequest('gps');
+      }
+      // If denied, don't ask again — GPS just won't work
+      result.onchange = function() {
+        if (result.state === 'granted') {
+          _gpsGranted = true;
+          localStorage.setItem('shack_gps_granted', '1');
+          startBackgroundGPS();
+        }
+      };
+    }).catch(function() {
+      // Permissions API not supported — request directly
+      navigator.geolocation.getCurrentPosition(
+        function() { _gpsGranted = true; localStorage.setItem('shack_gps_granted','1'); startBackgroundGPS(); },
+        function() {},
+        {enableHighAccuracy:false, timeout:8000}
+      );
+    });
+  } else {
+    navigator.geolocation.getCurrentPosition(
+      function() { _gpsGranted = true; localStorage.setItem('shack_gps_granted','1'); startBackgroundGPS(); },
+      function() {},
+      {enableHighAccuracy:false, timeout:8000}
+    );
+  }
+}
+
+async function requestMicPermissionOnce() {
+  if (_micGranted) return true;
+  if (navigator.permissions) {
+    try {
+      var result = await navigator.permissions.query({name:'microphone'});
+      if (result.state === 'granted') {
+        _micGranted = true;
+        localStorage.setItem('shack_mic_granted', '1');
+        return true;
+      }
+    } catch(e) {}
+  }
+  // Actually request it
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
+    stream.getTracks().forEach(function(t){ t.stop(); });
+    _micGranted = true;
+    localStorage.setItem('shack_mic_granted', '1');
+    return true;
+  } catch(e) {
+    toast(currentLang==='fr' ? '🎤 Microphone requis pour les appels' : '🎤 Microphone needed for calls');
+    return false;
+  }
+}
+
+// Friendly permission request card (shown once before browser prompt)
+function showPermissionRequest(type) {
+  if (document.getElementById('perm-request-card')) return;
+  var isGPS   = type === 'gps';
+  var fr      = currentLang === 'fr';
+  var card    = document.createElement('div');
+  card.id     = 'perm-request-card';
+  card.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:min(320px,90vw);background:var(--wood-dark);color:white;border-radius:var(--radius);padding:18px 20px;z-index:500;box-shadow:0 8px 32px rgba(0,0,0,0.3);text-align:center;';
+
+  var iconEl = document.createElement('div');
+  iconEl.style.cssText = 'font-size:1.8rem;margin-bottom:8px;';
+  iconEl.textContent = isGPS ? '📍' : '🎤';
+
+  var titleEl = document.createElement('div');
+  titleEl.style.cssText = 'font-weight:700;font-size:0.95rem;margin-bottom:6px;';
+  titleEl.textContent = isGPS
+    ? (fr ? 'Accès à la position' : 'Location Access')
+    : (fr ? 'Accès au microphone' : 'Microphone Access');
+
+  var msgEl = document.createElement('div');
+  msgEl.style.cssText = 'font-size:0.8rem;opacity:0.85;margin-bottom:14px;';
+  msgEl.textContent = isGPS
+    ? (fr ? "Requis pour le pointage et la coordination d'équipe." : 'Required for time tracking and team coordination.')
+    : (fr ? 'Requis pour les appels et messages vocaux.' : 'Required for voice calls and voice messages.');
+
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:10px;justify-content:center;';
+
+  var allowBtn = document.createElement('button');
+  allowBtn.style.cssText = 'flex:1;padding:10px;background:var(--amber);border:none;border-radius:8px;font-weight:700;font-size:0.88rem;cursor:pointer;color:white;';
+  allowBtn.textContent = fr ? 'Autoriser' : 'Allow';
+  allowBtn.onclick = function() { card.remove(); grantPermission(type); };
+
+  var laterBtn = document.createElement('button');
+  laterBtn.style.cssText = 'padding:10px 14px;background:rgba(255,255,255,0.15);border:none;border-radius:8px;font-size:0.88rem;cursor:pointer;color:white;';
+  laterBtn.textContent = fr ? 'Plus tard' : 'Later';
+  laterBtn.onclick = function() { card.remove(); };
+
+  btnRow.appendChild(allowBtn);
+  btnRow.appendChild(laterBtn);
+  card.appendChild(iconEl);
+  card.appendChild(titleEl);
+  card.appendChild(msgEl);
+  card.appendChild(btnRow);
+  document.body.appendChild(card);
+  setTimeout(function(){ if (card.parentNode) card.remove(); }, 15000);
+}
+
+
+function grantPermission(type) {
+  var card = document.getElementById('perm-request-card');
+  if (card) card.remove();
+  if (type === 'gps') {
+    navigator.geolocation.getCurrentPosition(
+      function() { _gpsGranted=true; localStorage.setItem('shack_gps_granted','1'); startBackgroundGPS(); toast('📍 '+(currentLang==='fr'?'Position activée':'Location enabled')); },
+      function() { toast('⚠️ '+(currentLang==='fr'?'Position refusée':'Location denied')); },
+      {enableHighAccuracy:false, timeout:10000}
+    );
+  } else if (type === 'mic') {
+    requestMicPermissionOnce();
+  }
+}
 
 async function pingPresence() {
   if (!locSubscription || !locSubscription.track || !currentUserEmail) return;
@@ -4456,10 +4633,20 @@ function createPeer() {
 }
 
 async function getMedia(video) {
+  // Ensure mic permission granted first
+  if (!_micGranted) {
+    var ok = await requestMicPermissionOnce();
+    if (!ok) return null;
+  }
   try {
-    return await navigator.mediaDevices.getUserMedia({audio:true, video:video});
+    var stream = await navigator.mediaDevices.getUserMedia({audio:true, video:video});
+    _micGranted = true;
+    localStorage.setItem('shack_mic_granted','1');
+    return stream;
   } catch(e) {
-    toast('⚠️ '+(t('voice_denied')));
+    _micGranted = false;
+    localStorage.removeItem('shack_mic_granted');
+    toast('⚠️ '+(currentLang==='fr'?'Microphone requis — vérifiez les permissions':'Mic required — check browser permissions'));
     return null;
   }
 }
@@ -4894,6 +5081,7 @@ async function toggleVoiceRecord() {
 }
 
 async function startVoiceRecord() {
+  if (!_micGranted) { var ok = await requestMicPermissionOnce(); if (!ok) return; }
   try {
     var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     _audioChunks = [];
