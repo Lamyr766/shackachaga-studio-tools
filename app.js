@@ -638,6 +638,8 @@ var T = {
 };
 // Expose T globally so t() works from any context
 window.T = T;
+// Apply translations immediately on load (before login)
+if (document.readyState !== "loading") { setTimeout(function(){if(typeof applyTranslations==="function")applyTranslations();},0); } else { document.addEventListener("DOMContentLoaded",function(){if(typeof applyTranslations==="function")applyTranslations();}); }
 
 function t(key) {
   try {
@@ -857,9 +859,11 @@ function applyTranslations() {
   // Translate all dropdowns
   translateSelects(lang);
 
-  // Translate all data-i18n tagged elements (text content)
+  // Translate all data-i18n tagged elements (skip elements with bilingual spans)
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
+    // Skip if element uses .en/.fr span system (has child spans)
+    if (el.querySelector('span.en, span.fr')) return;
     var val = t(key);
     if (val && val !== key) el.textContent = val;
   });
@@ -889,16 +893,17 @@ function applyTranslations() {
 function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('shack_lang', lang);
-  document.body.classList.toggle('lang-fr',lang==='fr');document.body.classList.toggle('lang-en',lang==='en');
+  document.body.classList.remove('lang-fr', 'lang-en');
+  document.body.classList.add('lang-' + lang);
   document.getElementById('btn-en')?.classList.toggle('active', lang === 'en');
-  document.getElementById('btn-fr').classList.toggle('active', lang === 'fr');
-  applyTranslations();
+  document.getElementById('btn-fr')?.classList.toggle('active', lang === 'fr');
 }
 
 function initLang() {
   const saved = localStorage.getItem('shack_lang') || 'fr';
   currentLang = saved;
-  document.body.classList.toggle('lang-fr',saved==='fr');document.body.classList.toggle('lang-en',saved==='en');
+  document.body.classList.remove('lang-fr','lang-en');
+  document.body.classList.add('lang-'+saved);
   document.getElementById('btn-en')?.classList.toggle('active', saved === 'en');
   document.getElementById('btn-fr')?.classList.toggle('active', saved === 'fr');
   applyTranslations();
