@@ -2059,9 +2059,9 @@ function initLang() {
 // ══════════════════════════════════════════════════
 const SUPABASE_URL_KEY = 'shack_sb_url';
 const SUPABASE_KEY_KEY = 'shack_sb_key';
-let sb = null;
-let lastQuote = null;
-let currentWoodId = null;
+var sb = null;
+var lastQuote = null;
+var currentWoodId = null;
 
 function getConfig() {
   return { url: localStorage.getItem(SUPABASE_URL_KEY), key: localStorage.getItem(SUPABASE_KEY_KEY) };
@@ -2245,7 +2245,7 @@ function getStatus() {
 }
 const STATUS = getStatus();
 
-let allProjects = [];
+var allProjects = [];
 
 async function loadProjects() {
   if (!sb) return;
@@ -3053,7 +3053,7 @@ self.addEventListener('fetch', e => e.respondWith(
 // ══════════════════════════════════════════════════
 // GLOBAL SEARCH
 // ══════════════════════════════════════════════════
-let searchTimeout = null;
+var searchTimeout = null;
 async function globalSearch(query) {
   if (!query || query.length < 2) {
     document.getElementById('global-results')?.remove();
@@ -3137,7 +3137,7 @@ function renderNotes(notes) {
 // ══════════════════════════════════════════════════
 // CLIENTS DATABASE
 // ══════════════════════════════════════════════════
-let allClients = [];
+var allClients = [];
 
 async function loadClients() {
   if (!sb) return;
