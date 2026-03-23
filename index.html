@@ -1068,7 +1068,6 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
           <div style="font-size:0.72rem;color:var(--wood-mid);margin-top:2px;" class="en">Calls answer automatically after 5 seconds</div>
           <div style="font-size:0.72rem;color:var(--wood-mid);margin-top:2px;" class="fr">Les appels répondent automatiquement après 5 secondes</div>
         </div>
-        <span class="aa-countdown" id="aa-countdown"></span>
         <label class="aa-toggle">
           <input type="checkbox" onchange="toggleAutoAnswer(this.checked)">
           <span class="aa-slider"></span>
@@ -1100,7 +1099,6 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   <div style="font-size:1.2rem;margin-bottom:6px;" id="incoming-call-icon">📞</div>
   <div style="font-weight:700;margin-bottom:4px;" id="incoming-caller-name">Unknown</div>
   <div style="font-size:0.8rem;color:rgba(255,255,255,0.7);margin-bottom:6px;" id="incoming-call-type">Voice call</div>
-  <div style="font-size:0.72rem;color:rgba(255,220,100,0.9);margin-bottom:10px;min-height:16px;" id="aa-banner-hint"></div>
   <div style="display:flex;gap:12px;justify-content:center;">
     <button class="btn btn-red" onclick="rejectCall()">📵 <span class="en">Decline</span><span class="fr">Refuser</span></button>
     <button class="btn btn-green" onclick="acceptCall()" id="btn-accept-call">📞 <span class="en">Accept</span><span class="fr">Accepter</span></button>
@@ -3935,68 +3933,33 @@ document.addEventListener('visibilitychange', function() {
 // ══════════════════════════════════════════════════
 // AUTO-ANSWER
 // ══════════════════════════════════════════════════
-var _autoAnswer = false;
-var _autoAnswerTimer = null;
-var _autoAnswerDelay = 5; // seconds before auto-answering
+var _autoAnswer = (localStorage.getItem('shack_auto_answer') === '1');
 
 function toggleAutoAnswer(enabled) {
   _autoAnswer = enabled;
   localStorage.setItem('shack_auto_answer', enabled ? '1' : '0');
+  // Sync all toggle inputs on page
+  document.querySelectorAll('#aa-toggle-input').forEach(function(t) { t.checked = enabled; });
   toast(enabled
-    ? (currentLang==='fr' ? '🤖 Réponse automatique activée ('+_autoAnswerDelay+'s)' : '🤖 Auto-answer ON ('+_autoAnswerDelay+'s delay)')
+    ? (currentLang==='fr' ? '🤖 Réponse automatique activée' : '🤖 Auto-answer ON')
     : (currentLang==='fr' ? '🤖 Réponse automatique désactivée' : '🤖 Auto-answer OFF')
   );
 }
 
 function startAutoAnswerCountdown() {
+  // No countdown — answer immediately if enabled
   if (!_autoAnswer) return;
-  var remaining = _autoAnswerDelay;
-  var hint = document.getElementById('aa-banner-hint');
-  var cd   = document.getElementById('aa-countdown');
-  if (hint) {
-    hint.style.display = 'block';
-    hint.textContent = (currentLang==='fr'
-      ? '⏱ Réponse auto dans ' + remaining + 's — appuyez Refuser pour annuler'
-      : '⏱ Auto-answering in ' + remaining + 's — tap Decline to cancel');
-  }
-  if (cd) cd.textContent = remaining + 's';
-  if (_autoAnswerTimer) clearInterval(_autoAnswerTimer);
-  _autoAnswerTimer = setInterval(function() {
-    remaining--;
-    if (hint) hint.textContent = (currentLang==='fr'
-      ? '⏱ Réponse auto dans ' + remaining + 's — appuyez Refuser pour annuler'
-      : '⏱ Auto-answering in ' + remaining + 's — tap Decline to cancel');
-    if (cd) cd.textContent = remaining + 's';
-    if (remaining <= 0) {
-      clearInterval(_autoAnswerTimer);
-      _autoAnswerTimer = null;
-      if (cd) cd.textContent = '';
-      if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
-      // Auto-accept
-      acceptCall();
-    }
-  }, 1000);
+  acceptCall();
 }
 
 function cancelAutoAnswerCountdown() {
-  if (_autoAnswerTimer) {
-    clearInterval(_autoAnswerTimer);
-    _autoAnswerTimer = null;
-  }
-  var cd = document.getElementById('aa-countdown');
-  var hint = document.getElementById('aa-banner-hint');
-  if (cd) cd.textContent = '';
-  if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
+  // Nothing to cancel — kept for compatibility
 }
 
-// Restore auto-answer preference on load
+// Restore toggle state as soon as DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  var saved = localStorage.getItem('shack_auto_answer');
-  if (saved === '1') {
-    _autoAnswer = true;
-    // Restore all toggles with this id
-    var toggles = document.querySelectorAll('#aa-toggle-input');
-    toggles.forEach(function(t) { t.checked = true; });
+  if (_autoAnswer) {
+    document.querySelectorAll('#aa-toggle-input').forEach(function(t) { t.checked = true; });
   }
 });
 
