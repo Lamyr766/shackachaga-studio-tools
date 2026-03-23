@@ -22,6 +22,10 @@ function isAdmin(email) {
 // Initialize currentLang early from localStorage (before any t() call)
 var currentLang = (typeof localStorage !== 'undefined' && localStorage.getItem('shack_lang')) || 'fr';
 
+// Supabase credentials — declared here so available everywhere immediately
+var PRECONFIGURED_URL = "https://fwqlzharvjwxbvlcywjw.supabase.co";
+var PRECONFIGURED_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3cWx6aGFydmp3eGJ2bGN5d2p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzQ4MjMsImV4cCI6MjA4OTcxMDgyM30.R8lszNLdXC9exmFJzYICXPHRIbhOMqD4GX7i8HUtZ38";
+
 
 // Handle GitHub Pages SPA routing — redirected from 404.html
 (function(){
@@ -2414,22 +2418,7 @@ var sb = null;
 var lastQuote = null;
 var currentWoodId = null;
 
-function getConfig() {
-  return { url: localStorage.getItem(SUPABASE_URL_KEY), key: localStorage.getItem(SUPABASE_KEY_KEY) };
-}
-
-function saveConfig() {
-  const url = document.getElementById('setup-url').value.trim();
-  const key = document.getElementById('setup-key').value.trim();
-  if (!url || !key) { toast('Please enter both URL and key.'); return; }
-  localStorage.setItem(SUPABASE_URL_KEY, url);
-  localStorage.setItem(SUPABASE_KEY_KEY, key);
-  initSupabase(url, key);
-}
-
-async function initSupabase(url, key) {
-  // Handled by initSupabaseWithAuth
-}
+// Legacy config functions removed — using PRECONFIGURED_URL/KEY
 
 function setupRealtimeSync() {
   if (!sb) return;
@@ -2441,10 +2430,10 @@ function setupRealtimeSync() {
 }
 
 function setSyncStatus(state, label) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  dot.className = 'sync-dot ' + (state === 'live' ? 'live' : state === 'syncing' ? 'syncing' : '');
-  lbl.textContent = label;
+  var dot = document.getElementById('sync-dot');
+  var lbl = document.getElementById('sync-label');
+  if (dot) dot.className = 'sync-dot ' + (state === 'live' ? 'live' : state === 'syncing' ? 'syncing' : '');
+  if (lbl) lbl.textContent = label || '';
 }
 
 // ══════════════════════════════════════════════════
@@ -3124,14 +3113,7 @@ if (window.innerWidth < 600) {
   if (hint) { hint.style.display = 'block'; setTimeout(() => { hint.style.display = 'none'; }, 4000); }
 }
 
-// Pre-configured — no setup needed
-var PRECONFIGURED_URL = "https://fwqlzharvjwxbvlcywjw.supabase.co";
-var PRECONFIGURED_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3cWx6aGFydmp3eGJ2bGN5d2p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzQ4MjMsImV4cCI6MjA4OTcxMDgyM30.R8lszNLdXC9exmFJzYICXPHRIbhOMqD4GX7i8HUtZ38";
-
-// Override getConfig to always return pre-baked credentials
-function getConfig() {
-  return { url: PRECONFIGURED_URL, key: PRECONFIGURED_KEY };
-}
+// PRECONFIGURED_URL/KEY declared in first script block above
 
 // Wait for Supabase library then init
 function waitForSupabaseAndInit(attempts) {
@@ -3141,16 +3123,25 @@ function waitForSupabaseAndInit(attempts) {
       initSupabaseWithAuth(PRECONFIGURED_URL, PRECONFIGURED_KEY);
     } catch(e) {
       console.error('Init error:', e);
-      setSyncStatus('', 'Error — refresh page');
+      setSyncStatus('', 'Erreur — actualisez / Error — refresh');
     }
-  } else if (attempts < 50) {
-    setTimeout(function(){ waitForSupabaseAndInit(attempts + 1); }, 200);
+  } else if (attempts < 100) {
+    // Retry faster on first attempts (handles slow CDN on mobile)
+    var delay = attempts < 10 ? 50 : 200;
+    setTimeout(function(){ waitForSupabaseAndInit(attempts + 1); }, delay);
   } else {
-    setSyncStatus('', 'Load failed — refresh');
+    setSyncStatus('', 'Échec de connexion — actualisez / Load failed — refresh');
+    // Last resort: try loading Supabase again
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    script.onload = function() { initSupabaseWithAuth(PRECONFIGURED_URL, PRECONFIGURED_KEY); };
+    document.head.appendChild(script);
   }
 }
-// Use multiple triggers for maximum Android compatibility
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
+// Fire on every possible ready state for max Android compatibility
+if (document.readyState === 'complete') {
+  setTimeout(function(){ waitForSupabaseAndInit(0); }, 50);
+} else if (document.readyState === 'interactive') {
   setTimeout(function(){ waitForSupabaseAndInit(0); }, 100);
 } else {
   document.addEventListener('DOMContentLoaded', function(){ waitForSupabaseAndInit(0); });
