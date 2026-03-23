@@ -1566,14 +1566,14 @@ const SELECT_OPTIONS = {
 function translateSelects(lang) {
   Object.entries(SELECT_OPTIONS).forEach(([id, translations]) => {
     const sel = document.getElementById(id);
-    if (!sel) return;
+    if (!sel || !sel.options || sel.options.length === 0) return;
     const opts = translations[lang] || translations['en'];
     const enOpts = translations['en'];
     const currentVal = sel.value;
     // Find current index by matching against both languages
     let currentIdx = sel.selectedIndex;
     // Translate each option text
-    [...sel.options].forEach((opt, i) => {
+    Array.from(sel.options || []).forEach((opt, i) => {
       if (opts[i] !== undefined) {
         opt.text = opts[i];
       }
