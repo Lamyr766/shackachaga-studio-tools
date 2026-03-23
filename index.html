@@ -3220,8 +3220,8 @@ function calcFBMTotal() {
 // TEAM FEATURE — CHAT + GPS + WEBRTC
 // ══════════════════════════════════════════════════
 
-// currentUserEmail already declared above
-let currentUserName  = currentUserName || '';
+var _cnInit = '';
+if (typeof currentUserName === 'undefined') { var currentUserName = _cnInit; }
 let chatSubscription = null;
 let signalSubscription = null;
 let locSubscription = null;
@@ -3362,7 +3362,10 @@ async function upsertMyLocation(lat, lng, status, locType) {
     last_seen:     new Date().toISOString()
   };
   if (lat !== null && lng !== null) { update.lat = lat; update.lng = lng; }
-  await sb.from('user_locations').upsert([update], {onConflict:'user_email'});
+  try {
+    var r = await sb.from('user_locations').upsert([update], {onConflict:'user_email'});
+    if (r.error) console.error('upsert location error:', r.error);
+  } catch(e) { console.error('upsert error:', e); }
 }
 
 async function updateMyLocation() {
@@ -3504,6 +3507,18 @@ const ICE_SERVERS = {iceServers:[
   {urls:'stun:stun2.l.google.com:19302'}
 ]};
 
+// Auto-refresh locations every 30s to keep presence fresh
+var _locTimer = null;
+function startLocationRefresh() {
+  if (_locTimer) clearInterval(_locTimer);
+  _locTimer = setInterval(function() {
+    if (currentUserEmail && sb) {
+      upsertMyLocation(null, null, 'online', null);
+      loadTeamLocations();
+    }
+  }, 30000);
+}
+
 async function loadCallGrid() {
   if (!sb) return;
   const { data } = await sb.from('user_locations').select('*')
@@ -3639,7 +3654,10 @@ function showCallOverlay(statusText) {
 }
 
 async function hangup() {
-  if (peerConnection) { peerConnection.close(); peerConnection = null; }
+  if (peerConnection) {
+    try { peerConnection.onicecandidate = null; peerConnection.ontrack = null; peerConnection.close(); } catch(e) {}
+    peerConnection = null;
+  }
   if (localStream)    { localStream.getTracks().forEach(function(t){ t.stop(); }); localStream = null; }
   if (callTarget) {
     await sb.from('webrtc_signals').insert([{
@@ -3673,7 +3691,12 @@ function toggleCamera() {
 
 function setupSignalRealtime() {
   if (!sb || signalSubscription) return;
-  signalSubscription = sb.channel('webrtc-signals')
+  // Clean stale signals (older than 60s)
+  var cutoff = new Date(Date.now() - 60000).toISOString();
+  sb.from('webrtc_signals').delete()
+    .lt('created_at', cutoff)
+    .then(function(){});
+  signalSubscription = sb.channel('webrtc-'+currentUserEmail.replace('@','_').replace('.','_'))
     .on('postgres_changes', {event:'INSERT', schema:'public', table:'webrtc_signals'},
       async function(payload) {
         const sig = payload.new;
@@ -3691,6 +3714,8 @@ function setupSignalRealtime() {
           if (typeEl) typeEl.textContent = isVideo ? (currentLang==='fr'?'Appel vidéo':'Video call') : (currentLang==='fr'?'Appel vocal':'Voice call');
           if (iconEl) iconEl.textContent = isVideo ? '🎥' : '📞';
           if (banner) { banner.style.display='block'; banner.classList.add('show'); }
+          if (navigator.vibrate) navigator.vibrate([300,100,300,100,300]);
+          toast('📞 '+(currentLang==='fr'?'Appel entrant de ':'Incoming call from ')+callerName);
         } else if (sig.signal_type === 'answer' && peerConnection) {
           await peerConnection.setRemoteDescription(new RTCSessionDescription(sig.payload.sdp));
         } else if (sig.signal_type === 'ice' && peerConnection) {
@@ -3702,6 +3727,8 @@ function setupSignalRealtime() {
           hangup();
           toast(currentLang==='fr'?'Appel refusé':'Call declined');
         }
+        // Delete processed signal to keep DB clean
+        sb.from('webrtc_signals').delete().eq('id', sig.id).then(function(){});
       })
     .subscribe();
 }
@@ -3712,5 +3739,15 @@ function setupSignalRealtime() {
 </script>
 
 <!-- service worker removed for compatibility -->
+<script>
+window.addEventListener('beforeunload', function() {
+  if (window.sb && currentUserEmail) {
+    window.sb.from('user_locations')
+      .update({status:'offline', last_seen: new Date().toISOString()})
+      .eq('user_email', currentUserEmail)
+      .then(function(){});
+  }
+});
+</script>
 </body>
 </html>
