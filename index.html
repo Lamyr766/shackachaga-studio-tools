@@ -613,6 +613,13 @@ textarea{resize:vertical;min-height:65px;}
 .roster-avatar{flex-shrink:0;}
 .roster-info{flex:1;min-width:0;}
 .roster-name{font-weight:700;font-size:0.92rem;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* ── BILINGUAL SPAN SYSTEM ──────────────────────────────── */
+body.lang-fr .en { display: none !important; }
+body.lang-en .fr { display: none !important; }
+/* Default: show FR (default lang) */
+.en { display: none; }
+
 </style>
 </head>
 <body>
@@ -629,7 +636,7 @@ textarea{resize:vertical;min-height:65px;}
     <input type="text" id="setup-url" placeholder="https://xxxx.supabase.co">
     <label>Supabase Anon Key</label>
     <input type="text" id="setup-key" placeholder="eyJhbGciOiJIUzI1...">
-    <button class="btn btn-green btn-block" onclick="saveConfig()">✅ Connect</button>
+    <button class="btn btn-green btn-block" onclick="saveConfig()"><span class="en">✅ Connect</span><span class="fr">✅ Connecter</span></button>
     <div style="margin-top:14px;padding:12px;background:var(--wood-pale);border-radius:var(--radius-sm);">
       <div style="font-size:0.75rem;font-weight:700;margin-bottom:7px;color:var(--wood-mid);" data-i18n="misc_sql_setup">SQL Setup Script:</div>
       <div id="sql-block" style="font-family:monospace;font-size:0.65rem;background:var(--wood-dark);color:var(--wood-light);padding:10px;border-radius:6px;white-space:pre-wrap;max-height:150px;overflow-y:auto;line-height:1.5;">CREATE TABLE IF NOT EXISTS projects (
@@ -741,7 +748,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON clients FOR ALL USING (auth.role() = '
 CREATE POLICY IF NOT EXISTS "auth_all" ON project_notes FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY IF NOT EXISTS "auth_all" ON time_logs FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');</div>
-      <button class="btn btn-ghost btn-sm" style="margin-top:7px;" onclick="copySQL()">📋 Copy SQL</button>
+      <button class="btn btn-ghost btn-sm" style="margin-top:7px;" onclick="copySQL()"><span class="en">📋 Copy SQL</span><span class="fr">📋 Copier SQL</span></button>
     </div>
   </div>
 </div>
@@ -759,15 +766,15 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       onkeydown="if(event.key==='Enter')doLogin()">
     <button class="btn btn-green btn-block" onclick="doLogin()" id="login-btn"> data-i18n="misc_sign_in">Sign In</button>
     <div style="margin-top:14px;text-align:center;">
-      <button class="btn btn-ghost btn-sm" onclick="showForgot()" style="font-size:0.78rem;" data-i18n="misc_forgot_pw">Forgot password?</button>
+      <button class="btn btn-ghost btn-sm" onclick="showForgot()" style="font-size:0.78rem;" data-i18n="misc_forgot_pw"><span class="en">Forgot password?</span><span class="fr">Mot de passe oublié?</span></button>
       <span style="color:var(--wood-pale);margin:0 4px;">|</span>
-      <button class="btn btn-ghost btn-sm" onclick="resetSetup()" style="font-size:0.78rem;" data-i18n="misc_change_server">Change server</button>
+      <button class="btn btn-ghost btn-sm" onclick="resetSetup()" style="font-size:0.78rem;" data-i18n="misc_change_server"><span class="en">Change server</span><span class="fr">Changer le serveur</span></button>
     </div>
     <div id="forgot-box" style="display:none;margin-top:14px;padding:12px;background:var(--wood-pale);border-radius:var(--radius-sm);">
       <div style="font-size:0.8rem;margin-bottom:8px;color:var(--wood-mid);" data-i18n="misc_enter_email_reset">Enter your email to receive a reset link:</div>
       <div style="display:flex;gap:8px;">
-        <input type="email" id="reset-email" placeholder="your@email.com" style="flex:1;">
-        <button class="btn btn-amber btn-sm" onclick="sendReset()" data-i18n="misc_send">Send</button>
+        <input type="email" id="reset-email" placeholder="votre@courriel.com" style="flex:1;">
+        <button class="btn btn-amber btn-sm" onclick="sendReset()" data-i18n="misc_send"><span class="en">Send</span><span class="fr">Envoyer</span></button>
       </div>
     </div>
   </div>
@@ -785,7 +792,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <div class="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-label">Connecting...</span></div>
-      <button onclick="doLogout()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);font-size:0.72rem;padding:6px 10px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:34px;flex-shrink:0;white-space:nowrap;-webkit-tap-highlight-color:transparent;" title="Sign out" data-i18n="misc_sign_out">Sign out</button>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);font-size:0.72rem;padding:6px 10px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;min-height:34px;flex-shrink:0;white-space:nowrap;-webkit-tap-highlight-color:transparent;" title="Sign out" data-i18n="misc_sign_out"><span class="en">Sign out</span><span class="fr">Déconnexion</span></button>
     </div>
   </div>
   <nav id="main-nav">
@@ -809,29 +816,29 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <!-- ═══ QUOTE CALCULATOR ═══ -->
 <div id="page-quote" class="page active">
   <div class="card">
-    <div class="card-title">Quote Calculator</div>
+    <div class="card-title"><span class="en">Quote Calculator</span><span class="fr">Calculateur de soumission</span></div>
     <div class="card-sub" data-i18n="sub_quote">Instant pricing with QC taxes. Save directly as a project.</div>
     <label data-i18n="lbl_project_type">Project Type</label>
     <select id="q-type">
-      <option value="">— Select —</option>
-      <option value="Epoxy River Table">Epoxy River Table</option>
-      <option value="Dining Table">Dining / Coffee Table</option>
-      <option value="Wood Sink">Wood Sink</option>
-      <option value="Bathroom Vanity">Bathroom Vanity</option>
-      <option value="Custom Desk">Custom Desk</option>
-      <option value="Staircase">Staircase / Structure</option>
-      <option value="Art Piece">Art Piece / Collectible</option>
-      <option value="Custom Piece">Other Custom Piece</option>
+      <option value=""><span class="en">— Select —</span><span class="fr">— Sélectionner —</span></option>
+      <option value="Epoxy River Table"><span class="en"><span class="en">Epoxy River Table</span><span class="fr">Table rivière époxy</span></span><span class="fr">Table rivière époxy</span></option>
+      <option value="Dining Table"><span class="en">Dining / Coffee Table</span><span class="fr">Table à manger / café</span></option>
+      <option value="Wood Sink"><span class="en">Wood Sink</span><span class="fr">Évier en bois</span></option>
+      <option value="Bathroom Vanity"><span class="en">Bathroom Vanity</span><span class="fr">Meuble-lavabo</span></option>
+      <option value="Custom Desk"><span class="en">Custom Desk</span><span class="fr">Bureau sur mesure</span></option>
+      <option value="Staircase"><span class="en">Staircase / Structure</span><span class="fr">Escalier / Structure</span></option>
+      <option value="Art Piece"><span class="en">Art Piece / Collectible</span><span class="fr">Œuvre d'art / Collectionnable</span></option>
+      <option value="Custom Piece"><span class="en">Other Custom Piece</span><span class="fr">Autre pièce sur mesure</span></option>
     </select>
     <div class="row-2">
-      <div><label data-i18n="lbl_client_name">Client Name</label><input type="text" id="q-client" placeholder="e.g. Marie L." data-i18n-ph="ph_client"></div>
+      <div><label data-i18n="lbl_client_name">Client Name</label><input type="text" id="q-client" placeholder="ex. Marie L." data-i18n-ph="ph_client"></div>
       <div><label>Wood Species</label>
         <select id="q-wood">
-          <option value="1.0">Ambrosia Maple</option>
-          <option value="1.15">Black Walnut (+15%)</option>
-          <option value="1.05">White Pine (+5%)</option>
-          <option value="1.2">Barn / Reclaimed (+20%)</option>
-          <option value="1.25">Exotic (+25%)</option>
+          <option value="1.0"><span class="en">Ambrosia Maple</span><span class="fr">Érable moucheté</span></option>
+          <option value="1.15"><span class="en">Black Walnut (+15%)</span><span class="fr">Noyer noir (+15%)</span></option>
+          <option value="1.05"><span class="en">White Pine (+5%)</span><span class="fr">Pin blanc (+5%)</span></option>
+          <option value="1.2"><span class="en">Barn / Reclaimed (+20%)</span><span class="fr">Grange / Récupéré (+20%)</span></option>
+          <option value="1.25"><span class="en">Exotic (+25%)</span><span class="fr">Exotique (+25%)</span></option>
         </select>
       </div>
     </div>
@@ -868,7 +875,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <div class="mat-section-title" id="mat-title-fbm">🪵 Wood Calculator — Board Feet / Prix au Pied de Planche</div>
       <div style="font-size:0.75rem;color:var(--wood-mid);margin-bottom:10px;" id="lbl-fbm-formula">Formula: (Thickness × Width × Length) ÷ 144 = Board Feet</div>
       <div id="fbm-boards-list"></div>
-      <button class="btn btn-ghost btn-sm" onclick="addFBMBoard()" id="btn-add-board" style="margin-bottom:10px;">+ Add Board</button>
+      <button class="btn btn-ghost btn-sm" onclick="addFBMBoard()" id="btn-add-board" style="margin-bottom:10px;"><span class="en">+ Add Board</span><span class="fr">+ Ajouter planche</span></button>
       <div class="fbm-total-box">
         <div>
           <div class="fbm-total-label" id="lbl-total-fbm">Total Board Feet</div>
@@ -907,10 +914,10 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <div><label data-i18n="lbl_rate">Rate ($/h)</label><input type="number" id="q-rate" placeholder="40" value="40" min="0"></div>
       <div><label data-i18n="lbl_complexity">Complexity</label>
         <select id="q-comp">
-          <option value="1.0">Standard</option>
-          <option value="1.1">Moderate +10%</option>
-          <option value="1.25">Complex +25%</option>
-          <option value="1.4">Very complex +40%</option>
+          <option value="1.0"><span class="en">Standard</span><span class="fr">Standard</span></option>
+          <option value="1.1"><span class="en">Moderate +10%</span><span class="fr">Modéré +10%</span></option>
+          <option value="1.25"><span class="en">Complex +25%</span><span class="fr">Complexe +25%</span></option>
+          <option value="1.4"><span class="en">Very complex +40%</span><span class="fr">Très complexe +40%</span></option>
         </select>
       </div>
     </div>
@@ -922,14 +929,14 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
         <select id="q-mg"><option value="0.20">20%</option><option value="0.25" selected>25%</option><option value="0.30">30%</option><option value="0.35">35%</option></select>
       </div>
     </div>
-    <button class="btn btn-primary btn-block" onclick="calcQuote()" data-i18n="misc_calculate_quote">⚡ Calculate Quote</button>
+    <button class="btn btn-primary btn-block" onclick="calcQuote()" data-i18n="misc_calculate_quote"><span class="en">⚡ Calculate Quote</span><span class="fr">⚡ Calculer la soumission</span></button>
   </div>
   <div id="quote-result" style="display:none;" class="card">
-    <div class="card-title" id="q-res-title">Quote Breakdown</div>
+    <div class="card-title" id="q-res-title"><span class="en">Quote Breakdown</span><span class="fr">Détail de la soumission</span></div>
     <div id="quote-lines"></div>
     <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-green btn-sm" onclick="saveQuoteAsProject()">💾 Save as Project</button>
-      <button class="btn btn-ghost btn-sm" onclick="copyQuote()">📋 Copy Summary</button>
+      <button class="btn btn-green btn-sm" onclick="saveQuoteAsProject()"><span class="en">💾 Save as Project</span><span class="fr">💾 Sauvegarder comme projet</span></button>
+      <button class="btn btn-ghost btn-sm" onclick="copyQuote()"><span class="en">📋 Copy Summary</span><span class="fr">📋 Copier le résumé</span></button>
     </div>
   </div>
 </div>
@@ -937,44 +944,44 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <!-- ═══ PROJECT DASHBOARD ═══ -->
 <div id="page-dashboard" class="page">
   <div class="section-header">
-    <div class="section-title" id="section-dash-title">Projects</div>
-    <button class="btn btn-primary btn-sm" onclick="showPage('intake')" data-i18n="btn_add_new">+ New</button>
+    <div class="section-title" id="section-dash-title"><span class="en">Projects</span><span class="fr">Projets</span></div>
+    <button class="btn btn-primary btn-sm" onclick="showPage('intake')" data-i18n="btn_add_new"><span class="en">+ New</span><span class="fr">+ Nouveau</span></button>
   </div>
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="st-total">—</div><div class="stat-label">Total</div></div>
     <div class="stat-card"><div class="stat-num" id="st-active">—</div><div class="stat-label">Active</div></div>
     <div class="stat-card"><div class="stat-num" id="st-due">—</div><div class="stat-label">Bal. Due</div></div>
-    <div class="stat-card"><div class="stat-num" id="st-rev">—</div><div class="stat-label">Revenue</div></div>
+    <div class="stat-card"><div class="stat-num" id="st-rev">—</div><div class="stat-label"><span class="en">Revenue</span><span class="fr">Revenus</span></div></div>
   </div>
   <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
     <select id="f-status" onchange="loadProjects()" style="flex:1;min-width:130px;font-size:0.8rem;padding:8px 10px;">
-      <option value="">All Statuses</option>
-      <option value="new">New</option><option value="quote">Quote Sent</option>
-      <option value="active">Fabrication</option><option value="finish">Finishing</option>
-      <option value="ready">Ready</option><option value="done">Delivered</option>
+      <option value=""><span class="en">All Statuses</span><span class="fr">Tous les statuts</span></option>
+      <option value="new"><span class="en">New</span><span class="fr">Nouveau</span></option><option value="quote"><span class="en">Quote Sent</span><span class="fr">Devis envoyé</span></option>
+      <option value="active"><span class="en">Fabrication</span><span class="fr">Fabrication</span></option><option value="finish"><span class="en">Finishing</span><span class="fr">Finition</span></option>
+      <option value="ready"><span class="en">Ready</span><span class="fr">Prêt</span></option><option value="done"><span class="en">Delivered</span><span class="fr">Livré</span></option>
     </select>
-    <input id="f-search" oninput="loadProjects()" placeholder="Search..." style="flex:2;min-width:140px;font-size:0.8rem;padding:8px 10px;">
+    <input id="f-search" oninput="loadProjects()" placeholder="Rechercher..." data-placeholder-fr="Rechercher..." data-placeholder-en="Search..." style="flex:2;min-width:140px;font-size:0.8rem;padding:8px 10px;">
   </div>
   <div class="proj-list" id="proj-list"><div class="empty-state"><div class="icon">🪵</div><p>Loading projects...</p></div></div>
 </div>
 
 <!-- ═══ INTAKE FORM ═══ -->
 <div id="page-intake" class="page">
-  <div class="section-header"><div class="section-title">New Client Intake</div></div>
+  <div class="section-header"><div class="section-title"><span class="en">New Client Intake</span><span class="fr">Nouveau dossier client</span></div></div>
   <div class="card">
     <div class="intake-section-title" data-i18n="sec_intake_a">A — Contact</div>
     <div class="row-2">
-      <div><label data-i18n="lbl_first_name">First Name</label><input type="text" id="i-fn" placeholder="Jean" data-i18n-ph="ph_first"></div>
-      <div><label data-i18n="lbl_last_name">Last Name</label><input type="text" id="i-ln" placeholder="Tremblay" data-i18n-ph="ph_last"></div>
+      <div><label data-i18n="lbl_first_name">First Name</label><input type="text" id="i-fn" placeholder="Prénom / First name" data-i18n-ph="ph_first"></div>
+      <div><label data-i18n="lbl_last_name">Last Name</label><input type="text" id="i-ln" placeholder="Nom / Last name" data-i18n-ph="ph_last"></div>
     </div>
     <div class="row-2">
-      <div><label data-i18n="lbl_email">Email</label><input type="email" id="i-em" placeholder="jean@email.com" data-i18n-ph="ph_email"></div>
+      <div><label data-i18n="lbl_email">Email</label><input type="email" id="i-em" placeholder="jean@courriel.com" data-i18n-ph="ph_email"></div>
       <div><label data-i18n="lbl_phone">Phone</label><input type="tel" id="i-ph" placeholder="(819) 555-0000"></div>
     </div>
     <div class="row-2">
       <div><label data-i18n="lbl_city">City</label><input type="text" id="i-ci" placeholder="Gatineau" data-i18n-ph="ph_city"></div>
       <div><label data-i18n="lbl_found_via">Found us via</label>
-        <select id="i-src"><option>Instagram</option><option>Facebook</option><option>Google</option><option>Word of mouth</option><option>Etsy</option><option>Houzz</option><option>Other</option></select>
+        <select id="i-src"><option><span class="en">Instagram</span><span class="fr">Instagram</span></option><option><span class="en">Facebook</span><span class="fr">Facebook</span></option><option><span class="en">Google</span><span class="fr">Google</span></option><option><span class="en">Word of mouth</span><span class="fr">Bouche à oreille</span></option><option><span class="en">Etsy</span><span class="fr">Etsy</span></option><option><span class="en">Houzz</span><span class="fr">Houzz</span></option><option><span class="en">Other</span><span class="fr">Autre</span></option></select>
       </div>
     </div>
     <div class="intake-section-title" data-i18n="sec_intake_b">B — Project</div>
@@ -992,7 +999,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="row-2">
       <div><label data-i18n="lbl_dimensions">Dimensions</label><input type="text" id="i-dim" placeholder='72" x 36"'></div>
       <div><label>Wood Species</label>
-        <select id="i-wd"><option>Ambrosia Maple</option><option>Black Walnut</option><option>White Pine</option><option>Barn Wood</option><option>No preference</option><option>Other</option></select>
+        <select id="i-wd"><option><span class="en">Ambrosia Maple</span><span class="fr">Érable moucheté</span></option><option><span class="en">Black Walnut</span><span class="fr">Noyer noir</span></option><option><span class="en">White Pine</span><span class="fr">Pin blanc</span></option><option><span class="en">Barn Wood</span><span class="fr">Bois de grange</span></option><option><span class="en">No preference</span><span class="fr">Aucune préférence</span></option><option><span class="en">Other</span><span class="fr">Autre</span></option></select>
       </div>
     </div>
     <label data-i18n="lbl_style_finish">Style / Finish</label>
@@ -1004,22 +1011,22 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <label class="checkbox-item"><input type="checkbox" value="Raw solid wood" data-i18n-val="cb_raw"> Raw solid wood</label>
     </div>
     <label data-i18n="lbl_vision">Vision Description</label>
-    <textarea id="i-vis" placeholder="What the client is imagining..." data-i18n-ph="ph_vision"></textarea>
+    <textarea id="i-vis" placeholder="Ce que le client imagine..." data-i18n-ph="ph_vision"></textarea>
     <div class="intake-section-title">C — Budget & Timeline</div>
     <div class="row-2">
       <div><label data-i18n="lbl_budget_range">Budget Range</label>
-        <select id="i-bud"><option>Under $500</option><option>$500–$1,000</option><option>$1,000–$2,500</option><option>$2,500–$5,000</option><option>$5,000+</option><option>Prefer to discuss</option></select>
+        <select id="i-bud"><option><span class="en">Under $500</span><span class="fr">Moins de 500$</span></option><option>$500–$1,000</option><option>$1,000–$2,500</option><option>$2,500–$5,000</option><option>$5,000+</option><option><span class="en">Prefer to discuss</span><span class="fr">Préfère en discuter</span></option></select>
       </div>
       <div><label data-i18n="lbl_timeline">Timeline</label>
-        <select id="i-tl"><option>ASAP</option><option>Within 1 month</option><option>Within 2–3 months</option><option>Within 6 months</option><option>Not urgent</option></select>
+        <select id="i-tl"><option><span class="en">ASAP</span><span class="fr">Dès que possible</span></option><option><span class="en">Within 1 month</span><span class="fr">Dans 1 mois</span></option><option><span class="en">Within 2–3 months</span><span class="fr">Dans 2–3 mois</span></option><option><span class="en">Within 6 months</span><span class="fr">Dans 6 mois</span></option><option><span class="en">Not urgent</span><span class="fr">Pas urgent</span></option></select>
       </div>
     </div>
     <div class="row-2">
-      <div><label data-i18n="lbl_deadline">Important Deadline</label><input type="text" id="i-dl" placeholder="e.g. Christmas" data-i18n-ph="ph_deadline"></div>
+      <div><label data-i18n="lbl_deadline">Important Deadline</label><input type="text" id="i-dl" placeholder="ex. Noël" data-i18n-ph="ph_deadline"></div>
       <div><label data-i18n="lbl_quoted_amount">Quoted Amount ($)</label><input type="number" id="i-amt" placeholder="0" min="0"></div>
     </div>
     <label data-i18n="lbl_notes">Notes</label>
-    <textarea id="i-nt" placeholder="Special requests, notes..." data-i18n-ph="ph_special"></textarea>
+    <textarea id="i-nt" placeholder="Demandes spéciales, notes..." data-i18n-ph="ph_special"></textarea>
     <button class="btn btn-green btn-block" onclick="saveIntake()" data-i18n="misc_save_create">✅ Save & Create Project</button>
   </div>
 </div>
@@ -1027,8 +1034,8 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <!-- ═══ WOOD STOCK TRACKER ═══ -->
 <div id="page-wood" class="page">
   <div class="section-header">
-    <div class="section-title">Wood & Material Stock</div>
-    <button class="btn btn-primary btn-sm" onclick="openAddWood()" data-i18n="btn_add_wood">+ Add</button>
+    <div class="section-title"><span class="en">Wood &amp; Material Stock</span><span class="fr">Bois &amp; Matériaux</span></div>
+    <button class="btn btn-primary btn-sm" onclick="openAddWood()" data-i18n="btn_add_wood"><span class="en">+ Add</span><span class="fr">+ Ajouter</span></button>
   </div>
 
   <div class="stats-row">
@@ -1044,66 +1051,66 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 
 <!-- ═══ POST GENERATOR ═══ -->
 <div id="page-post" class="page">
-  <div class="section-header"><div class="section-title" id="section-post-title">Post Generator</div></div>
+  <div class="section-header"><div class="section-title" id="section-post-title"><span class="en">Post Generator</span><span class="fr">Générateur de publications</span></div></div>
   <div class="card">
-    <div class="card-title">Bilingual Caption — Claude AI</div>
+    <div class="card-title"><span class="en">Bilingual Caption — Claude AI</span><span class="fr">Légende bilingue — Claude AI</span></div>
     <div class="card-sub" data-i18n="sub_post">Generates a ready-to-post EN + FR caption with hashtags in seconds.</div>
     <div class="row-2">
       <div><label data-i18n="lbl_subject">Subject</label>
         <select id="p-prod">
-          <option value="epoxy river table with teal resin">Epoxy River Table</option>
-          <option value="ambrosia maple dining table">Ambrosia Maple Table</option>
-          <option value="hand-sculpted black walnut wood sink">Black Walnut Sink</option>
-          <option value="white pine floating bathroom vanity">White Pine Vanity</option>
-          <option value="unique one-of-a-kind walnut art piece">Walnut Art Piece</option>
-          <option value="custom live edge coffee table">Live Edge Coffee Table</option>
-          <option value="behind the scenes workshop craftsmanship">Workshop / Behind the Scenes</option>
-          <option value="five generations of woodworking heritage">Heritage Story</option>
-          <option value="custom staircase collaboration">Custom Staircase</option>
+          <option value="epoxy river table with teal resin"><span class="en"><span class="en">Epoxy River Table</span><span class="fr">Table rivière époxy</span></span><span class="fr">Table rivière époxy</span></option>
+          <option value="ambrosia maple dining table"><span class="en">Ambrosia Maple Table</span><span class="fr">Table en érable moucheté</span></option>
+          <option value="hand-sculpted black walnut wood sink"><span class="en">Black Walnut Sink</span><span class="fr">Évier en noyer noir</span></option>
+          <option value="white pine floating bathroom vanity"><span class="en">White Pine Vanity</span><span class="fr">Meuble-lavabo en pin blanc</span></option>
+          <option value="unique one-of-a-kind walnut art piece"><span class="en">Walnut Art Piece</span><span class="fr">Œuvre en noyer</span></option>
+          <option value="custom live edge coffee table"><span class="en">Live Edge Coffee Table</span><span class="fr">Table café en bois vivant</span></option>
+          <option value="behind the scenes workshop craftsmanship"><span class="en">Workshop / Behind the Scenes</span><span class="fr">Atelier / Coulisses</span></option>
+          <option value="five generations of woodworking heritage"><span class="en">Heritage Story</span><span class="fr">Histoire de famille</span></option>
+          <option value="custom staircase collaboration"><span class="en">Custom Staircase</span><span class="fr">Escalier sur mesure</span></option>
         </select>
       </div>
       <div><label data-i18n="lbl_tone">Tone</label>
         <select id="p-tone">
-          <option value="storytelling and emotional, poetic">Storytelling — emotional</option>
-          <option value="product showcase, feature-focused">Product showcase</option>
-          <option value="educational, informative">Educational</option>
-          <option value="promotional with urgency, call to action">Promotional</option>
-          <option value="authentic behind the scenes, raw">Behind the scenes</option>
-          <option value="local Gatineau Ottawa bilingual community">Local — Gatineau/Ottawa</option>
-          <option value="seasonal holiday gift guide">Seasonal / Holiday</option>
+          <option value="storytelling and emotional, poetic"><span class="en">Storytelling — emotional</span><span class="fr">Storytelling — émotionnel</span></option>
+          <option value="product showcase, feature-focused"><span class="en">Product showcase</span><span class="fr">Présentation de produit</span></option>
+          <option value="educational, informative"><span class="en">Educational</span><span class="fr">Éducatif</span></option>
+          <option value="promotional with urgency, call to action"><span class="en">Promotional</span><span class="fr">Promotionnel</span></option>
+          <option value="authentic behind the scenes, raw"><span class="en">Behind the scenes</span><span class="fr">Coulisses</span></option>
+          <option value="local Gatineau Ottawa bilingual community"><span class="en">Local — Gatineau/Ottawa</span><span class="fr">Local — Gatineau/Ottawa</span></option>
+          <option value="seasonal holiday gift guide"><span class="en">Seasonal / Holiday</span><span class="fr">Saisonnier / Fêtes</span></option>
         </select>
       </div>
     </div>
     <label data-i18n="lbl_extra_detail">Extra detail (optional)</label>
-    <input type="text" id="p-detail" placeholder="e.g. teal river, Father's Day, floating shelf...">
+    <input type="text" id="p-detail" placeholder="ex. rivière sarcelle, fête des pères, tablette flottante...">
     <label data-i18n="lbl_platform">Platform</label>
     <div style="display:flex;gap:12px;margin-top:6px;">
       <label class="checkbox-item"><input type="radio" name="plat" value="Instagram" checked data-i18n-val="rb_instagram"> Instagram</label>
       <label class="checkbox-item"><input type="radio" name="plat" value="Facebook" data-i18n-val="rb_facebook"> Facebook</label>
       <label class="checkbox-item"><input type="radio" name="plat" value="Instagram and Facebook" data-i18n-val="rb_both"> Both</label>
     </div>
-    <button class="btn btn-primary btn-block" id="gen-btn" onclick="generatePost()" data-i18n="misc_gen_caption">✨ Generate Caption</button>
+    <button class="btn btn-primary btn-block" id="gen-btn" onclick="generatePost()" data-i18n="misc_gen_caption"><span class="en">✨ Generate Caption</span><span class="fr">✨ Générer la légende</span></button>
     <div id="post-out" style="display:none;">
       <div class="gen-output" style="margin-top:14px;">
         <div class="lang-label">English</div>
         <div id="en-txt"></div>
         <div class="hashtags" id="en-tags"></div>
-        <button class="copy-btn" onclick="copyCaption('en-txt','en-tags')" data-i18n="misc_copy">Copy</button>
+        <button class="copy-btn" onclick="copyCaption('en-txt','en-tags')" data-i18n="misc_copy"><span class="en">Copy</span><span class="fr"><span class="en">Copy</span><span class="fr">Copier</span></span></button>
       </div>
       <div class="gen-output" style="margin-top:8px;">
         <div class="lang-label">Francais</div>
         <div id="fr-txt"></div>
         <div class="hashtags" id="fr-tags"></div>
-        <button class="copy-btn" onclick="copyCaption('fr-txt','fr-tags')">Copier</button>
+        <button class="copy-btn" onclick="copyCaption('fr-txt','fr-tags')"><span class="en">Copy</span><span class="fr">Copier</span></button>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-        <button class="btn btn-ghost btn-sm" onclick="generatePost()" data-i18n="btn_regen">🔄 Regenerate</button>
-        <button class="btn btn-amber btn-sm" onclick="savePost()" data-i18n="btn_save_caption">💾 Save Caption</button>
+        <button class="btn btn-ghost btn-sm" onclick="generatePost()" data-i18n="btn_regen"><span class="en">🔄 Regenerate</span><span class="fr">🔄 Régénérer</span></button>
+        <button class="btn btn-amber btn-sm" onclick="savePost()" data-i18n="btn_save_caption"><span class="en">💾 Save Caption</span><span class="fr">💾 Sauvegarder la légende</span></button>
       </div>
     </div>
   </div>
   <div class="card" id="saved-posts-card" style="display:none;">
-    <div class="card-title">Saved Captions</div>
+    <div class="card-title"><span class="en">Saved Captions</span><span class="fr">Légendes sauvegardées</span></div>
     <div id="saved-posts-list"></div>
   </div>
 </div>
@@ -1112,15 +1119,15 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <!-- ═══ CLIENTS DATABASE ═══ -->
 <div id="page-clients" class="page">
   <div class="section-header">
-    <div class="section-title" id="section-clients-title">Clients</div>
-    <button class="btn btn-primary btn-sm" onclick="openAddClient()">+ Add Client</button>
+    <div class="section-title" id="section-clients-title"><span class="en">Clients</span><span class="fr">Clients</span></div>
+    <button class="btn btn-primary btn-sm" onclick="openAddClient()"><span class="en">+ Add Client</span><span class="fr">+ Ajouter client</span></button>
   </div>
   <div class="global-search-wrap">
     <span class="search-icon">🔍</span>
-    <input id="client-search" oninput="filterClients()" placeholder="Search clients by name, email, city...">
+    <input id="client-search" oninput="filterClients()" placeholder="Rechercher clients...">
   </div>
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-num" id="cs-total">—</div><div class="stat-label" id="cs-label-total">Clients</div></div>
+    <div class="stat-card"><div class="stat-num" id="cs-total">—</div><div class="stat-label" id="cs-label-total"><span class="en">Clients</span><span class="fr">Clients</span></div></div>
     <div class="stat-card"><div class="stat-num" id="cs-revenue">—</div><div class="stat-label" id="cs-label-revenue" data-i18n="misc_total_revenue">Total Revenue</div></div>
     <div class="stat-card"><div class="stat-num" id="cs-repeat">—</div><div class="stat-label" id="cs-label-repeat" data-i18n="misc_repeat_clients">Repeat Clients</div></div>
   </div>
@@ -1132,29 +1139,29 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <!-- ═══ TIME TRACKER ═══ -->
 <div id="page-time" class="page">
   <div class="section-header">
-    <div class="section-title" id="section-time-title">Time Tracker</div>
+    <div class="section-title" id="section-time-title"><span class="en">Time Tracker</span><span class="fr">Pointage</span></div>
   </div>
   <div class="card">
-    <div class="card-title">Clock In / Out</div>
+    <div class="card-title"><span class="en">Clock In / Out</span><span class="fr">Pointage entrée / sortie</span></div>
     <div class="card-sub" id="time-user-label" data-i18n="sub_time_user">Logged in as: —</div>
     <div class="clock-display" id="clock-display">00:00:00</div>
     <div id="clock-gps" style="text-align:center;font-size:0.75rem;color:var(--wood-mid);margin-bottom:12px;min-height:18px;"></div>
     <label data-i18n="lbl_loc_type">Location Type</label>
     <div style="display:flex;gap:8px;margin-top:6px;margin-bottom:14px;">
-      <button class="loc-btn active shop" id="loc-shop" onclick="setLocType('shop')">🏭 Shop</button>
-      <button class="loc-btn" id="loc-travel" onclick="setLocType('travel')">🚗 Travel</button>
-      <button class="loc-btn" id="loc-onsite" onclick="setLocType('onsite')">🏗️ On-site</button>
+      <button class="loc-btn active shop" id="loc-shop" onclick="setLocType('shop')"><span class="en">🏭 Shop</span><span class="fr">🏭 Atelier</span></button>
+      <button class="loc-btn" id="loc-travel" onclick="setLocType('travel')"><span class="en">🚗 Travel</span><span class="fr">🚗 Déplacement</span></button>
+      <button class="loc-btn" id="loc-onsite" onclick="setLocType('onsite')"><span class="en">🏗️ On-site</span><span class="fr">🏗️ Chantier</span></button>
     </div>
     <label data-i18n="lbl_link_project">Link to Project (optional)</label>
-    <select id="time-project-sel"><option value="">— No project —</option></select>
+    <select id="time-project-sel"><option value=""><span class="en">— No project —</span><span class="fr">— Aucun projet —</span></option></select>
     <label data-i18n="lbl_notes">Notes</label>
-    <input type="text" id="time-notes" placeholder="e.g. Epoxy pour, client meeting, delivery..." data-i18n-ph="ph_time_notes">
+    <input type="text" id="time-notes" placeholder="ex. coulée époxy, rencontre client, livraison..." data-i18n-ph="ph_time_notes">
     <div style="display:flex;gap:10px;margin-top:14px;">
-      <button class="btn btn-green btn-block" id="clock-btn" onclick="toggleClock()" data-i18n="misc_clock_in_btn">▶ Clock In</button>
+      <button class="btn btn-green btn-block" id="clock-btn" onclick="toggleClock()" data-i18n="misc_clock_in_btn"><span class="en">▶ Clock In</span><span class="fr">▶ Pointer entrée</span></button>
     </div>
   </div>
   <div class="card">
-    <div class="card-title">Today's Time Logs</div>
+    <div class="card-title"><span class="en">Today's Time Logs</span><span class="fr">Pointages d'aujourd'hui</span></div>
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num" id="ts-shop">0h</div><div class="stat-label">Shop</div></div>
       <div class="stat-card"><div class="stat-num" id="ts-travel">0h</div><div class="stat-label">Travel</div></div>
@@ -1165,7 +1172,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <div class="card-title" style="margin-bottom:0;" data-i18n="sec_all_users">All Users — This Week</div>
+      <div class="card-title" style="margin-bottom:0;" data-i18n="sec_all_users"><span class="en">All Users — This Week</span><span class="fr">Tous — Cette semaine</span></div>
       <select id="time-week-filter" onchange="loadTimeLogs()" style="width:auto;font-size:0.8rem;padding:6px 10px;">
         <option value="7">${t('time_filter')}</option>
         <option value="14">${t('dyn_14days')||'Last 14 days'}</option>
@@ -1179,7 +1186,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <!-- ═══ REVENUE CHART ═══ -->
 <div id="page-revenue" class="page">
   <div class="section-header">
-    <div class="section-title">Revenue</div>
+    <div class="section-title"><span class="en">Revenue</span><span class="fr">Revenus</span></div>
     <select id="rev-year" onchange="renderRevenue()" style="width:auto;font-size:0.82rem;padding:7px 10px;"></select>
   </div>
   <div class="stats-row">
@@ -1189,7 +1196,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="stat-card"><div class="stat-num" id="rv-projects">—</div><div class="stat-label">Delivered</div></div>
   </div>
   <div class="card">
-    <div class="card-title">Monthly Revenue</div>
+    <div class="card-title"><span class="en">Monthly Revenue</span><span class="fr">Revenus mensuels</span></div>
     <div class="card-sub" data-i18n="sub_rev">Green = collected · Tan = outstanding balance</div>
     <div class="chart-wrap">
       <div class="bar-chart" id="rev-chart"></div>
@@ -1200,11 +1207,11 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     </div>
   </div>
   <div class="card">
-    <div class="card-title">Revenue by Project Type</div>
+    <div class="card-title"><span class="en">Revenue by Project Type</span><span class="fr">Revenus par type de projet</span></div>
     <div id="rev-by-type"></div>
   </div>
   <div class="card">
-    <div class="card-title">Top Clients by Revenue</div>
+    <div class="card-title"><span class="en">Top Clients by Revenue</span><span class="fr">Meilleurs clients</span></div>
     <div id="rev-top-clients"></div>
   </div>
 </div>
@@ -1213,7 +1220,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <!-- ═══ TEAM PAGE ═══ -->
 <div id="page-team" class="page">
   <div class="section-header">
-    <div class="section-title" id="section-team-title">Team</div>
+    <div class="section-title" id="section-team-title"><span class="en">Team</span><span class="fr">Équipe</span></div>
     <div style="font-size:0.72rem;color:var(--wood-mid);" id="team-online-count">— online</div>
   </div>
 
@@ -1259,7 +1266,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       </div>
       <div class="chat-input-wrap">
         <button class="call-btn" onclick="toggleVoicePanel()" title="Voice message" style="background:var(--wood-pale);color:var(--wood-dark);flex-shrink:0;width:36px;height:36px;border:none;border-radius:50%;cursor:pointer;font-size:1rem;">🎙️</button>
-        <input type="text" id="chat-input" placeholder="Type a message..." data-i18n-ph="ph_chat"
+        <input type="text" id="chat-input" placeholder="Écrire un message..." data-i18n-ph="ph_chat"
           onkeydown="if(event.key==='Enter')sendMessage()">
         <button class="chat-send-btn" onclick="sendMessage()">➤</button>
       </div>
@@ -1270,7 +1277,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   <div id="team-panel-gps" style="display:none;">
     <div id="gps-anomaly-banner" style="display:none;background:#FFF3E0;border-left:4px solid var(--amber);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;font-size:0.82rem;font-weight:600;color:#E65100;cursor:pointer;" onclick="showPage('map')"></div>
     <div class="card" style="margin-bottom:12px;">
-      <div class="card-title" id="lbl-your-location" data-i18n="team_your_loc">Your Location</div>
+      <div class="card-title" id="lbl-your-location" data-i18n="team_your_loc"><span class="en">Your Location</span><span class="fr">Votre position</span></div>
       <div id="my-location-info" style="font-size:0.85rem;color:var(--wood-mid);padding:8px 0;">—</div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
         <button class="btn btn-green btn-sm" onclick="updateMyLocation()" id="btn-update-loc">📍 <span class="en">Update Location</span><span class="fr">Mettre à jour</span></button>
@@ -1283,11 +1290,11 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       </div>
     </div>
     <div class="card">
-      <div class="card-title" id="lbl-team-locations" data-i18n="team_locations">Team Locations</div>
+      <div class="card-title" id="lbl-team-locations" data-i18n="team_locations"><span class="en">Team Locations</span><span class="fr">Positions de l'équipe</span></div>
       <div id="team-location-list"><div class="empty-state"><p id="gps-loading-text" data-i18n="team_gps_loading">Loading team positions...</p></div></div>
     </div>
     <div class="card">
-      <div class="card-title" id="lbl-gps-history" data-i18n="team_gps_history">GPS History — Today</div>
+      <div class="card-title" id="lbl-gps-history" data-i18n="team_gps_history"><span class="en">GPS History — Today</span><span class="fr">Historique GPS — Aujourd'hui</span></div>
       <div id="gps-history-list"><div class="empty-state"><p>—</p></div></div>
     </div>
   </div>
@@ -1295,7 +1302,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   <!-- CALLS -->
   <div id="team-panel-calls" style="display:none;">
     <div class="card" style="margin-bottom:12px;">
-      <div class="card-title" id="lbl-team-calls" data-i18n="team_calls_title">Voice &amp; Video Calls</div>
+      <div class="card-title" id="lbl-team-calls" data-i18n="team_calls_title"><span class="en">Voice &amp; Video Calls</span><span class="fr">Appels audio et vidéo</span></div>
       <div class="card-sub" id="lbl-calls-sub" data-i18n="team_calls_sub">Tap a team member to start a call. Both must have the app open.</div>
       <!-- Auto-answer also shown in top bar above -->
       <div class="auto-answer-bar" style="margin-top:12px;display:none;">
@@ -1360,7 +1367,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <select id="msg-to">
       <option value=""><span class="en">— Select recipient —</span><span class="fr">— Choisir destinataire —</span></option>
     </select>
-    <input type="text" id="msg-subject" placeholder="Subject / Sujet">
+    <input type="text" id="msg-subject" placeholder="Sujet / Subject">
     <textarea id="msg-body" placeholder="Message..."></textarea>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-green btn-sm" onclick="sendSecureMessage()">
@@ -1435,22 +1442,22 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 
   <!-- Team Status Cards -->
   <div class="card" style="margin-bottom:12px;">
-    <div class="card-title" id="lbl-map-team-status" data-i18n="map_team_status">Team Status</div>
+    <div class="card-title" id="lbl-map-team-status" data-i18n="map_team_status"><span class="en">Team Status</span><span class="fr">Statut de l'équipe</span></div>
     <div id="map-team-list"></div>
   </div>
 
   <!-- Time Summary -->
   <div class="card" style="margin-bottom:12px;">
-    <div class="card-title" id="lbl-map-time-summary" data-i18n="map_time_summary">Time Summary — Today</div>
+    <div class="card-title" id="lbl-map-time-summary" data-i18n="map_time_summary"><span class="en">Time Summary — Today</span><span class="fr">Résumé des heures — Aujourd'hui</span></div>
     <div id="map-time-summary"></div>
   </div>
 
   <!-- Location History per User -->
   <div class="card">
-    <div class="card-title" id="lbl-map-history" data-i18n="map_gps_log">GPS Log — All Users Today</div>
+    <div class="card-title" id="lbl-map-history" data-i18n="map_gps_log"><span class="en">GPS Log — All Users Today</span><span class="fr">Journal GPS — Tous aujourd'hui</span></div>
     <div style="margin-bottom:10px;">
       <select id="map-user-filter" onchange="loadMapHistory()" style="font-size:0.8rem;padding:7px 10px;width:100%;">
-        <option value="all">All Team Members</option>
+        <option value="all"><span class="en">All Team Members</span><span class="fr">Tous les membres</span></option>
       </select>
     </div>
     <div id="map-history-list"></div>
@@ -1483,25 +1490,25 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="modal-title" id="wm-title"><span id="label-wood-modal">Add / Edit Material</span></div>
     <input type="hidden" id="wm-id">
     <label data-i18n="lbl_species_name">Species / Material Name</label>
-    <input type="text" id="wm-species" placeholder="e.g. Ambrosia Maple Slab, Blue Epoxy, Hardware Kit" data-i18n-ph="ph_species">
+    <input type="text" id="wm-species" placeholder="ex. Planche d'érable moucheté, Époxy bleu, Quincaillerie" data-i18n-ph="ph_species">
     <div class="row-2">
-      <div><label data-i18n="lbl_grade">Grade / Description</label><input type="text" id="wm-grade" placeholder="e.g. 4/4, 8ft slab, 1L can" data-i18n-ph="ph_grade"></div>
-      <div><label data-i18n="lbl_supplier">Supplier</label><input type="text" id="wm-supplier" placeholder="e.g. Boisverco, Home Depot" data-i18n-ph="ph_supplier"></div>
+      <div><label data-i18n="lbl_grade">Grade / Description</label><input type="text" id="wm-grade" placeholder="ex. 4/4, planche 8pi, 1L" data-i18n-ph="ph_grade"></div>
+      <div><label data-i18n="lbl_supplier">Supplier</label><input type="text" id="wm-supplier" placeholder="ex. Boisverco, Home Depot" data-i18n-ph="ph_supplier"></div>
     </div>
     <div class="row-3">
       <div><label data-i18n="lbl_quantity">Quantity</label><input type="number" id="wm-qty" placeholder="5" min="0" step="0.1"></div>
       <div><label data-i18n="lbl_unit">Unit</label>
-        <select id="wm-unit"><option>slabs</option><option>board feet</option><option>sheets</option><option>litres</option><option>kg</option><option>units</option><option>sets</option></select>
+        <select id="wm-unit"><option><span class="en">slabs</span><span class="fr">panneaux</span></option><option><span class="en">board feet</span><span class="fr">pieds-planche</span></option><option><span class="en">sheets</span><span class="fr">feuilles</span></option><option><span class="en">litres</span><span class="fr">litres</span></option><option>kg</option><option><span class="en">units</span><span class="fr">unités</span></option><option><span class="en">sets</span><span class="fr">ensembles</span></option></select>
       </div>
       <div><label data-i18n="lbl_cost_unit">Cost per Unit ($)</label><input type="number" id="wm-cost" placeholder="85" min="0" step="0.01"></div>
     </div>
     <label data-i18n="lbl_notes">Notes</label>
-    <textarea id="wm-notes" placeholder="Dimensions, colour, project reserved for..." data-i18n-ph="ph_wood_notes"></textarea>
+    <textarea id="wm-notes" placeholder="Dimensions, couleur, projet réservé pour..." data-i18n-ph="ph_wood_notes"></textarea>
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
-      <button class="btn btn-green" onclick="saveWood()" data-i18n="btn_save_material">✅ Save Material</button>
-      <button id="wm-del-btn" class="btn btn-red btn-sm" style="display:none;" onclick="deleteWood()" data-i18n="misc_delete_btn">🗑 Delete</button>
+      <button class="btn btn-green" onclick="saveWood()" data-i18n="btn_save_material"><span class="en">✅ Save Material</span><span class="fr">✅ Sauvegarder</span></button>
+      <button id="wm-del-btn" class="btn btn-red btn-sm" style="display:none;" onclick="deleteWood()" data-i18n="misc_delete_btn"><span class="en">🗑 Delete</span><span class="fr">🗑 Supprimer</span></button>
     </div>
   </div>
 </div>
 
-<script src="app.js?v=9" defer></script>
+<script src="app.js?v=10" defer></script>
