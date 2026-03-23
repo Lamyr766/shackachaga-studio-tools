@@ -2578,7 +2578,7 @@ function copyQuote() {
 // ══════════════════════════════════════════════════
 // PROJECTS
 // ══════════════════════════════════════════════════
-const STATUS_LABELS = {
+var STATUS_LABELS = {
   new:    {en:'New',         fr:'Nouveau'},
   quote:  {en:'Quote Sent',  fr:'Devis envoyé'},
   active: {en:'Fabrication', fr:'Fabrication'},
@@ -2596,7 +2596,7 @@ function getStatus() {
     done:   {label: t('status_done'),   cls:'badge-done',  card:'status-done'},
   };
 }
-const STATUS = getStatus();
+var STATUS = getStatus();
 
 var allProjects = [];
 
@@ -2778,7 +2778,7 @@ async function saveIntake() {
 // ══════════════════════════════════════════════════
 // WOOD STOCK TRACKER
 // ══════════════════════════════════════════════════
-let woodItems = [];
+var woodItems = [];
 
 async function loadWoodStock() {
   if (!sb) return;
@@ -2880,7 +2880,7 @@ async function deleteWood() {
 // ══════════════════════════════════════════════════
 // POST GENERATOR
 // ══════════════════════════════════════════════════
-let lastPost = null;
+var lastPost = null;
 
 async function generatePost() {
   const prod   = document.getElementById('p-prod').value;
@@ -3749,11 +3749,11 @@ async function deleteClient(id) {
 // ══════════════════════════════════════════════════
 // TIME TRACKER
 // ══════════════════════════════════════════════════
-let clockInterval = null;
-let clockStart = null;
-let currentLocType = 'shop';
+var clockInterval = null;
+var clockStart = null;
+var currentLocType = 'shop';
 // currentUserEmail declared above
-let currentGPS = null;
+var currentGPS = null;
 
 function setLocType(type) {
   currentLocType = type;
@@ -4014,8 +4014,8 @@ var TABLE_SIZES = [
 
 var TABLE_TYPES = ['Dining Table','Epoxy River Table','Custom Desk'];
 var FBM_TYPES   = ['Wood Sink','Bathroom Vanity','Staircase','Art Piece','Custom Piece'];
-let fbmBoards = [{t:1.75, w:8, l:96, qty:1}];
-let selectedTableSize = null;
+var fbmBoards = [{t:1.75, w:8, l:96, qty:1}];
+var selectedTableSize = null;
 
 function calcFBM(t, w, l) { return (t * w * l) / 144; }
 
@@ -4218,6 +4218,9 @@ function updateMapTabVisibility() {
   // Post Gen tab — admins only
   var postTab = document.getElementById('tab-post');
   if (postTab) postTab.style.display = admin ? '' : 'none';
+  // Revenue tab — admins only
+  var revTab = document.getElementById('tab-revenue');
+  if (revTab) revTab.style.display = admin ? '' : 'none';
   // Roster tab — admins only
   var rosterTab = document.getElementById('tab-roster');
   if (rosterTab) rosterTab.style.display = admin ? '' : 'none';
@@ -4228,7 +4231,7 @@ function updateMapTabVisibility() {
   var activePage = document.querySelector('.page.active');
   if (activePage && !admin) {
     var id = activePage.id;
-    if (id === 'page-team' || id === 'page-map' || id === 'page-post' || id === 'page-roster') showPage('quote');
+    if (id === 'page-team' || id === 'page-map' || id === 'page-post' || id === 'page-roster' || id === 'page-revenue') showPage('quote');
   }
 }
 
