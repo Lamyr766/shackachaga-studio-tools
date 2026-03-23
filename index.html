@@ -368,16 +368,16 @@ textarea{resize:vertical;min-height:65px;}
   <div class="setup-box">
     <div class="setup-logo">Le Shackachaga</div>
     <div class="setup-sub">Studio Tools — One-time setup required. Enter your Supabase credentials to connect.</div>
-    <div class="setup-step"><strong>Step 1</strong> — Go to <code>supabase.com</code>, create free project named <code>shackachaga</code></div>
-    <div class="setup-step"><strong>Step 2</strong> — Run the SQL script below in Supabase SQL Editor</div>
-    <div class="setup-step"><strong>Step 3</strong> — Go to <strong>Project Settings → API</strong>, copy URL and anon key below</div>
+    <div class="setup-step"><strong data-i18n="misc_step1">Step 1</strong> — Go to <code>supabase.com</code>, create free project named <code>shackachaga</code></div>
+    <div class="setup-step"><strong data-i18n="misc_step2">Step 2</strong> — Run the SQL script below in Supabase SQL Editor</div>
+    <div class="setup-step"><strong data-i18n="misc_step3">Step 3</strong> — Go to <strong>Project Settings → API</strong>, copy URL and anon key below</div>
     <label>Supabase Project URL</label>
     <input type="text" id="setup-url" placeholder="https://xxxx.supabase.co">
     <label>Supabase Anon Key</label>
     <input type="text" id="setup-key" placeholder="eyJhbGciOiJIUzI1...">
     <button class="btn btn-green btn-block" onclick="saveConfig()">✅ Connect</button>
     <div style="margin-top:14px;padding:12px;background:var(--wood-pale);border-radius:var(--radius-sm);">
-      <div style="font-size:0.75rem;font-weight:700;margin-bottom:7px;color:var(--wood-mid);">SQL Setup Script:</div>
+      <div style="font-size:0.75rem;font-weight:700;margin-bottom:7px;color:var(--wood-mid);" data-i18n="misc_sql_setup">SQL Setup Script:</div>
       <div id="sql-block" style="font-family:monospace;font-size:0.65rem;background:var(--wood-dark);color:var(--wood-light);padding:10px;border-radius:6px;white-space:pre-wrap;max-height:150px;overflow-y:auto;line-height:1.5;">CREATE TABLE IF NOT EXISTS projects (
   id bigint primary key generated always as identity,
   name text, piece text, email text, phone text,
@@ -503,17 +503,17 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <label data-i18n="lbl_password">Password</label>
     <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
       onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn btn-green btn-block" onclick="doLogin()" id="login-btn">Sign In</button>
+    <button class="btn btn-green btn-block" onclick="doLogin()" id="login-btn"> data-i18n="misc_sign_in">Sign In</button>
     <div style="margin-top:14px;text-align:center;">
-      <button class="btn btn-ghost btn-sm" onclick="showForgot()" style="font-size:0.78rem;">Forgot password?</button>
+      <button class="btn btn-ghost btn-sm" onclick="showForgot()" style="font-size:0.78rem;" data-i18n="misc_forgot_pw">Forgot password?</button>
       <span style="color:var(--wood-pale);margin:0 4px;">|</span>
-      <button class="btn btn-ghost btn-sm" onclick="resetSetup()" style="font-size:0.78rem;">Change server</button>
+      <button class="btn btn-ghost btn-sm" onclick="resetSetup()" style="font-size:0.78rem;" data-i18n="misc_change_server">Change server</button>
     </div>
     <div id="forgot-box" style="display:none;margin-top:14px;padding:12px;background:var(--wood-pale);border-radius:var(--radius-sm);">
-      <div style="font-size:0.8rem;margin-bottom:8px;color:var(--wood-mid);">Enter your email to receive a reset link:</div>
+      <div style="font-size:0.8rem;margin-bottom:8px;color:var(--wood-mid);" data-i18n="misc_enter_email_reset">Enter your email to receive a reset link:</div>
       <div style="display:flex;gap:8px;">
         <input type="email" id="reset-email" placeholder="your@email.com" style="flex:1;">
-        <button class="btn btn-amber btn-sm" onclick="sendReset()">Send</button>
+        <button class="btn btn-amber btn-sm" onclick="sendReset()" data-i18n="misc_send">Send</button>
       </div>
     </div>
   </div>
@@ -531,7 +531,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <div class="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-label">Connecting...</span></div>
-      <button onclick="doLogout()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);font-size:0.72rem;padding:8px 12px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.03em;min-height:36px;-webkit-tap-highlight-color:transparent;" title="Sign out">Sign out</button>
+      <button onclick="doLogout()" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);font-size:0.72rem;padding:8px 12px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:0.03em;min-height:36px;-webkit-tap-highlight-color:transparent;" title="Sign out" data-i18n="misc_sign_out">Sign out</button>
     </div>
   </div>
   <nav id="main-nav">
@@ -546,7 +546,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="nav-tab" onclick="showPage('team')" id="tab-team"><span class="en">👥 Team</span><span class="fr">👥 Équipe</span></div>
     <div class="nav-tab" onclick="showPage('map')" id="tab-map" style="display:none;"><span class="en">🗺️ Map</span><span class="fr">🗺️ Carte</span></div>
   </nav>
-  <div id="nav-hint" style="background:var(--wood-dark);text-align:center;padding:3px;font-size:0.62rem;color:rgba(255,255,255,0.35);letter-spacing:0.05em;display:none;">← SWIPE FOR MORE TABS →</div>
+  <div id="nav-hint" style="background:var(--wood-dark);text-align:center;padding:3px;font-size:0.62rem;color:rgba(255,255,255,0.35);letter-spacing:0.05em;display:none;" data-i18n="misc_swipe">← SWIPE FOR MORE TABS →</div>
 </header>
 <div id="toast" class="toast"></div>
 
@@ -666,7 +666,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
         <select id="q-mg"><option value="0.20">20%</option><option value="0.25" selected>25%</option><option value="0.30">30%</option><option value="0.35">35%</option></select>
       </div>
     </div>
-    <button class="btn btn-primary btn-block" onclick="calcQuote()">⚡ Calculate Quote</button>
+    <button class="btn btn-primary btn-block" onclick="calcQuote()" data-i18n="misc_calculate_quote">⚡ Calculate Quote</button>
   </div>
   <div id="quote-result" style="display:none;" class="card">
     <div class="card-title" id="q-res-title">Quote Breakdown</div>
@@ -764,7 +764,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     </div>
     <label data-i18n="lbl_notes">Notes</label>
     <textarea id="i-nt" placeholder="Special requests, notes..." data-i18n-ph="ph_special"></textarea>
-    <button class="btn btn-green btn-block" onclick="saveIntake()">✅ Save & Create Project</button>
+    <button class="btn btn-green btn-block" onclick="saveIntake()" data-i18n="misc_save_create">✅ Save & Create Project</button>
   </div>
 </div>
 
@@ -777,8 +777,8 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="ws-items">—</div><div class="stat-label">Items</div></div>
-    <div class="stat-card"><div class="stat-num" id="ws-value">—</div><div class="stat-label">Stock Value</div></div>
-    <div class="stat-card"><div class="stat-num" id="ws-low">—</div><div class="stat-label">Low Stock</div></div>
+    <div class="stat-card"><div class="stat-num" id="ws-value">—</div><div class="stat-label" data-i18n="misc_stock_value">Stock Value</div></div>
+    <div class="stat-card"><div class="stat-num" id="ws-low">—</div><div class="stat-label" data-i18n="misc_low_stock">Low Stock</div></div>
   </div>
 
   <div class="card" id="wood-list-card">
@@ -826,13 +826,13 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <label class="checkbox-item"><input type="radio" name="plat" value="Facebook" data-i18n-val="rb_facebook"> Facebook</label>
       <label class="checkbox-item"><input type="radio" name="plat" value="Instagram and Facebook" data-i18n-val="rb_both"> Both</label>
     </div>
-    <button class="btn btn-primary btn-block" id="gen-btn" onclick="generatePost()">✨ Generate Caption</button>
+    <button class="btn btn-primary btn-block" id="gen-btn" onclick="generatePost()" data-i18n="misc_gen_caption">✨ Generate Caption</button>
     <div id="post-out" style="display:none;">
       <div class="gen-output" style="margin-top:14px;">
         <div class="lang-label">English</div>
         <div id="en-txt"></div>
         <div class="hashtags" id="en-tags"></div>
-        <button class="copy-btn" onclick="copyCaption('en-txt','en-tags')">Copy</button>
+        <button class="copy-btn" onclick="copyCaption('en-txt','en-tags')" data-i18n="misc_copy">Copy</button>
       </div>
       <div class="gen-output" style="margin-top:8px;">
         <div class="lang-label">Francais</div>
@@ -865,8 +865,8 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="cs-total">—</div><div class="stat-label" id="cs-label-total">Clients</div></div>
-    <div class="stat-card"><div class="stat-num" id="cs-revenue">—</div><div class="stat-label" id="cs-label-revenue">Total Revenue</div></div>
-    <div class="stat-card"><div class="stat-num" id="cs-repeat">—</div><div class="stat-label" id="cs-label-repeat">Repeat Clients</div></div>
+    <div class="stat-card"><div class="stat-num" id="cs-revenue">—</div><div class="stat-label" id="cs-label-revenue" data-i18n="misc_total_revenue">Total Revenue</div></div>
+    <div class="stat-card"><div class="stat-num" id="cs-repeat">—</div><div class="stat-label" id="cs-label-repeat" data-i18n="misc_repeat_clients">Repeat Clients</div></div>
   </div>
   <div id="client-list" style="display:flex;flex-direction:column;gap:10px;">
     <div class="empty-state"><div class="icon">👥</div><p>No clients yet.<br>Clients are added automatically from intake forms, or add manually.</p></div>
@@ -894,7 +894,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <label data-i18n="lbl_notes">Notes</label>
     <input type="text" id="time-notes" placeholder="e.g. Epoxy pour, client meeting, delivery..." data-i18n-ph="ph_time_notes">
     <div style="display:flex;gap:10px;margin-top:14px;">
-      <button class="btn btn-green btn-block" id="clock-btn" onclick="toggleClock()">▶ Clock In</button>
+      <button class="btn btn-green btn-block" id="clock-btn" onclick="toggleClock()" data-i18n="misc_clock_in_btn">▶ Clock In</button>
     </div>
   </div>
   <div class="card">
@@ -927,9 +927,9 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <select id="rev-year" onchange="renderRevenue()" style="width:auto;font-size:0.82rem;padding:7px 10px;"></select>
   </div>
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-num" id="rv-ytd">—</div><div class="stat-label">YTD Revenue</div></div>
-    <div class="stat-card"><div class="stat-num" id="rv-collected">—</div><div class="stat-label">Collected</div></div>
-    <div class="stat-card"><div class="stat-num" id="rv-outstanding">—</div><div class="stat-label">Outstanding</div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-ytd">—</div><div class="stat-label" data-i18n="misc_ytd">YTD Revenue</div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-collected">—</div><div class="stat-label" data-i18n="misc_collected">Collected</div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-outstanding">—</div><div class="stat-label" data-i18n="misc_outstanding">Outstanding</div></div>
     <div class="stat-card"><div class="stat-num" id="rv-projects">—</div><div class="stat-label">Delivered</div></div>
   </div>
   <div class="card">
@@ -977,7 +977,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <div class="voice-record-wrap" id="voice-record-wrap" style="display:none;">
         <button class="voice-record-btn" id="voice-record-btn" onclick="toggleVoiceRecord()">🎤</button>
         <div class="voice-timer" id="voice-timer">0:00</div>
-        <div style="flex:1;font-size:0.78rem;color:var(--wood-mid);" id="voice-record-hint">Hold to record, release to send</div>
+        <div style="flex:1;font-size:0.78rem;color:var(--wood-mid);" id="voice-record-hint" data-i18n="voice_hold">Hold to record, release to send</div>
         <button class="btn btn-ghost btn-sm" onclick="cancelVoiceRecord()" style="padding:4px 10px;">✕</button>
       </div>
       <div class="chat-input-wrap">
@@ -991,8 +991,9 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 
   <!-- GPS TEAM VIEW -->
   <div id="team-panel-gps" style="display:none;">
+    <div id="gps-anomaly-banner" style="display:none;background:#FFF3E0;border-left:4px solid var(--amber);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;font-size:0.82rem;font-weight:600;color:#E65100;cursor:pointer;" onclick="showPage('map')"></div>
     <div class="card" style="margin-bottom:12px;">
-      <div class="card-title" id="lbl-your-location">Your Location</div>
+      <div class="card-title" id="lbl-your-location" data-i18n="team_your_loc">Your Location</div>
       <div id="my-location-info" style="font-size:0.85rem;color:var(--wood-mid);padding:8px 0;">—</div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
         <button class="btn btn-green btn-sm" onclick="updateMyLocation()" id="btn-update-loc">📍 <span class="en">Update Location</span><span class="fr">Mettre à jour</span></button>
@@ -1005,11 +1006,11 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       </div>
     </div>
     <div class="card">
-      <div class="card-title" id="lbl-team-locations">Team Locations</div>
-      <div id="team-location-list"><div class="empty-state"><p id="gps-loading-text">Loading team positions...</p></div></div>
+      <div class="card-title" id="lbl-team-locations" data-i18n="team_locations">Team Locations</div>
+      <div id="team-location-list"><div class="empty-state"><p id="gps-loading-text" data-i18n="team_gps_loading">Loading team positions...</p></div></div>
     </div>
     <div class="card">
-      <div class="card-title" id="lbl-gps-history">GPS History — Today</div>
+      <div class="card-title" id="lbl-gps-history" data-i18n="team_gps_history">GPS History — Today</div>
       <div id="gps-history-list"><div class="empty-state"><p>—</p></div></div>
     </div>
   </div>
@@ -1017,11 +1018,11 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   <!-- CALLS -->
   <div id="team-panel-calls" style="display:none;">
     <div class="card" style="margin-bottom:12px;">
-      <div class="card-title" id="lbl-team-calls">Voice &amp; Video Calls</div>
-      <div class="card-sub" id="lbl-calls-sub">Tap a team member to start a call. Both must have the app open.</div>
+      <div class="card-title" id="lbl-team-calls" data-i18n="team_calls_title">Voice &amp; Video Calls</div>
+      <div class="card-sub" id="lbl-calls-sub" data-i18n="team_calls_sub">Tap a team member to start a call. Both must have the app open.</div>
     </div>
     <div class="call-grid" id="call-grid">
-      <div class="empty-state"><p id="calls-loading-text">Loading team members...</p></div>
+      <div class="empty-state"><p id="calls-loading-text" data-i18n="team_calls_loading">Loading team members...</p></div>
     </div>
   </div>
 </div>
@@ -1066,19 +1067,19 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 
   <!-- Team Status Cards -->
   <div class="card" style="margin-bottom:12px;">
-    <div class="card-title" id="lbl-map-team-status">Team Status</div>
+    <div class="card-title" id="lbl-map-team-status" data-i18n="map_team_status">Team Status</div>
     <div id="map-team-list"></div>
   </div>
 
   <!-- Time Summary -->
   <div class="card" style="margin-bottom:12px;">
-    <div class="card-title" id="lbl-map-time-summary">Time Summary — Today</div>
+    <div class="card-title" id="lbl-map-time-summary" data-i18n="map_time_summary">Time Summary — Today</div>
     <div id="map-time-summary"></div>
   </div>
 
   <!-- Location History per User -->
   <div class="card">
-    <div class="card-title" id="lbl-map-history">GPS Log — All Users Today</div>
+    <div class="card-title" id="lbl-map-history" data-i18n="map_gps_log">GPS Log — All Users Today</div>
     <div style="margin-bottom:10px;">
       <select id="map-user-filter" onchange="loadMapHistory()" style="font-size:0.8rem;padding:7px 10px;width:100%;">
         <option value="all">All Team Members</option>
@@ -1130,7 +1131,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <textarea id="wm-notes" placeholder="Dimensions, colour, project reserved for..." data-i18n-ph="ph_wood_notes"></textarea>
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
       <button class="btn btn-green" onclick="saveWood()" data-i18n="btn_save_material">✅ Save Material</button>
-      <button id="wm-del-btn" class="btn btn-red btn-sm" style="display:none;" onclick="deleteWood()">🗑 Delete</button>
+      <button id="wm-del-btn" class="btn btn-red btn-sm" style="display:none;" onclick="deleteWood()" data-i18n="misc_delete_btn">🗑 Delete</button>
     </div>
   </div>
 </div>
@@ -1174,8 +1175,8 @@ const T = {
     quote_margin_label: 'Profit margin', quote_delivery_label: 'Delivery',
     // Dashboard
     dash_title: 'Projects', dash_new: '+ New',
-    stat_total: 'Total', stat_active: 'Active', stat_due: 'Bal. Due', stat_revenue: 'Revenue',
-    filter_all: 'All Statuses', filter_new: 'New', filter_quote: 'Quote Sent',
+    stat_total: 'Total', stat_active: 'Active', stat_due: t('misc_bal_due'), stat_revenue: 'Revenue',
+    filter_all: t('misc_all_statuses'), filter_new: 'New', filter_quote: 'Quote Sent',
     filter_active: 'Fabrication', filter_finish: 'Finishing',
     filter_ready: 'Ready', filter_done: 'Delivered',
     search_placeholder: 'Search...',
@@ -1202,7 +1203,7 @@ const T = {
     // Clients
     clients_title: 'Clients', clients_add: '+ Add Client',
     clients_search: 'Search clients by name, email, city...',
-    cs_total: 'Clients', cs_revenue: 'Total Revenue', cs_repeat: 'Repeat Clients',
+    cs_total: 'Clients', cs_revenue: t('misc_total_revenue'), cs_repeat: t('misc_repeat_clients'),
     client_spent: 'Spent', client_projects: 'Projects',
     client_fn: 'First Name', client_ln: 'Last Name',
     client_found: 'Found via', client_wood: 'Preferred Wood',
@@ -1218,15 +1219,15 @@ const T = {
     time_all: 'All Users — This Week', time_filter: 'Last 7 days',
     // Revenue
     rev_title: 'Revenue',
-    rv_ytd: 'YTD Revenue', rv_collected: 'Collected', rv_outstanding: 'Outstanding', rv_projects: 'Delivered',
+    rv_ytd: t('misc_ytd'), rv_collected: t('misc_collected'), rv_outstanding: t('misc_outstanding'), rv_projects: 'Delivered',
     rev_monthly: 'Monthly Revenue',
     rev_monthly_sub: 'Green = collected · Tan = outstanding balance',
-    rev_legend_collected: 'Collected', rev_legend_outstanding: 'Outstanding',
+    rev_legend_collected: t('misc_collected'), rev_legend_outstanding: t('misc_outstanding'),
     rev_by_type: 'Revenue by Project Type',
     rev_top_clients: 'Top Clients by Revenue',
     // Wood
     wood_title: 'Wood & Material Stock', wood_add: '+ Add',
-    ws_items: 'Items', ws_value: 'Stock Value', ws_low: 'Low Stock',
+    ws_items: 'Items', ws_value: t('misc_stock_value'), ws_low: t('misc_low_stock'),
     wood_species: 'Species / Material Name',
     wood_species_placeholder: 'e.g. Ambrosia Maple Slab, Blue Epoxy, Hardware Kit',
     wood_grade: 'Grade / Description', wood_supplier: 'Supplier',
@@ -1253,6 +1254,110 @@ const T = {
     empty_posts: 'No results found',
     // Sync
     sync_live: 'Live sync', sync_connecting: 'Connecting...', sync_signed_out: 'Please sign in',
+    // ── Protective features ──────────────────────
+    prot_assigned_to: 'Assigned To',
+    prot_referred_by: 'Referred By',
+    prot_client_source: 'How Did They Find Us?',
+    prot_source_instagram: 'Instagram',
+    prot_source_facebook: 'Facebook',
+    prot_source_google: 'Google Search',
+    prot_source_referral: 'Client Referral',
+    prot_source_wordofmouth: 'Word of Mouth',
+    prot_source_signage: 'Signage / Drive-by',
+    prot_source_website: 'Website',
+    prot_source_other: 'Other',
+    prot_interaction_type: 'Interaction Type',
+    prot_itype_call: 'Phone Call',
+    prot_itype_visit: 'Client Visit',
+    prot_itype_meeting: 'On-site Meeting',
+    prot_itype_email: 'Email',
+    prot_itype_quote: 'Quote Presented',
+    prot_itype_followup: 'Follow-up',
+    prot_itype_other: 'Other',
+    prot_log_interaction: 'Log Interaction',
+    prot_add_interaction: '+ Log Interaction',
+    prot_interaction_history: 'Interaction History',
+    prot_no_interactions: 'No interactions logged yet.',
+    prot_quote_audit: 'Quote Audit',
+    prot_created_by: 'Created By',
+    prot_quote_log_title: 'Quote Audit Log',
+    prot_gps_anomaly: '🚩 GPS Anomaly',
+    prot_gps_unknown_loc: 'Unknown location during work hours',
+    prot_revenue_per_emp: 'Revenue by Employee',
+    prot_emp_dashboard: 'Employee Dashboard',
+    prot_contract_notice: 'No employment contract on file',
+    // ── Map page ─────────────────────────────────
+    map_team_status: 'Team Status',
+    map_time_summary: 'Time Summary — Today',
+    map_gps_log: 'GPS Log — All Users Today',
+    map_all_members: 'All Team Members',
+    map_last_update: 'Updated:',
+    map_no_gps: 'No GPS data yet',
+    // ── Team panel ────────────────────────────────
+    team_your_loc: 'Your Location',
+    team_locations: 'Team Locations',
+    team_gps_history: 'GPS History — Today',
+    team_calls_title: 'Voice & Video Calls',
+    team_calls_sub: 'Tap a team member to start a call. Both must have the app open.',
+    team_update_loc: 'Update Location',
+    team_no_members: 'No team members visible',
+    team_no_clockins: 'No clock-ins today',
+    team_gps_loading: 'Loading team positions...',
+    team_calls_loading: 'Loading team members...',
+    team_chat_empty: 'No messages yet. Say hello!',
+    team_online: 'online',
+    // ── Voice messages ────────────────────────────
+    voice_hold: 'Tap to record, tap again to send',
+    voice_recording: '🔴 Recording...',
+    voice_sending: 'Sending...',
+    voice_sent: '🎙️ Voice message sent!',
+    voice_denied: 'Mic denied',
+    voice_unavailable: 'Audio not available (live only)',
+    voice_incoming: 'sent a voice message',
+    // ── GPS / Time tracker ────────────────────────
+    gps_getting: '📍 Getting GPS...',
+    gps_unavailable: '⚠️ GPS not available',
+    gps_denied: '⚠️ GPS denied — manual type set',
+    gps_updated: '📍 Location updated!',
+    time_clock_in: '▶ Clock In',
+    time_clock_out: '⏹ Clock Out',
+    time_shop: '🏭 Shop',
+    time_travel: '🚗 Travel',
+    time_onsite: '🏗️ On-site',
+    // ── Map tab ───────────────────────────────────
+    nav_map: '🗺️ Map',
+    // ── Misc missing ──────────────────────────────
+    misc_collected: t('misc_collected'),
+    misc_outstanding: t('misc_outstanding'),
+    misc_ytd: t('misc_ytd'),
+    misc_total_revenue: t('misc_total_revenue'),
+    misc_repeat_clients: t('misc_repeat_clients'),
+    misc_low_stock: t('misc_low_stock'),
+    misc_stock_value: t('misc_stock_value'),
+    misc_bal_due: t('misc_bal_due'),
+    misc_items: 'Items',
+    misc_all_statuses: t('misc_all_statuses'),
+    misc_sign_in: 'Sign In',
+    misc_sign_out: 'Sign out',
+    misc_forgot_pw: 'Forgot password?',
+    misc_change_server: 'Change server',
+    misc_send: 'Send',
+    misc_copy: 'Copy',
+    misc_unknown: 'Unknown',
+    misc_loading_proj: t('misc_loading_proj'),
+    misc_swipe: '← SWIPE FOR MORE TABS →',
+    misc_sql_setup: 'SQL Setup Script:',
+    misc_step1: 'Step 1', misc_step2: 'Step 2', misc_step3: 'Step 3',
+    misc_enter_email_reset: 'Enter your email to receive a reset link:',
+    misc_add_edit_material: 'Add / Edit Material',
+    misc_add_wood_desc: 'Add wood slabs, epoxy, hardware and more.',
+    misc_clients_desc: 'Clients are added automatically from intake forms, or add manually.',
+    misc_gen_caption: '✨ Generate Caption',
+    misc_calculate_quote: '⚡ Calculate Quote',
+    misc_save_create: '✅ Save & Create Project',
+    misc_clock_in_btn: '▶ Clock In',
+    misc_delete_btn: '🗑 Delete',
+
     lbl_first_name: 'First Name', lbl_last_name: 'Last Name', lbl_email: 'Email',
     lbl_password: 'Password', lbl_phone: 'Phone', lbl_city: 'City',
     lbl_found_via: 'Found us via', lbl_piece_types: 'Piece Type(s)',
@@ -1320,168 +1425,121 @@ const T = {
     dyn_save: '✅ Save', dyn_next_status: '→',
     dyn_duplicate: '📋 Duplicate', dyn_pdf: '🧾 PDF Quote', dyn_delete: '🗑',
   },
-  fr: {
-    // Nav
-    nav_quote: '💰 Estimations', nav_projects: '📋 Projets', nav_intake: '📝 Accueil client',
-    nav_clients: '👥 Clients', nav_time: '⏱️ Temps', nav_revenue: '📊 Revenus',
-    nav_wood: '🌲 Matériaux', nav_post: '✨ Publications',
-    // Auth
-    login_subtitle: 'Studio Tools — Veuillez vous connecter',
-    login_email: 'Courriel', login_password: 'Mot de passe',
-    login_btn: 'Se connecter', login_forgot: 'Mot de passe oublié?', login_change: 'Changer de serveur',
-    login_reset_label: 'Entrez votre courriel pour recevoir un lien de réinitialisation:',
-    login_reset_send: 'Envoyer', logout_btn: 'Déconnexion',
-    // Quote
-    quote_title: 'Calculateur d\'estimations',
-    quote_sub: 'Prix instantané avec taxes QC. Sauvegardez directement comme projet.',
-    quote_type: 'Type de projet', quote_type_default: '— Sélectionner —',
-    quote_client: 'Nom du client', quote_wood_species: 'Essence de bois',
-    quote_materials: 'Matériaux ($)', quote_epoxy: 'Époxy / Quincaillerie ($)',
-    quote_delivery: 'Livraison ($)', quote_hours: 'Heures estimées',
-    quote_rate: 'Taux ($/h)', quote_complexity: 'Complexité',
-    quote_complexity_standard: 'Standard', quote_complexity_mod: 'Modérée +10%',
-    quote_complexity_complex: 'Complexe +25%', quote_complexity_very: 'Très complexe +40%',
-    quote_overhead: 'Frais généraux %', quote_margin: 'Marge %',
-    quote_calc_btn: '⚡ Calculer l\'estimation',
-    quote_save: '💾 Sauvegarder comme projet', quote_copy: '📋 Copier le résumé',
-    quote_min: 'Prix plancher minimum', quote_suggested: 'Prix suggéré',
-    quote_deposit: 'Dépôt 50%', quote_gst: '+ TPS (5%)', quote_qst: '+ TVQ (9,975%)',
-    quote_total_tax: 'Total avec taxes',
-    quote_materials_label: 'Matériaux (facteur bois inclus)',
-    quote_labour_label: 'Main-d\'œuvre', quote_overhead_label: 'Frais généraux',
-    quote_margin_label: 'Marge bénéficiaire', quote_delivery_label: 'Livraison',
-    // Dashboard
-    dash_title: 'Projets', dash_new: '+ Nouveau',
-    stat_total: 'Total', stat_active: 'Actifs', stat_due: 'Solde dû', stat_revenue: 'Revenus',
-    filter_all: 'Tous les statuts', filter_new: 'Nouveau', filter_quote: 'Devis envoyé',
-    filter_active: 'Fabrication', filter_finish: 'Finition',
-    filter_ready: 'Prêt', filter_done: 'Livré',
-    search_placeholder: 'Rechercher...',
-    status_new: 'Nouveau', status_quote: 'Devis envoyé', status_active: 'Fabrication',
-    status_finish: 'Finition', status_ready: 'Prêt', status_done: 'Livré',
-    proj_amount: 'Montant', proj_paid: 'payé', proj_review: 'Avis ✓',
-    proj_save: '✅ Sauvegarder', proj_duplicate: '📋 Dupliquer', proj_pdf: '🧾 Devis PDF',
-    proj_delete: '🗑', proj_total: 'Total ($)', proj_balance: 'Solde ($)',
-    proj_delivery: 'Livraison prévue', proj_review_label: 'Avis reçu?',
-    proj_status: 'Statut', proj_notes: 'Notes',
-    proj_add_note: 'Ajouter une note / interaction',
-    note_type_label: 'Ajouter une note...',
-    note_add_btn: 'Ajouter',
-    // Intake
-    intake_title: 'Nouveau client',
-    intake_contact: 'A — Contact', intake_project: 'B — Projet', intake_budget: 'C — Budget et délais',
-    intake_fn: 'Prénom', intake_ln: 'Nom de famille', intake_email: 'Courriel',
-    intake_phone: 'Téléphone', intake_city: 'Ville', intake_source: 'Trouvé via',
-    intake_pieces: 'Type(s) de pièce', intake_dims: 'Dimensions', intake_wood: 'Essence de bois',
-    intake_style: 'Style / Fini', intake_vision: 'Description de la vision',
-    intake_budget_label: 'Budget', intake_timeline: 'Délai',
-    intake_deadline: 'Date limite importante', intake_amount: 'Montant estimé ($)',
-    intake_notes: 'Notes', intake_save: '✅ Sauvegarder et créer le projet',
-    // Clients
-    clients_title: 'Clients', clients_add: '+ Ajouter un client',
+    fr: {
+    nav_quote: '💰 Estimations',
+    nav_projects: '📋 Projets',
+    nav_intake: '📝 Accueil client',
+    nav_clients: '👥 Clients',
+    nav_time: '⏱️ Temps',
+    nav_revenue: '📊 Revenus',
+    nav_wood: '🌲 Matériaux',
+    nav_post: '✨ Publications',
+    nav_team: '👥 Équipe',
+    nav_map: '🗺️ Carte',
+    auth_title: 'Outils Studio',
+    auth_sub: 'Outils Studio — Connexion requise',
+    auth_email: 'Courriel',
+    auth_password: 'Mot de passe',
+    auth_sign_in: 'Se connecter',
+    auth_forgot: 'Mot de passe oublié?',
+    auth_reset_sent: 'Lien envoyé! Vérifiez votre courriel.',
+    auth_error: 'Erreur de connexion. Vérifiez vos identifiants.',
+    setup_title: 'Configuration requise',
+    setup_sub: 'Entrez vos identifiants Supabase.',
+    setup_url_label: 'URL du projet Supabase',
+    setup_key_label: 'Clé anonyme Supabase',
+    setup_connect: '✅ Connecter',
+    setup_step1: 'Étape 1',
+    setup_step2: 'Étape 2',
+    setup_step3: 'Étape 3',
+    quote_title: "Calculateur d'estimations",
+    quote_calc_btn: "⚡ Calculer l'estimation",
+    quote_save: '💾 Sauvegarder comme projet',
+    quote_copy: '📋 Copier le résumé',
+    quote_complexity_standard: 'Standard',
+    quote_complexity_moderate: 'Modéré +10%',
+    quote_complexity_complex: 'Complexe +25%',
+    quote_complexity_very: 'Très complexe +40%',
+    quote_overhead_label: 'Frais généraux',
+    quote_margin_label: 'Marge',
+    proj_title: 'Projets',
+    proj_search: 'Rechercher des projets...',
+    proj_filter_all: 'Tous les statuts',
+    proj_new: '+ Nouveau',
+    proj_total: 'Total ($)',
+    proj_delete: '🗑',
+    proj_notes: 'Notes',
+    proj_add_note: '+ Ajouter une note',
+    proj_note_ph: 'Ajouter une note...',
+    proj_save: '✅ Sauvegarder',
+    proj_dup: '📋 Dupliquer',
+    proj_pdf: '🧾 Devis PDF',
+    status_new: 'Nouveau',
+    status_quote: 'Devis envoyé',
+    status_active: 'Fabrication',
+    status_finish: 'Finition',
+    status_ready: 'Prêt',
+    status_done: 'Livré',
+    intake_title: 'Accueil client',
+    intake_sub: "Formulaire d'accueil client",
+    intake_contact: 'A — Contact',
+    intake_project: 'B — Projet',
+    intake_budget: 'C — Budget et délais',
+    intake_dims: 'Dimensions',
+    intake_notes: 'Notes',
+    intake_save: '✅ Sauvegarder et créer un projet',
+    clients_title: 'Clients',
     clients_search: 'Rechercher par nom, courriel, ville...',
-    cs_total: 'Clients', cs_revenue: 'Revenus totaux', cs_repeat: 'Clients réguliers',
-    client_spent: 'Dépensé', client_projects: 'Projets',
-    client_fn: 'Prénom', client_ln: 'Nom de famille',
-    client_found: 'Trouvé via', client_wood: 'Bois préféré',
-    client_notes: 'Notes', client_save: '✅ Sauvegarder le client', client_delete: '🗑 Supprimer',
-    // Time
-    time_title: 'Suivi du temps',
-    time_clock_title: 'Pointage entrée / sortie',
-    time_loc_shop: '🏭 Atelier', time_loc_travel: '🚗 Déplacement', time_loc_onsite: '🏗️ Chantier',
-    time_project: 'Associer à un projet (optionnel)', time_notes: 'Notes',
-    time_clock_in: '▶ Pointer entrée', time_clock_out: '⏹ Pointer sortie',
-    time_today: "Pointages d\'aujourd\'hui",
-    stat_shop: 'Atelier', stat_travel: 'Déplacement', stat_onsite: 'Chantier', stat_total_t: 'Total',
-    time_all: 'Tous les utilisateurs — Cette semaine', time_filter: '7 derniers jours',
-    // Revenue
+    clients_add: '+ Ajouter un client',
+    client_spent: 'Dépensé',
+    client_projects: 'Projets',
+    client_notes: 'Notes',
+    time_title: 'Pointage',
+    time_clock_in: "▶ Pointer l'entrée",
+    time_clock_out: '⏹ Pointer la sortie',
+    time_shop: '🏭 Atelier',
+    time_travel: '🚗 Déplacement',
+    time_onsite: '🏗️ Chantier',
+    time_project: 'Associer à un projet (optionnel)',
+    time_notes: 'Notes',
+    time_today: "Pointages d'aujourd'hui",
+    time_all: 'Tous les utilisateurs — Cette semaine',
+    time_filter: '7 derniers jours',
+    stat_shop: 'Atelier',
+    stat_travel: 'Déplacement',
+    stat_onsite: 'Chantier',
+    stat_total: 'Total',
+    stat_total_t: 'Total',
     rev_title: 'Revenus',
-    rv_ytd: 'Revenus annuels', rv_collected: 'Encaissé', rv_outstanding: 'En attente', rv_projects: 'Livré',
-    rev_monthly: 'Revenus mensuels',
-    rev_monthly_sub: 'Vert = encaissé · Beige = solde en attente',
-    rev_legend_collected: 'Encaissé', rev_legend_outstanding: 'En attente',
-    rev_by_type: 'Revenus par type de projet',
-    rev_top_clients: 'Meilleurs clients par revenu',
-    // Wood
-    wood_title: 'Bois et matériaux en stock', wood_add: '+ Ajouter',
-    ws_items: 'Articles', ws_value: 'Valeur du stock', ws_low: 'Stock faible',
-    wood_species: 'Espèce / Nom du matériau',
-    wood_species_placeholder: 'ex. Planche d\'érable moucheté, Époxy bleu, Quincaillerie',
-    wood_grade: 'Grade / Description', wood_supplier: 'Fournisseur',
-    wood_qty: 'Quantité', wood_unit: 'Unité', wood_cost: 'Coût par unité ($)',
-    wood_notes: 'Notes', wood_save: '✅ Sauvegarder le matériau', wood_delete: '🗑 Supprimer',
-    wm_add_title: 'Ajouter / Modifier un matériau',
-    // Post Gen
-    post_title: 'Générateur de publications',
-    post_card_title: 'Légende bilingue — Claude AI',
-    post_card_sub: 'Génère une légende EN + FR avec hashtags prête à publier en quelques secondes.',
-    post_subject: 'Sujet', post_tone: 'Ton', post_detail: 'Détail supplémentaire (optionnel)',
-    post_detail_placeholder: 'ex. rivière sarcelle, fête des pères, tablette flottante...',
-    post_platform: 'Plateforme',
-    post_gen_btn: '✨ Générer la légende',
-    post_regen: '🔄 Régénérer', post_save: '💾 Sauvegarder la légende',
-    post_saved_title: 'Légendes sauvegardées',
-    // Overdue
-    overdue_msg: 'projet en retard', overdue_msg_pl: 'projets en retard',
-    // Empty states
-    empty_projects: 'Aucun projet. Commencez par un accueil client.',
-    empty_no_match: 'Aucun résultat.',
-    empty_wood: 'Aucun matériau suivi. Ajoutez du bois, de l\'époxy, de la quincaillerie.',
-    empty_time: 'Aucune session aujourd\'hui.',
-    empty_posts: 'Aucun résultat',
-    // Sync
-    sync_live: 'Synchronisé', sync_connecting: 'Connexion...', sync_signed_out: 'Veuillez vous connecter',
-    lbl_first_name: 'Prénom', lbl_last_name: 'Nom de famille', lbl_email: 'Courriel',
-    lbl_password: 'Mot de passe', lbl_phone: 'Téléphone', lbl_city: 'Ville',
-    lbl_found_via: 'Trouvé via', lbl_piece_types: 'Type(s) de pièce',
-    lbl_dimensions: 'Dimensions', lbl_wood_species: 'Essence de bois',
-    lbl_style_finish: 'Style / Fini', lbl_vision: 'Description de la vision',
-    lbl_budget_range: 'Budget', lbl_timeline: 'Délai',
-    lbl_deadline: 'Date limite importante', lbl_quoted_amount: 'Montant estimé ($)',
-    lbl_notes: 'Notes', lbl_project_type: 'Type de projet', lbl_client_name: 'Nom du client',
-    lbl_materials: 'Matériaux ($)', lbl_epoxy_hw: 'Époxy / Quincaillerie ($)',
-    lbl_delivery_cost: 'Livraison ($)', lbl_hours: 'Heures estimées', lbl_rate: 'Taux ($/h)',
-    lbl_complexity: 'Complexité', lbl_overhead: 'Frais généraux %', lbl_margin: 'Marge %',
-    lbl_species_name: 'Espèce / Nom du matériau', lbl_grade: 'Grade / Description',
-    lbl_supplier: 'Fournisseur', lbl_quantity: 'Quantité', lbl_unit: 'Unité',
-    lbl_cost_unit: 'Coût par unité ($)', lbl_loc_type: 'Type de localisation',
-    lbl_link_project: 'Associer à un projet (optionnel)', lbl_platform: 'Plateforme',
-    lbl_subject: 'Sujet', lbl_tone: 'Ton', lbl_extra_detail: 'Détail supplémentaire (optionnel)',
-    lbl_found_via2: 'Trouvé via', lbl_pref_wood: 'Bois préféré',
-    cb_dining: 'Table à manger', cb_coffee: 'Table basse', cb_sink: 'Évier en bois',
-    cb_vanity: 'Vanité', cb_desk: 'Bureau', cb_staircase: 'Escalier',
-    cb_art: "Pièce d'art", cb_other: 'Autre', cb_rustic: 'Rustique', cb_modern: 'Moderne',
-    cb_liveedge: 'Bord vif', cb_epoxy: 'Époxy', cb_raw: 'Bois massif brut',
-    rb_instagram: 'Instagram', rb_facebook: 'Facebook', rb_both: 'Les deux',
-    sub_quote: 'Prix instantané avec taxes QC. Sauvegarder directement comme projet.',
-    sub_post: 'Génère une légende EN + FR avec hashtags prête à publier en quelques secondes.',
-    sub_rev: 'Vert = encaissé · Beige = solde en attente',
-    sub_time_user: 'Connecté en tant que : —',
-    sec_intake_a: 'A — Contact', sec_intake_b: 'B — Projet', sec_intake_c: 'C — Budget et délais',
-    sec_all_users: 'Tous les utilisateurs — Cette semaine', sec_today_logs: "Pointages d'aujourd'hui",
-    sec_saved_captions: 'Légendes sauvegardées', sec_quote_breakdown: "Détail de l'estimation",
-    ph_dims: 'ex. 182 cm x 91 cm', ph_vision: 'Ce que le client imagine...',
-    ph_special: 'Demandes spéciales, notes...', ph_deadline: 'ex. Noël',
-    ph_client: 'ex. Marie L.', ph_grade: 'ex. 4/4, planche 8pi, cannette 1L',
-    ph_species: 'ex. Planche érable moucheté, Époxy bleu, Quincaillerie',
-    ph_supplier: 'ex. Boisverco, Home Depot',
-    ph_time_notes: 'ex. Coulée époxy, rencontre client, livraison...',
-    ph_wood_notes: 'Dimensions, couleur, projet réservé pour...',
-    ph_first: 'Jean', ph_last: 'Tremblay', ph_city: 'Gatineau', ph_email: 'jean@courriel.com',
-    btn_add_wood: '+ Ajouter', btn_add_new: '+ Nouveau', btn_save_material: '✅ Sauvegarder le matériau',
-    btn_regen: '🔄 Régénérer', btn_save_caption: '💾 Sauvegarder la légende',
-    btn_save_proj: '💾 Sauvegarder comme projet', btn_copy_sum: '📋 Copier le résumé',
-    cb_art: "Pièce d'art",
-    sec_quote_breakdown: "Détail de l'estimation",
-    lbl_grade: 'Catégorie / Description',
+    rev_year: 'Année',
+    rev_month: 'Mois',
+    rev_collected: 'Encaissé',
+    rev_outstanding: 'En attente',
+    wood_title: 'Matériaux',
+    wood_add: '+ Ajouter',
     wood_grade: 'Catégorie / Description',
-    // Dynamic content translations used in JS rendering
+    wood_notes: 'Notes',
+    wood_save: '✅ Sauvegarder le matériau',
+    wood_unit_bf: 'pieds de planche',
+    post_title: 'Publications',
+    post_gen: '✨ Générer une légende',
+    post_regen: '🔄 Régénérer',
+    post_save: '💾 Sauvegarder la légende',
+    post_copy: 'Copier',
+    sync_live: 'Synchronisé',
+    sync_connecting: 'Connexion...',
+    sync_signed_out: 'Veuillez vous connecter',
+    empty_no_match: 'Aucun résultat.',
+    empty_wood: "Aucun matériau suivi. Ajoutez du bois, de l'époxy, de la quincaillerie.",
+    empty_time: "Aucune session aujourd'hui.",
+    empty_posts: 'Aucun résultat',
+    empty_projects: 'Aucun projet. Commencez par un accueil client.',
     dyn_paid: 'payé',
     dyn_review_done: 'Avis ✓',
     dyn_no_projects: 'Aucun projet. Commencez par un accueil client.',
     dyn_no_matches: 'Aucun résultat.',
     dyn_no_clients: 'Aucun client pour le moment.',
-    dyn_no_sessions: 'Aucune session aujourd\'hui.',
+    dyn_no_sessions: "Aucune session aujourd'hui.",
     dyn_no_time: 'Aucune période enregistrée.',
     dyn_no_delivered: 'Aucun projet livré pour le moment.',
     dyn_no_results: 'Aucun résultat.',
@@ -1494,10 +1552,227 @@ const T = {
     dyn_note_placeholder: 'Ajouter une note...',
     dyn_proj_notes: 'Notes',
     dyn_projects_word: 'projet(s)',
-    dyn_shop: 'Atelier', dyn_travel: 'Déplacement', dyn_onsite: 'Chantier',
+    dyn_shop: 'Atelier',
+    dyn_travel: 'Déplacement',
+    dyn_onsite: 'Chantier',
     dyn_today: "Aujourd'hui",
-    dyn_save: '✅ Sauvegarder', dyn_next_status: '→',
-    dyn_duplicate: '📋 Dupliquer', dyn_pdf: '🧾 Devis PDF', dyn_delete: '🗑',
+    dyn_save: '✅ Sauvegarder',
+    dyn_next_status: '→',
+    dyn_duplicate: '📋 Dupliquer',
+    dyn_pdf: '🧾 Devis PDF',
+    dyn_delete: '🗑',
+    dyn_14days: '14 derniers jours',
+    dyn_30days: '30 derniers jours',
+    lbl_first_name: 'Prénom',
+    lbl_last_name: 'Nom de famille',
+    lbl_email: 'Courriel',
+    lbl_password: 'Mot de passe',
+    lbl_phone: 'Téléphone',
+    lbl_city: 'Ville',
+    lbl_found_via: 'Trouvé via',
+    lbl_piece_types: 'Type(s) de pièce',
+    lbl_dimensions: 'Dimensions',
+    lbl_wood_species: 'Essence de bois',
+    lbl_style_finish: 'Style / Fini',
+    lbl_vision: 'Description de la vision',
+    lbl_budget_range: 'Budget',
+    lbl_timeline: 'Délai',
+    lbl_deadline: 'Date limite importante',
+    lbl_quoted_amount: 'Montant estimé ($)',
+    lbl_notes: 'Notes',
+    lbl_project_type: 'Type de projet',
+    lbl_client_name: 'Nom du client',
+    lbl_materials: 'Matériaux ($)',
+    lbl_epoxy_hw: 'Époxy / Quincaillerie ($)',
+    lbl_delivery_cost: 'Livraison ($)',
+    lbl_hours: 'Heures estimées',
+    lbl_rate: 'Taux ($/h)',
+    lbl_complexity: 'Complexité',
+    lbl_overhead: 'Frais généraux %',
+    lbl_margin: 'Marge %',
+    lbl_species_name: 'Espèce / Nom du matériau',
+    lbl_grade: 'Catégorie / Description',
+    lbl_supplier: 'Fournisseur',
+    lbl_quantity: 'Quantité',
+    lbl_unit: 'Unité',
+    lbl_cost_unit: 'Coût par unité ($)',
+    lbl_loc_type: 'Type de localisation',
+    lbl_link_project: 'Associer à un projet (optionnel)',
+    lbl_platform: 'Plateforme',
+    lbl_subject: 'Sujet',
+    lbl_tone: 'Ton',
+    lbl_extra_detail: 'Détail supplémentaire (optionnel)',
+    lbl_found_via2: 'Trouvé via',
+    lbl_pref_wood: 'Bois préféré',
+    cb_dining: 'Table à manger',
+    cb_coffee: 'Table basse',
+    cb_sink: 'Évier en bois',
+    cb_vanity: 'Vanité',
+    cb_desk: 'Bureau',
+    cb_staircase: 'Escalier',
+    cb_art: "Pièce d'art",
+    cb_other: 'Autre',
+    cb_rustic: 'Rustique',
+    cb_modern: 'Moderne',
+    cb_liveedge: 'Bord vif',
+    cb_epoxy: 'Époxy',
+    cb_raw: 'Bois massif brut',
+    rb_instagram: 'Instagram',
+    rb_facebook: 'Facebook',
+    rb_both: 'Les deux',
+    sub_quote: 'Prix instantané avec taxes QC. Sauvegarder directement comme projet.',
+    sub_post: 'Génère une légende EN + FR avec hashtags prête à publier en quelques secondes.',
+    sub_rev: 'Vert = encaissé · Beige = solde en attente',
+    sub_time_user: 'Connecté en tant que : —',
+    sec_intake_a: 'A — Contact',
+    sec_intake_b: 'B — Projet',
+    sec_intake_c: 'C — Budget et délais',
+    sec_all_users: 'Tous les utilisateurs — Cette semaine',
+    sec_today_logs: "Pointages d'aujourd'hui",
+    sec_saved_captions: 'Légendes sauvegardées',
+    sec_quote_breakdown: "Détail de l'estimation",
+    ph_dims: 'ex. 182 cm x 91 cm',
+    ph_vision: 'Ce que le client imagine...',
+    ph_special: 'Demandes spéciales, notes...',
+    ph_deadline: 'ex. Noël',
+    ph_client: 'ex. Marie L.',
+    ph_grade: 'ex. 4/4, planche 8pi, cannette 1L',
+    ph_species: 'ex. Planche érable moucheté, Époxy bleu, Quincaillerie',
+    ph_supplier: 'ex. Boisverco, Home Depot',
+    ph_time_notes: 'ex. Coulée époxy, rencontre client, livraison...',
+    ph_wood_notes: 'Dimensions, couleur, projet réservé pour...',
+    ph_first: 'Jean',
+    ph_last: 'Tremblay',
+    ph_city: 'Gatineau',
+    ph_email: 'jean@courriel.com',
+    ph_chat: 'Écrire un message...',
+    btn_add_wood: '+ Ajouter',
+    btn_add_new: '+ Nouveau',
+    btn_save_material: '✅ Sauvegarder le matériau',
+    btn_regen: '🔄 Régénérer',
+    btn_save_caption: '💾 Sauvegarder la légende',
+    btn_save_proj: '💾 Sauvegarder comme projet',
+    btn_copy_sum: '📋 Copier le résumé',
+    mat_title_tables: '📐 Dimensions standard — Sélectionnez une taille',
+    mat_title_fbm: '🪵 Calculateur de bois — Pieds de planche (PMP)',
+    mat_title_manual: '💰 Matériaux',
+    lbl_fbm_formula: 'Formule: (Épaisseur × Largeur × Longueur) ÷ 144 = Pieds de planche',
+    lbl_total_fbm: 'Total pieds de planche',
+    lbl_mat_cost: 'Coût des matériaux estimé',
+    lbl_mat_cost2: 'Coût des matériaux',
+    lbl_cost_per_bf: 'Coût par PMP ($):',
+    lbl_cost_per_bf2: 'Coût par PMP ($):',
+    lbl_waste_pct: 'Déchet %:',
+    lbl_waste_tip: '(incl. trait de scie et défauts)',
+    lbl_fbm_needed: 'Pieds de planche requis (incl. 20% déchet)',
+    lbl_custom_dims: 'Dimensions sur mesure:',
+    lbl_bf_tip: 'Érable ~$6-8 · Noyer ~$12-18 · Pin ~$4-6',
+    btn_add_board: '+ Ajouter une planche',
+    section_team: 'Équipe',
+    lbl_your_location: 'Votre position',
+    lbl_team_locations: "Positions de l'équipe",
+    lbl_gps_history: "Historique GPS — Aujourd'hui",
+    lbl_team_calls: 'Appels vocaux et vidéo',
+    lbl_calls_sub: "Appuyez sur un membre pour démarrer un appel.",
+    map_team_status: "Statut de l'équipe",
+    map_time_summary: "Résumé des heures — Aujourd'hui",
+    map_gps_log: "Journal GPS — Tous les utilisateurs aujourd'hui",
+    map_all_members: 'Tous les membres',
+    map_last_update: 'Mis à jour:',
+    map_no_gps: 'Aucune donnée GPS',
+    team_your_loc: 'Votre position',
+    team_locations: "Positions de l'équipe",
+    team_gps_history: "Historique GPS — Aujourd'hui",
+    team_calls_title: 'Appels vocaux et vidéo',
+    team_calls_sub: "Appuyez sur un membre pour démarrer un appel.",
+    team_update_loc: 'Mettre à jour',
+    team_no_members: 'Aucun membre visible',
+    team_no_clockins: "Aucun pointage aujourd'hui",
+    team_gps_loading: 'Chargement des positions...',
+    team_calls_loading: 'Chargement des membres...',
+    team_chat_empty: 'Aucun message. Dites bonjour!',
+    team_online: 'en ligne',
+    voice_hold: "Appuyer pour enregistrer, appuyer à nouveau pour envoyer",
+    voice_recording: '🔴 Enregistrement...',
+    voice_sending: 'Envoi...',
+    voice_sent: '🎙️ Message vocal envoyé!',
+    voice_denied: 'Microphone refusé',
+    voice_unavailable: 'Audio non disponible (en direct seulement)',
+    voice_incoming: 'a envoyé un message vocal',
+    gps_getting: '📍 Obtention du GPS...',
+    gps_unavailable: '⚠️ GPS non disponible',
+    gps_denied: '⚠️ GPS refusé',
+    gps_updated: '📍 Position mise à jour!',
+    time_clock_in_btn: "▶ Pointer l'entrée",
+    time_clock_out_btn: '⏹ Pointer la sortie',
+    prot_assigned_to: 'Assigné à',
+    prot_referred_by: 'Référé par',
+    prot_client_source: 'Comment nous ont-ils trouvés?',
+    prot_source_instagram: 'Instagram',
+    prot_source_facebook: 'Facebook',
+    prot_source_google: 'Recherche Google',
+    prot_source_referral: 'Référence client',
+    prot_source_wordofmouth: 'Bouche-à-oreille',
+    prot_source_signage: 'Affichage / Passage',
+    prot_source_website: 'Site web',
+    prot_source_other: 'Autre',
+    prot_interaction_type: "Type d'interaction",
+    prot_itype_call: 'Appel téléphonique',
+    prot_itype_visit: 'Visite client',
+    prot_itype_meeting: 'Réunion sur chantier',
+    prot_itype_email: 'Courriel',
+    prot_itype_quote: 'Soumission présentée',
+    prot_itype_followup: 'Suivi',
+    prot_itype_other: 'Autre',
+    prot_log_interaction: 'Consigner une interaction',
+    prot_add_interaction: '+ Consigner une interaction',
+    prot_interaction_history: 'Historique des interactions',
+    prot_no_interactions: 'Aucune interaction consignée.',
+    prot_quote_audit: 'Audit des soumissions',
+    prot_created_by: 'Créé par',
+    prot_quote_log_title: 'Journal des soumissions',
+    prot_gps_anomaly: '🚩 Anomalie GPS',
+    prot_gps_unknown_loc: 'Localisation inconnue pendant les heures de travail',
+    prot_revenue_per_emp: 'Revenus par employé',
+    prot_emp_dashboard: 'Tableau de bord employés',
+    prot_contract_notice: 'Aucun contrat de travail au dossier',
+    misc_collected: 'Encaissé',
+    misc_outstanding: 'En attente',
+    misc_ytd: 'Revenus annuels',
+    misc_total_revenue: 'Revenu total',
+    misc_repeat_clients: 'Clients fidèles',
+    misc_low_stock: 'Stock faible',
+    misc_stock_value: 'Valeur du stock',
+    misc_bal_due: 'Solde dû',
+    misc_items: 'Articles',
+    misc_all_statuses: 'Tous les statuts',
+    misc_sign_in: 'Se connecter',
+    misc_sign_out: 'Se déconnecter',
+    misc_forgot_pw: 'Mot de passe oublié?',
+    misc_change_server: 'Changer de serveur',
+    misc_send: 'Envoyer',
+    misc_copy: 'Copier',
+    misc_unknown: 'Inconnu',
+    misc_loading_proj: 'Chargement des projets...',
+    misc_swipe: '← GLISSER POUR PLUS →',
+    misc_sql_setup: 'Script SQL:',
+    misc_step1: 'Étape 1',
+    misc_step2: 'Étape 2',
+    misc_step3: 'Étape 3',
+    misc_enter_email_reset: 'Entrez votre courriel pour recevoir un lien:',
+    misc_add_edit_material: 'Ajouter / Modifier un matériau',
+    misc_add_wood_desc: "Ajoutez des planches, époxy, quincaillerie et plus.",
+    misc_clients_desc: "Les clients sont ajoutés automatiquement via les formulaires d'accueil.",
+    misc_gen_caption: '✨ Générer une légende',
+    misc_calculate_quote: "⚡ Calculer l'estimation",
+    misc_save_create: '✅ Sauvegarder et créer un projet',
+    misc_clock_in_btn: "▶ Pointer l'entrée",
+    misc_delete_btn: '🗑 Supprimer',
+    note_add_btn: 'Ajouter',
+    cs_total: 'Clients',
+    filter_active: 'Fabrication',
+    overdue_msg: 'projet en retard',
+    overdue_msg_pl: 'projets en retard'
   }
 };
 
@@ -1531,7 +1806,7 @@ const SELECT_OPTIONS = {
     fr: ['20%','25%','30%','35%']
   },
   'f-status': {
-    en: ['All Statuses','New','Quote Sent','Fabrication','Finishing','Ready','Delivered'],
+    en: [t('misc_all_statuses'),'New','Quote Sent','Fabrication','Finishing','Ready','Delivered'],
     fr: ['Tous les statuts','Nouveau','Devis envoyé','Fabrication','Finition','Prêt','Livré']
   },
   'i-src': {
@@ -2881,26 +3156,76 @@ function filterClients() {
 }
 
 function openAddClient() {
-  document.getElementById('cm-title').textContent = 'New Client';
-  document.getElementById('cm-body').innerHTML = `
+  document.getElementById('cm-title').textContent = t('nav_clients')+' — '+t('btn_add_new');
+  document.getElementById('cm-body').innerHTML = buildClientForm(null);
+  document.getElementById('client-modal').classList.add('open');
+  applyTranslations(currentLang);
+}
+
+function buildClientForm(c) {
+  var isEdit = !!c;
+  var src = c ? (c.client_source||'') : '';
+  var assigned = c ? (c.assigned_to||'') : '';
+  var referred = c ? (c.referred_by||'') : '';
+  return `
     <div class="row-2">
-      <div><label data-i18n="lbl_first_name">First Name</label><input type="text" id="cm-fn" placeholder="Jean" data-i18n-ph="ph_first"></div>
-      <div><label data-i18n="lbl_last_name">Last Name</label><input type="text" id="cm-ln" placeholder="Tremblay" data-i18n-ph="ph_last"></div>
+      <div><label data-i18n="lbl_first_name">First Name</label><input type="text" id="cm-fn" value="\${c?c.first_name||'':''}" placeholder="Jean"></div>
+      <div><label data-i18n="lbl_last_name">Last Name</label><input type="text" id="cm-ln" value="\${c?c.last_name||'':''}" placeholder="Tremblay"></div>
     </div>
     <div class="row-2">
-      <div><label data-i18n="lbl_email">Email</label><input type="email" id="cm-em"></div>
-      <div><label data-i18n="lbl_phone">Phone</label><input type="tel" id="cm-ph"></div>
+      <div><label data-i18n="lbl_email">Email</label><input type="email" id="cm-em" value="\${c?c.email||'':''}"></div>
+      <div><label data-i18n="lbl_phone">Phone</label><input type="tel" id="cm-ph" value="\${c?c.phone||'':''}"></div>
     </div>
     <div class="row-2">
-      <div><label data-i18n="lbl_city">City</label><input type="text" id="cm-ci" placeholder="Gatineau" data-i18n-ph="ph_city"></div>
-      <div><label data-i18n="lbl_found_via2">Found via</label>
-        <select id="cm-src"><option>Instagram</option><option>Facebook</option><option>Google</option><option>Word of mouth</option><option>Other</option></select>
+      <div><label data-i18n="lbl_city">City</label><input type="text" id="cm-ci" value="\${c?c.city||'':''}" placeholder="Gatineau"></div>
+      <div><label data-i18n="lbl_pref_wood">Preferred Wood</label><input type="text" id="cm-wd" value="\${c?c.preferred_wood||'':(c&&c.notes?'':'')}" placeholder="e.g. Black Walnut"></div>
+    </div>
+    <div style="background:var(--wood-pale);border-radius:var(--radius-sm);padding:12px;margin:10px 0;border-left:3px solid var(--amber);">
+      <div style="font-size:0.72rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">🛡️ <span data-i18n="prot_client_source">Client Source & Ownership</span></div>
+      <label data-i18n="prot_client_source">How Did They Find Us?</label>
+      <select id="cm-src">
+        <option value="Instagram" \${src==='Instagram'?'selected':''}>Instagram</option>
+        <option value="Facebook" \${src==='Facebook'?'selected':''}>Facebook</option>
+        <option value="Google" \${src==='Google'?'selected':''}>Google Search</option>
+        <option value="Referral" \${src==='Referral'?'selected':''}>Client Referral</option>
+        <option value="Word of mouth" \${src==='Word of mouth'?'selected':''}>Word of Mouth</option>
+        <option value="Signage" \${src==='Signage'?'selected':''}>Signage / Drive-by</option>
+        <option value="Website" \${src==='Website'?'selected':''}>Website</option>
+        <option value="Other" \${src==='Other'||!src?'selected':''}>Other</option>
+      </select>
+      <div class="row-2" style="margin-top:8px;">
+        <div><label data-i18n="prot_referred_by">Referred By</label><input type="text" id="cm-referred" value="\${referred}" placeholder="e.g. Marie Tremblay"></div>
+        <div><label data-i18n="prot_assigned_to">Assigned To</label>
+          <select id="cm-assigned">
+            <option value="">— \${t('dyn_loading')} —</option>
+          </select>
+        </div>
       </div>
     </div>
-    <label data-i18n="lbl_pref_wood">Preferred Wood</label><input type="text" id="cm-wd" placeholder="e.g. Black Walnut">
-    <label data-i18n="lbl_notes">Notes</label><textarea id="cm-nt" placeholder="Any notes about this client..."></textarea>
-    <button class="btn btn-green btn-block" style="margin-top:14px;" onclick="saveClient()">✅ Save Client</button>`;
-  document.getElementById('client-modal').classList.add('open');
+    <label data-i18n="lbl_notes">Notes</label>
+    <textarea id="cm-nt" placeholder="Any notes...">\${c?c.notes||'':''}</textarea>
+    \${isEdit ? \`
+    <div style="margin-top:12px;">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">📝 <span data-i18n="prot_interaction_history">Interaction History</span></div>
+      <div id="client-interaction-list" style="max-height:180px;overflow-y:auto;margin-bottom:8px;font-size:0.82rem;"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <select id="cm-itype" style="flex:1;font-size:0.8rem;padding:7px;">
+          <option value="call">📞 \${t('prot_itype_call')}</option>
+          <option value="visit">🏠 \${t('prot_itype_visit')}</option>
+          <option value="meeting">🏗️ \${t('prot_itype_meeting')}</option>
+          <option value="email">📧 \${t('prot_itype_email')}</option>
+          <option value="quote">💰 \${t('prot_itype_quote')}</option>
+          <option value="followup">🔄 \${t('prot_itype_followup')}</option>
+        </select>
+        <input type="text" id="cm-inote" placeholder="Notes..." style="flex:2;">
+        <button class="btn btn-amber btn-sm" onclick="logClientInteraction(\${c.id})">\${t('prot_log_interaction')}</button>
+      </div>
+    </div>\` : ''}
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn btn-green" onclick="saveClient(\${isEdit?c.id:'null'})">✅ \${isEdit?t('dyn_save'):t('misc_save_create')}</button>
+      <button class="btn btn-ghost" onclick="closeModal('client-modal')">\${t('dyn_no_matches')||'Cancel'}</button>
+    </div>
+  `;
 }
 
 async function openClient(id) {
@@ -3617,7 +3942,7 @@ async function loadTeamLocations() {
   // Online count (exclude offline)
   var online = members.filter(function(m){ return m.status !== 'offline'; }).length;
   var countEl = document.getElementById('team-online-count');
-  if (countEl) countEl.textContent = online + (currentLang==='fr' ? ' en ligne' : ' online');
+  if (countEl) countEl.textContent = online + ' ' + t('team_online');
   if (document.getElementById('team-panel-calls') &&
       document.getElementById('team-panel-calls').style.display !== 'none') loadCallGrid();
   if (typeof updateMap === 'function') updateMap(members);
@@ -3627,7 +3952,7 @@ function renderTeamLocations(members) {
   var el = document.getElementById('team-location-list');
   if (!el) return;
   if (!members || !members.length) {
-    el.innerHTML = '<div class="empty-state"><p>'+(currentLang==='fr'?'Aucun membre visible':'No team members visible')+'</p></div>';
+    el.innerHTML = '<div class="empty-state"><p>'+(t('team_no_members'))+'</p></div>';
     return;
   }
   var locLabels = {
@@ -3705,7 +4030,7 @@ async function loadGPSHistory() {
     var el = document.getElementById('gps-history-list');
     if (!el) return;
     if (!res.data || !res.data.length) {
-      el.innerHTML = '<div class="empty-state"><p>'+(currentLang==='fr'?'Aucun pointage aujourd\'hui':'No clock-ins today')+'</p></div>';
+      el.innerHTML = '<div class="empty-state"><p>'+(currentLang==='fr'?t('team_no_clockins'):t('team_no_clockins'))+'</p></div>';
       return;
     }
     var icons = {shop:'🏭', travel:'🚗', onsite:'🏗️'};
@@ -3738,7 +4063,7 @@ function renderMessages(msgs) {
   var el = document.getElementById('chat-messages');
   if (!el) return;
   if (!msgs || !msgs.length) {
-    el.innerHTML = '<div class="empty-state" style="padding:30px;"><div class="icon">💬</div><p>'+(currentLang==='fr'?'Aucun message. Dites bonjour!':'No messages yet. Say hello!')+'</p></div>';
+    el.innerHTML = '<div class="empty-state" style="padding:30px;"><div class="icon">💬</div><p>'+(t('team_chat_empty'))+'</p></div>';
     return;
   }
   el.innerHTML = msgs.map(function(m) {
@@ -3764,7 +4089,7 @@ function setupChatRealtime() {
       if (m.content === '__VOICE__' && m.voice_data) {
         appendVoiceMessage(m, false);
         var name = m.sender_name || (m.sender_email||'').split('@')[0];
-        toast('🎙️ '+name+' '+(currentLang==='fr'?'a envoyé un message vocal':'sent a voice message'));
+        toast('🎙️ '+name+' '+(t('voice_incoming')));
         if (navigator.vibrate) navigator.vibrate([100]);
       } else {
         var el = document.getElementById('chat-messages');
@@ -3928,7 +4253,7 @@ function createPeer() {
   };
   pc.onconnectionstatechange = function() {
     var s = pc.connectionState;
-    var labels = {connecting:currentLang==='fr'?'Connexion...':'Connecting...', connected:currentLang==='fr'?'Connecté':'Connected', disconnected:currentLang==='fr'?'Déconnecté':'Disconnected', failed:currentLang==='fr'?'Échec':'Failed'};
+    var labels = {connecting:t('dyn_loading'), connected:currentLang==='fr'?'Connecté':'Connected', disconnected:currentLang==='fr'?'Déconnecté':'Disconnected', failed:currentLang==='fr'?'Échec':'Failed'};
     var st = document.getElementById('call-status-text');
     if (st) st.textContent = labels[s] || s;
     if (s==='disconnected'||s==='failed') hangup();
@@ -3940,7 +4265,7 @@ async function getMedia(video) {
   try {
     return await navigator.mediaDevices.getUserMedia({audio:true, video:video});
   } catch(e) {
-    toast('⚠️ '+(currentLang==='fr'?'Micro/caméra refusé':'Mic/camera denied'));
+    toast('⚠️ '+(t('voice_denied')));
     return null;
   }
 }
@@ -3980,7 +4305,7 @@ async function acceptCall() {
   if(lv) lv.srcObject=localStream;
   var cb=document.getElementById('btn-cam');
   if(cb) cb.style.display=callIsVideo?'flex':'none';
-  showCallOverlay(currentLang==='fr'?'Connexion...':'Connecting...');
+  showCallOverlay(t('dyn_loading'));
   try {
     await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.sdp));
     var answer=await peerConnection.createAnswer();
@@ -4041,6 +4366,115 @@ function escapeHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+
+
+// ══════════════════════════════════════════════════
+// PROTECTIVE FEATURES
+// ══════════════════════════════════════════════════
+
+// Log a client interaction (timestamped, with author)
+async function logClientInteraction(clientId) {
+  if (!sb || !currentUserEmail) return;
+  var type  = document.getElementById('cm-itype')?.value || 'note';
+  var notes = document.getElementById('cm-inote')?.value.trim() || '';
+  if (!notes) { toast(currentLang==='fr'?'⚠️ Ajoutez une note':'⚠️ Add a note first'); return; }
+  try {
+    await sb.from('client_interactions').insert([{
+      client_id:   clientId,
+      type:        type,
+      notes:       notes,
+      created_by:  currentUserEmail,
+      author_name: currentUserName || currentUserEmail.split('@')[0],
+      created_at:  new Date().toISOString()
+    }]);
+    if (document.getElementById('cm-inote')) document.getElementById('cm-inote').value = '';
+    toast(currentLang==='fr'?'✅ Interaction consignée':'✅ Interaction logged');
+    loadClientInteractions(clientId);
+  } catch(e) { toast('⚠️ '+e.message); }
+}
+
+async function loadClientInteractions(clientId) {
+  if (!sb) return;
+  var el = document.getElementById('client-interaction-list');
+  if (!el) return;
+  try {
+    var res = await sb.from('client_interactions').select('*')
+      .eq('client_id', clientId).order('created_at', {ascending:false});
+    if (res.error || !res.data || !res.data.length) {
+      el.innerHTML = '<div style="color:var(--wood-mid);font-size:0.8rem;padding:8px 0;">'+t('prot_no_interactions')+'</div>';
+      return;
+    }
+    var icons = {call:'📞', visit:'🏠', meeting:'🏗️', email:'📧', quote:'💰', followup:'🔄', other:'📝'};
+    el.innerHTML = res.data.map(function(i) {
+      var d = new Date(i.created_at);
+      var dateStr = d.toLocaleDateString(currentLang==='fr'?'fr-CA':'en-CA', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      return '<div style="padding:6px 0;border-bottom:1px solid var(--wood-pale);">'+
+        '<div style="display:flex;justify-content:space-between;">'+
+          '<span style="font-weight:600;">'+(icons[i.type]||'📝')+' '+escapeHtml(i.notes)+'</span>'+
+          '<span style="font-size:0.68rem;color:var(--wood-mid);white-space:nowrap;margin-left:8px;">'+dateStr+'</span>'+
+        '</div>'+
+        '<div style="font-size:0.68rem;color:var(--wood-mid);">'+escapeHtml(i.author_name||'')+'</div>'+
+      '</div>';
+    }).join('');
+  } catch(e) { el.innerHTML = '<p style="color:var(--wood-mid);font-size:0.8rem;">—</p>'; }
+}
+
+// Quote audit log — show all quotes with who created them
+async function loadQuoteAuditLog() {
+  if (!sb) return;
+  try {
+    var res = await sb.from('projects').select('id,client_name,type,amount,created_by,created_at')
+      .not('created_by','is',null)
+      .order('created_at', {ascending:false})
+      .limit(50);
+    return res.data || [];
+  } catch(e) { return []; }
+}
+
+// GPS anomaly detection — check for unknown locations during work hours
+async function checkGPSAnomalies() {
+  if (!sb || !isAdmin(currentUserEmail)) return;
+  try {
+    var today = new Date().toISOString().split('T')[0];
+    var res = await sb.from('time_logs').select('*')
+      .gte('created_at', today+'T00:00:00Z')
+      .eq('location_type', 'onsite');
+    if (!res.data) return;
+    // Flag logs where GPS is far from known client sites
+    var anomalies = res.data.filter(function(l) {
+      if (!l.lat || !l.lng) return false;
+      var distFromShop = distanceMeters(l.lat, l.lng, SHOP_LAT, SHOP_LNG);
+      return distFromShop > 50000; // more than 50km from shop
+    });
+    if (anomalies.length > 0) {
+      var el = document.getElementById('gps-anomaly-banner');
+      if (el) {
+        el.style.display = 'block';
+        el.innerHTML = '🚩 '+anomalies.length+' GPS anomal'+(anomalies.length>1?'ies':'y')+' detected today';
+      }
+      console.warn('GPS anomalies:', anomalies);
+    }
+  } catch(e) {}
+}
+
+// Revenue per employee — admin dashboard
+async function loadEmployeeDashboard() {
+  if (!sb || !isAdmin(currentUserEmail)) return;
+  try {
+    var res = await sb.from('projects').select('created_by,amount,status,client_name,type,created_at')
+      .not('created_by','is',null);
+    if (res.error || !res.data) return {};
+    var byEmp = {};
+    res.data.forEach(function(p) {
+      var emp = p.created_by || 'unknown';
+      if (!byEmp[emp]) byEmp[emp] = {quotes:0, projects:0, revenue:0, delivered:0};
+      byEmp[emp].quotes++;
+      if (p.amount) byEmp[emp].revenue += p.amount;
+      if (p.status === 'done') byEmp[emp].delivered++;
+    });
+    return byEmp;
+  } catch(e) { return {}; }
+}
 
 // ══════════════════════════════════════════════════
 // INIT HOOK — called from launchApp & showPage
