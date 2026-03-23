@@ -4560,6 +4560,19 @@ async function loadCallGrid() {
   }).join('');
 }
 
+
+// Send WebRTC signal via broadcast channel (instant) + DB (reliable fallback)
+async function sendSignal(toUser, signalType, payload) {
+  var msg = {from_user: currentUserEmail, to_user: toUser, signal_type: signalType, payload: payload};
+  // Broadcast to their channel (instant, ~50ms)
+  var targetChannel = sb.channel('signal-'+toUser.replace(/[@.]/g,'_'));
+  try { await targetChannel.send({type:'broadcast', event:'webrtc_signal', payload: msg}); } catch(e) {}
+  // Also insert to DB as reliable fallback (covers reconnect scenarios)
+  if (signalType !== 'ice') {
+    try { await sb.from('webrtc_signals').insert([msg]); } catch(e) {}
+  }
+}
+
 function setupSignalRealtime() {
   if (!sb || signalSubscription) return;
   // Clean stale signals
@@ -4567,11 +4580,11 @@ function setupSignalRealtime() {
     var cutoff = new Date(Date.now()-60000).toISOString();
     sb.from('webrtc_signals').delete().lt('created_at', cutoff).then(function(){});
   } catch(e) {}
-  signalSubscription = sb.channel('webrtc-'+currentUserEmail.replace(/[@.]/g,'_'))
-    .on('postgres_changes', {event:'INSERT', schema:'public', table:'webrtc_signals'},
-      async function(payload) {
-        var sig = payload.new;
-        if (!sig || sig.to_user !== currentUserEmail) return;
+  var _sigChannelName = 'signal-'+currentUserEmail.replace(/[@.]/g,'_');
+  signalSubscription = sb.channel(_sigChannelName)
+    .on('broadcast', {event:'webrtc_signal'}, async function(payload) {
+      var sig = payload.payload;
+      if (!sig || sig.to_user !== currentUserEmail) return;
         if (sig.signal_type === 'offer') {
           incomingSignal = sig;
           callTarget = sig.from_user;
@@ -4590,9 +4603,26 @@ function setupSignalRealtime() {
           // Auto-answer countdown if enabled
           if (_autoAnswer) startAutoAnswerCountdown();
         } else if (sig.signal_type === 'answer' && peerConnection) {
-          try { await peerConnection.setRemoteDescription(new RTCSessionDescription(sig.payload.sdp)); } catch(e) { console.error(e); }
-        } else if (sig.signal_type === 'ice' && peerConnection && peerConnection.remoteDescription) {
-          try { await peerConnection.addIceCandidate(new RTCIceCandidate(sig.payload.candidate)); } catch(e) {}
+          try {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(sig.payload.sdp));
+            // Flush any buffered ICE candidates
+            if (window._iceCandidateBuffer && window._iceCandidateBuffer.length) {
+              for (var _ic of window._iceCandidateBuffer) {
+                try { await peerConnection.addIceCandidate(new RTCIceCandidate(_ic)); } catch(e) {}
+              }
+              window._iceCandidateBuffer = [];
+            }
+          } catch(e) { console.error(e); }
+        } else if (sig.signal_type === 'ice' && peerConnection) {
+          try {
+            if (peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
+              await peerConnection.addIceCandidate(new RTCIceCandidate(sig.payload.candidate));
+            } else {
+              // Buffer ICE candidates until remoteDescription is ready
+              if (!window._iceCandidateBuffer) window._iceCandidateBuffer = [];
+              window._iceCandidateBuffer.push(sig.payload.candidate);
+            }
+          } catch(e) { console.warn('ICE error:', e.message); }
         } else if (sig.signal_type === 'hangup') {
           hangup();
           toast((sig.from_user||'').split('@')[0]+' '+(currentLang==='fr'?'a raccroché':'hung up'));
@@ -4611,10 +4641,7 @@ function createPeer() {
   pc.onicecandidate = async function(e) {
     if (e.candidate && callTarget && sb) {
       try {
-        await sb.from('webrtc_signals').insert([{
-          from_user:currentUserEmail, to_user:callTarget,
-          signal_type:'ice', payload:{candidate:e.candidate}
-        }]);
+        await sendSignal(callTarget, 'ice', {candidate:e.candidate});
       } catch(err) {}
     }
   };
@@ -4667,7 +4694,7 @@ async function startCall(targetEmail, withVideo) {
   try {
     var offer=await peerConnection.createOffer();
     await peerConnection.setLocalDescription(offer);
-    await sb.from('webrtc_signals').insert([{from_user:currentUserEmail,to_user:targetEmail,signal_type:'offer',payload:{sdp:offer,is_video:withVideo}}]);
+    await sendSignal(targetEmail, 'offer', {sdp:offer, is_video:withVideo});
     toast(currentLang==='fr'?'📞 Appel envoyé...':'📞 Calling...');
   } catch(e) { toast('⚠️ '+e.message); hangup(); }
 }
@@ -4690,9 +4717,16 @@ async function acceptCall() {
   showCallOverlay(t('dyn_loading'));
   try {
     await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.sdp));
+    // Flush buffered ICE candidates
+    if (window._iceCandidateBuffer && window._iceCandidateBuffer.length) {
+      for (var _ic of window._iceCandidateBuffer) {
+        try { await peerConnection.addIceCandidate(new RTCIceCandidate(_ic)); } catch(e) {}
+      }
+      window._iceCandidateBuffer = [];
+    }
     var answer=await peerConnection.createAnswer();
     await peerConnection.setLocalDescription(answer);
-    await sb.from('webrtc_signals').insert([{from_user:currentUserEmail,to_user:from_user,signal_type:'answer',payload:{sdp:answer}}]);
+    await sendSignal(from_user, 'answer', {sdp:answer});
   } catch(e) { toast('⚠️ '+e.message); hangup(); }
 }
 
@@ -4722,7 +4756,7 @@ async function hangup() {
     try{await sb.from('webrtc_signals').insert([{from_user:currentUserEmail,to_user:callTarget,signal_type:'hangup',payload:{}}]);}catch(e){}
     try{await sb.from('webrtc_signals').delete().or('and(from_user.eq.'+currentUserEmail+',to_user.eq.'+callTarget+'),and(from_user.eq.'+callTarget+',to_user.eq.'+currentUserEmail+')');}catch(e){}
   }
-  callTarget=null; incomingSignal=null;
+  peerConnection=null; callTarget=null; incomingSignal=null; window._iceCandidateBuffer=[];
   var overlay=document.getElementById('call-overlay');
   if(overlay) overlay.classList.add('hidden');
   var lv=document.getElementById('local-video'),rv=document.getElementById('remote-video');
