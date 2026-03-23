@@ -898,6 +898,7 @@ function setLang(lang) {
   document.body.classList.add('lang-' + lang);
   document.getElementById('btn-en')?.classList.toggle('active', lang === 'en');
   document.getElementById('btn-fr')?.classList.toggle('active', lang === 'fr');
+  document.documentElement.lang = lang === 'fr' ? 'fr-CA' : 'en';
 }
 
 function initLang() {
@@ -1145,7 +1146,7 @@ async function loadProjects() {
     const paid = p.amount ? Math.round((p.amount - p.balance) / p.amount * 100) : 0;
     return `<div class="proj-card ${st.card}" onclick="openProject(${p.id})">
       <div class="proj-header">
-        <div><div class="proj-name">${p.name || '—'}</div><div class="proj-piece">${p.piece || '—'}</div></div>
+        <div><div class="proj-name">${p.name || '—'}</div><div class="proj-piece">${translateProjectType(p.piece)}</div></div>
         <span class="badge ${st.cls}">${st.label}</span>
       </div>
       <div class="proj-meta">
