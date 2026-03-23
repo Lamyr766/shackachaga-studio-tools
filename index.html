@@ -5193,7 +5193,7 @@ function showMsgTab(tab) {
     var el = document.getElementById('mtab-'+t);
     if (el) el.classList.toggle('active', t === tab);
   });
-  renderMessages();
+  renderInboxMessages();
 }
 
 function showComposeMessage() {
@@ -5257,12 +5257,12 @@ async function loadMessages() {
     for (var i = 0; i < _allMessages.length; i++) {
       _allMessages[i]._decrypted = await decryptMessage(_allMessages[i].body_enc, _allMessages[i].iv);
     }
-    renderMessages();
+    renderInboxMessages();
     updateMsgBadge();
   } catch(e) { console.error('loadMessages:', e); }
 }
 
-function renderMessages() {
+function renderInboxMessages() {
   var list = document.getElementById('msg-list');
   if (!list) return;
   var msgs = _allMessages.filter(function(m) {
@@ -5433,7 +5433,7 @@ async function deleteMessage(id) {
   await sb.from('secure_messages').delete().eq('id', id);
   closeModal('employee-modal');
   _allMessages = (_allMessages||[]).filter(function(m){ return m.id !== id; });
-  renderMessages();
+  renderInboxMessages();
   updateMsgBadge();
   toast(currentLang==='fr' ? '🗑 Message supprimé' : '🗑 Message deleted');
 }
