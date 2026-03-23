@@ -630,7 +630,7 @@ body.lang-en span.fr { display: none !important; }
 <div class="setup-screen" id="setup-screen" style="display:none!important;">
   <div class="setup-box">
     <div class="setup-logo">Le Shackachaga</div>
-    <div class="setup-sub">Studio Tools — One-time setup required. Enter your Supabase credentials to connect.</div>
+    <div class="setup-sub"><span class="en">Studio Tools — One-time setup required. Enter your Supabase credentials to connect.</span><span class="fr">Studio Tools — Configuration unique requise. Entrez vos identifiants Supabase pour vous connecter.</span></div>
     <div class="setup-step"><strong data-i18n="misc_step1"><span class="en">Step 1</span><span class="fr">Étape 1</span></strong> — Go to <code>supabase.com</code><span class="en">, create free project named</span><span class="fr">, créer un projet gratuit nommé</span> <code>shackachaga</code></div>
     <div class="setup-step"><strong data-i18n="misc_step2"><span class="en">Step 2</span><span class="fr">Étape 2</span></strong> <span class="en">— Run the SQL script below in Supabase SQL Editor</span><span class="fr">— Exécuter le script SQL ci-dessous dans l'éditeur Supabase</span></div>
     <div class="setup-step"><strong data-i18n="misc_step3"><span class="en">Step 3</span><span class="fr">Étape 3</span></strong> — Go to <strong><span class="en">Project Settings → API</span><span class="fr">Paramètres du projet → API</span></strong><span class="en">, copy URL and anon key below</span><span class="fr">, copier l'URL et la clé anon ci-dessous</span></div>
@@ -874,7 +874,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     </div>
 
     <div id="mat-section-fbm" class="mat-section" style="display:none;">
-      <div class="mat-section-title" id="mat-title-fbm">🪵 Wood Calculator — Board Feet / Prix au Pied de Planche</div>
+      <div class="mat-section-title" id="mat-title-fbm"><span class="en">🪵 Wood Calculator — Board Feet</span><span class="fr">🪵 Calculateur bois — Pieds de planche (PMP)</span></div>
       <div style="font-size:0.75rem;color:var(--wood-mid);margin-bottom:10px;" id="lbl-fbm-formula"><span class="en">Formula: (Thickness × Width × Length) ÷ 144 = Board Feet</span><span class="fr">Formule: (Épaisseur × Largeur × Longueur) ÷ 144 = PMP</span></div>
       <div id="fbm-boards-list"></div>
       <button class="btn btn-ghost btn-sm" onclick="addFBMBoard()" id="btn-add-board" style="margin-bottom:10px;"><span class="en">+ Add Board</span><span class="fr">+ Ajouter planche</span></button>
@@ -1181,7 +1181,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
         <option value="30">${t('dyn_30days')||'Last 30 days'}</option>
       </select>
     </div>
-    <div id="time-all-logs"><div class="empty-state"><p>Loading...</p></div></div>
+    <div id="time-all-logs"><div class="empty-state"><p><span class="en">Loading...</span><span class="fr">Chargement...</span></p></div></div>
   </div>
 </div>
 
@@ -1243,7 +1243,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <!-- Per-user auto-answer panel — admins only -->
     <div id="aa-user-panel" style="display:none;margin-top:8px;background:var(--wood-pale);border-radius:var(--radius-sm);padding:10px 12px;">
       <div style="font-size:0.72rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">👑 <span class="en">Team Auto-answer Status</span><span class="fr">Statut réponse auto — équipe</span></div>
-      <div id="aa-user-list"><div style="font-size:0.8rem;color:var(--wood-mid);">Loading team...</div></div>
+      <div id="aa-user-list"><div style="font-size:0.8rem;color:var(--wood-mid);"><span class="en">Loading team...</span><span class="fr">Chargement équipe...</span></div></div>
     </div>
   </div>
 
@@ -1513,4 +1513,4 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
 </div>
 
-<script src="app.js?v=13" defer></script>
+<script src="app.js?v=14" defer></script>
