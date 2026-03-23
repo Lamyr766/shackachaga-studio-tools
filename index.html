@@ -345,6 +345,20 @@ textarea{resize:vertical;min-height:65px;}
 .map-time-bar{height:8px;border-radius:4px;background:var(--wood-pale);margin-top:4px;overflow:hidden;}
 .map-time-fill{height:100%;border-radius:4px;background:var(--green-light);}
 
+
+/* VOICE MESSAGES */
+.voice-msg-wrap{display:flex;align-items:center;gap:8px;padding:4px 0;}
+.voice-play-btn{background:var(--wood-dark);border:none;color:white;border-radius:50%;width:32px;height:32px;cursor:pointer;flex-shrink:0;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
+.voice-play-btn.playing{background:var(--green);}
+.voice-waveform{flex:1;height:28px;background:var(--wood-pale);border-radius:14px;position:relative;overflow:hidden;cursor:pointer;}
+.voice-progress{height:100%;background:linear-gradient(90deg,var(--wood-mid),var(--wood-dark));border-radius:14px;transition:width 0.1s;width:0%;}
+.voice-duration{font-size:0.68rem;color:var(--wood-mid);flex-shrink:0;min-width:28px;text-align:right;}
+.voice-record-wrap{display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid var(--wood-pale);}
+.voice-record-btn{background:var(--red);border:none;color:white;border-radius:50%;width:36px;height:36px;font-size:1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.voice-record-btn.recording{background:#ff1744;animation:pulse-red 1s infinite;}
+@keyframes pulse-red{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+.voice-timer{font-size:0.78rem;color:var(--red);font-weight:700;min-width:36px;}
+
 </style>
 </head>
 <body>
@@ -960,7 +974,14 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <div class="chat-messages" id="chat-messages">
         <div class="empty-state" style="padding:30px;"><div class="icon">💬</div><p id="chat-empty-text">No messages yet. Say hello!</p></div>
       </div>
+      <div class="voice-record-wrap" id="voice-record-wrap" style="display:none;">
+        <button class="voice-record-btn" id="voice-record-btn" onclick="toggleVoiceRecord()">🎤</button>
+        <div class="voice-timer" id="voice-timer">0:00</div>
+        <div style="flex:1;font-size:0.78rem;color:var(--wood-mid);" id="voice-record-hint">Hold to record, release to send</div>
+        <button class="btn btn-ghost btn-sm" onclick="cancelVoiceRecord()" style="padding:4px 10px;">✕</button>
+      </div>
       <div class="chat-input-wrap">
+        <button class="call-btn" onclick="toggleVoicePanel()" title="Voice message" style="background:var(--wood-pale);color:var(--wood-dark);flex-shrink:0;width:36px;height:36px;border:none;border-radius:50%;cursor:pointer;font-size:1rem;">🎙️</button>
         <input type="text" id="chat-input" placeholder="Type a message..." data-i18n-ph="ph_chat"
           onkeydown="if(event.key==='Enter')sendMessage()">
         <button class="chat-send-btn" onclick="sendMessage()">➤</button>
@@ -2368,6 +2389,14 @@ function launchApp() {
   loadSavedPosts();
   loadClients();
   initRevenueYears();
+  // Request GPS permission immediately on login (before initTeam)
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(pos) { console.log('GPS permission granted'); },
+      function(err) { console.warn('GPS permission denied or unavailable'); },
+      { enableHighAccuracy: false, timeout: 5000 }
+    );
+  }
   initTeam();
   setupRealtimeSync();
   // Add global search bar to header
@@ -2646,6 +2675,20 @@ function exportQuotePDF(p) {
 .map-loc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 .map-time-bar{height:8px;border-radius:4px;background:var(--wood-pale);margin-top:4px;overflow:hidden;}
 .map-time-fill{height:100%;border-radius:4px;background:var(--green-light);}
+
+
+/* VOICE MESSAGES */
+.voice-msg-wrap{display:flex;align-items:center;gap:8px;padding:4px 0;}
+.voice-play-btn{background:var(--wood-dark);border:none;color:white;border-radius:50%;width:32px;height:32px;cursor:pointer;flex-shrink:0;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
+.voice-play-btn.playing{background:var(--green);}
+.voice-waveform{flex:1;height:28px;background:var(--wood-pale);border-radius:14px;position:relative;overflow:hidden;cursor:pointer;}
+.voice-progress{height:100%;background:linear-gradient(90deg,var(--wood-mid),var(--wood-dark));border-radius:14px;transition:width 0.1s;width:0%;}
+.voice-duration{font-size:0.68rem;color:var(--wood-mid);flex-shrink:0;min-width:28px;text-align:right;}
+.voice-record-wrap{display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid var(--wood-pale);}
+.voice-record-btn{background:var(--red);border:none;color:white;border-radius:50%;width:36px;height:36px;font-size:1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.voice-record-btn.recording{background:#ff1744;animation:pulse-red 1s infinite;}
+@keyframes pulse-red{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+.voice-timer{font-size:0.78rem;color:var(--red);font-weight:700;min-width:36px;}
 
 </style></head><body>
 <div class="logo">Le Shackachaga</div>
@@ -3309,7 +3352,15 @@ var _lastLng           = null;
 var _locTimer          = null;
 
 // Restricted map users
-var MAP_ADMIN_USERS = ['thebigjay766@gmail.com', 'matg32'];
+var ADMIN_USERS = ['thebigjay766@gmail.com', 'matg32'];
+var MAP_ADMIN_USERS = ADMIN_USERS; // alias
+
+function isAdmin(email) {
+  if (!email) return false;
+  return ADMIN_USERS.some(function(u) {
+    return email === u || email.startsWith(u + '@') || email.includes(u);
+  });
+}
 
 // Shop coordinates — Gatineau QC (update to your exact address)
 var SHOP_LAT = 45.4765;
@@ -3342,10 +3393,12 @@ async function initTeam() {
     setupChatRealtime();
     setupSignalRealtime();
     setupLocationRealtime(); // this also tracks presence
-    // Start 30s refresh
+    // Start GPS tracking immediately on login
+    startBackgroundGPS();
+    // Ping presence every 30s
     if (_locTimer) clearInterval(_locTimer);
     _locTimer = setInterval(function() {
-      if (currentUserEmail && sb) { pingPresence(); loadTeamLocations(); }
+      if (currentUserEmail && sb) { pingPresence(); if (isAdmin(currentUserEmail)) loadTeamLocations(); }
     }, 30000);
     // Initial load
     await loadChat();
@@ -3359,12 +3412,19 @@ async function initTeam() {
 }
 
 function updateMapTabVisibility() {
+  var admin = isAdmin(currentUserEmail);
+  // Team tab — admins only
+  var teamTab = document.getElementById('tab-team');
+  if (teamTab) teamTab.style.display = admin ? '' : 'none';
+  // Map tab — admins only
   var mapTab = document.getElementById('tab-map');
-  if (!mapTab) return;
-  var canSeeMap = MAP_ADMIN_USERS.some(function(u) {
-    return currentUserEmail && (currentUserEmail === u || currentUserEmail.startsWith(u));
-  });
-  mapTab.style.display = canSeeMap ? '' : 'none';
+  if (mapTab) mapTab.style.display = admin ? '' : 'none';
+  // If current page is team/map and user is not admin, redirect to quote
+  var activePage = document.querySelector('.page.active');
+  if (activePage && !admin) {
+    var id = activePage.id;
+    if (id === 'page-team' || id === 'page-map') showPage('quote');
+  }
 }
 
 // ── SUB-TAB NAVIGATION ───────────────────────────
@@ -3640,21 +3700,28 @@ function setupChatRealtime() {
     .on('broadcast', { event: 'chat_msg' }, function(payload) {
       var m = payload.payload;
       if (!m || m.sender_email === currentUserEmail) return;
-      var el = document.getElementById('chat-messages');
-      if (!el) return;
-      var empty = el.querySelector('.empty-state');
-      if (empty) empty.remove();
-      var d = new Date(m.created_at||Date.now());
-      var timeStr = d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-      var name = m.sender_name || (m.sender_email||'').split('@')[0];
-      var div = document.createElement('div');
-      div.className = 'chat-msg theirs';
-      div.innerHTML = '<div class="chat-msg-name">'+escapeHtml(name)+'</div>'+
-        '<div>'+escapeHtml(m.content)+'</div>'+
-        '<div class="chat-msg-time">'+timeStr+'</div>';
-      el.appendChild(div);
-      el.scrollTop = el.scrollHeight;
-      toast('💬 '+name+': '+(m.content||'').substring(0,40));
+      if (m.content === '__VOICE__' && m.voice_data) {
+        appendVoiceMessage(m, false);
+        var name = m.sender_name || (m.sender_email||'').split('@')[0];
+        toast('🎙️ '+name+' '+(currentLang==='fr'?'a envoyé un message vocal':'sent a voice message'));
+        if (navigator.vibrate) navigator.vibrate([100]);
+      } else {
+        var el = document.getElementById('chat-messages');
+        if (!el) return;
+        var empty = el.querySelector('.empty-state');
+        if (empty) empty.remove();
+        var d = new Date(m.created_at||Date.now());
+        var timeStr = d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        var name = m.sender_name || (m.sender_email||'').split('@')[0];
+        var div = document.createElement('div');
+        div.className = 'chat-msg theirs';
+        div.innerHTML = '<div class="chat-msg-name">'+escapeHtml(name)+'</div>'+
+          '<div>'+escapeHtml(m.content)+'</div>'+
+          '<div class="chat-msg-time">'+timeStr+'</div>';
+        el.appendChild(div);
+        el.scrollTop = el.scrollHeight;
+        toast('💬 '+name+': '+(m.content||'').substring(0,40));
+      }
     })
     .subscribe(function(status) {
       console.log('Chat channel:', status);
@@ -4106,6 +4173,217 @@ async function loadMapHistory() {
       '</div>';
     }).join('');
   } catch(e) { el.innerHTML = '<div class="empty-state"><p>History unavailable</p></div>'; }
+}
+
+// ══════════════════════════════════════════════════
+// VOICE MESSAGES
+// ══════════════════════════════════════════════════
+var _mediaRecorder  = null;
+var _audioChunks    = [];
+var _recordTimer    = null;
+var _recordSecs     = 0;
+var _isRecording    = false;
+var _currentAudios  = {}; // id → Audio object
+
+function toggleVoicePanel() {
+  var wrap = document.getElementById('voice-record-wrap');
+  if (!wrap) return;
+  var visible = wrap.style.display !== 'none';
+  wrap.style.display = visible ? 'none' : 'flex';
+  if (!visible) document.getElementById('chat-input').style.display = 'none';
+  else { document.getElementById('chat-input').style.display = ''; cancelVoiceRecord(); }
+}
+
+async function toggleVoiceRecord() {
+  if (_isRecording) {
+    stopVoiceRecord();
+  } else {
+    await startVoiceRecord();
+  }
+}
+
+async function startVoiceRecord() {
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    _audioChunks = [];
+    _recordSecs  = 0;
+    // Use webm/opus for best compression — fallback to default
+    var mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus'
+      : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+    var opts = mimeType ? { mimeType: mimeType, audioBitsPerSecond: 32000 } : { audioBitsPerSecond: 32000 };
+    _mediaRecorder = new MediaRecorder(stream, opts);
+    _mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) _audioChunks.push(e.data); };
+    _mediaRecorder.onstop = function() {
+      stream.getTracks().forEach(function(t) { t.stop(); });
+      sendVoiceMessage();
+    };
+    _mediaRecorder.start(250); // collect data every 250ms
+    _isRecording = true;
+    var btn = document.getElementById('voice-record-btn');
+    if (btn) { btn.textContent = '⏹'; btn.classList.add('recording'); }
+    var hint = document.getElementById('voice-record-hint');
+    if (hint) hint.textContent = currentLang === 'fr' ? '🔴 Enregistrement...' : '🔴 Recording...';
+    // Timer
+    _recordTimer = setInterval(function() {
+      _recordSecs++;
+      var t = document.getElementById('voice-timer');
+      if (t) t.textContent = Math.floor(_recordSecs/60) + ':' + ('0'+(_recordSecs%60)).slice(-2);
+      if (_recordSecs >= 120) stopVoiceRecord(); // max 2 min
+    }, 1000);
+  } catch(e) {
+    toast('⚠️ ' + (currentLang==='fr' ? 'Micro refusé' : 'Mic denied'));
+  }
+}
+
+function stopVoiceRecord() {
+  if (!_isRecording || !_mediaRecorder) return;
+  _isRecording = false;
+  clearInterval(_recordTimer);
+  _mediaRecorder.stop();
+  var btn = document.getElementById('voice-record-btn');
+  if (btn) { btn.textContent = '🎤'; btn.classList.remove('recording'); }
+  var t = document.getElementById('voice-timer');
+  if (t) t.textContent = '0:00';
+  var hint = document.getElementById('voice-record-hint');
+  if (hint) hint.textContent = currentLang==='fr' ? 'Envoi...' : 'Sending...';
+}
+
+function cancelVoiceRecord() {
+  if (_isRecording && _mediaRecorder) {
+    _isRecording = false;
+    clearInterval(_recordTimer);
+    _mediaRecorder.stream && _mediaRecorder.stream.getTracks().forEach(function(t){ t.stop(); });
+    _mediaRecorder = null;
+  }
+  _audioChunks = [];
+  _recordSecs = 0;
+  var btn = document.getElementById('voice-record-btn');
+  if (btn) { btn.textContent = '🎤'; btn.classList.remove('recording'); }
+  var t = document.getElementById('voice-timer');
+  if (t) t.textContent = '0:00';
+  var wrap = document.getElementById('voice-record-wrap');
+  if (wrap) wrap.style.display = 'none';
+  var input = document.getElementById('chat-input');
+  if (input) input.style.display = '';
+}
+
+async function sendVoiceMessage() {
+  if (!_audioChunks.length || !currentUserEmail || !chatSubscription) return;
+  var mimeType = _audioChunks[0].type || 'audio/webm';
+  var blob = new Blob(_audioChunks, { type: mimeType });
+  var durationSecs = _recordSecs;
+  // Convert to base64 for storage/broadcast
+  var reader = new FileReader();
+  reader.onloadend = async function() {
+    var base64 = reader.result; // data:audio/webm;base64,...
+    var msg = {
+      sender_email: currentUserEmail,
+      sender_name:  currentUserName || currentUserEmail.split('@')[0],
+      content:      '__VOICE__',
+      room:         'team',
+      voice_data:   base64,
+      voice_duration: durationSecs,
+      created_at:   new Date().toISOString()
+    };
+    // Show in own chat immediately
+    appendVoiceMessage(msg, true);
+    // Broadcast to all
+    if (chatSubscription && chatSubscription.send) {
+      chatSubscription.send({ type:'broadcast', event:'chat_msg', payload: msg });
+    }
+    // Save to DB (store voice as content with base64 in separate field)
+    try {
+      await sb.from('messages').insert([{
+        sender_email: msg.sender_email,
+        sender_name:  msg.sender_name,
+        content:      '__VOICE__:'+durationSecs+'s',
+        room:         msg.room,
+        // Note: base64 audio is broadcast-only for bandwidth reasons
+        // For persistence store URL if Supabase Storage is set up
+      }]);
+    } catch(e) { /* ok */ }
+    cancelVoiceRecord();
+    toast(currentLang==='fr' ? '🎙️ Message vocal envoyé!' : '🎙️ Voice message sent!');
+  };
+  reader.readAsDataURL(blob);
+}
+
+function appendVoiceMessage(m, isMine) {
+  var el = document.getElementById('chat-messages');
+  if (!el) return;
+  var empty = el.querySelector('.empty-state');
+  if (empty) empty.remove();
+  var msgId = 'vm' + Date.now() + Math.floor(Math.random()*9999);
+  var name = m.sender_name || (m.sender_email||'').split('@')[0];
+  var timeStr = new Date(m.created_at||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  var durationSecs = m.voice_duration || 0;
+  var durStr = Math.floor(durationSecs/60)+':'+('0'+(durationSecs%60)).slice(-2);
+  var div = document.createElement('div');
+  div.className = 'chat-msg ' + (isMine ? 'mine' : 'theirs');
+  div.id = msgId;
+  if (m.voice_data) div.dataset.audioSrc = m.voice_data;
+  // Build HTML safely without nested quotes
+  var nameHtml = isMine ? '' : '<div class="chat-msg-name">'+escapeHtml(name)+'</div>';
+  div.innerHTML = nameHtml +
+    '<div class="voice-msg-wrap">' +
+      '<button class="voice-play-btn" id="pbtn-'+msgId+'">&#9654;</button>' +
+      '<div class="voice-waveform" id="wf-'+msgId+'">' +
+        '<div class="voice-progress" id="vprog-'+msgId+'"></div>' +
+      '</div>' +
+      '<span class="voice-duration" id="vdur-'+msgId+'">'+durStr+'</span>' +
+    '</div>' +
+    '<div class="chat-msg-time">&#127897; '+timeStr+'</div>';
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+  // Wire click handlers after DOM insert
+  var pb = document.getElementById('pbtn-'+msgId);
+  var wf = document.getElementById('wf-'+msgId);
+  if (pb) pb.onclick = function(){ playVoiceMsg(msgId); };
+  if (wf) wf.onclick = function(){ playVoiceMsg(msgId); };
+}
+
+function playVoiceMsg(msgId) {
+  var div = document.getElementById(msgId);
+  if (!div || !div.dataset.audioSrc) {
+    toast(currentLang==='fr' ? '⚠️ Audio non disponible' : '⚠️ Audio not available (live only)');
+    return;
+  }
+  // Stop any currently playing
+  Object.keys(_currentAudios).forEach(function(id) {
+    if (id !== msgId && _currentAudios[id]) {
+      _currentAudios[id].pause();
+      var pb = document.getElementById('pbtn-'+id);
+      if (pb) { pb.textContent = '▶'; pb.classList.remove('playing'); }
+    }
+  });
+  var audio = _currentAudios[msgId];
+  if (!audio) {
+    audio = new Audio(div.dataset.audioSrc);
+    _currentAudios[msgId] = audio;
+    audio.ontimeupdate = function() {
+      var pct = audio.duration ? (audio.currentTime / audio.duration * 100) : 0;
+      var prog = document.getElementById('vprog-'+msgId);
+      if (prog) prog.style.width = pct + '%';
+      var dur = document.getElementById('vdur-'+msgId);
+      var rem = audio.duration - audio.currentTime;
+      if (dur && !isNaN(rem)) dur.textContent = Math.floor(rem/60)+':'+('0'+Math.floor(rem%60)).slice(-2);
+    };
+    audio.onended = function() {
+      var pb = document.getElementById('pbtn-'+msgId);
+      if (pb) { pb.textContent = '▶'; pb.classList.remove('playing'); }
+      var prog = document.getElementById('vprog-'+msgId);
+      if (prog) prog.style.width = '0%';
+    };
+  }
+  var pb = document.getElementById('pbtn-'+msgId);
+  if (audio.paused) {
+    audio.play().catch(function(){});
+    if (pb) { pb.textContent = '⏸'; pb.classList.add('playing'); }
+  } else {
+    audio.pause();
+    if (pb) { pb.textContent = '▶'; pb.classList.remove('playing'); }
+  }
 }
 </script>
 
