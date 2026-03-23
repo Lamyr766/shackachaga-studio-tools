@@ -3469,6 +3469,67 @@ function setupLocationRealtime() {
   });
 }
 
+
+// ── BACKGROUND GPS ENGINE ────────────────────────
+var _gpsWatchId  = null;
+var _gpsInterval = null;
+var _wakeLock    = null;
+var _lastGPSPing = 0;
+
+function startBackgroundGPS() {
+  if (!navigator.geolocation || !currentUserEmail) return;
+  if (_gpsWatchId) navigator.geolocation.clearWatch(_gpsWatchId);
+  if (_gpsInterval) clearInterval(_gpsInterval);
+  silentGPSPing();
+  _gpsWatchId = navigator.geolocation.watchPosition(
+    function(pos) {
+      var now = Date.now();
+      if (now - _lastGPSPing < 60000) return;
+      _lastGPSPing = now;
+      var lat = pos.coords.latitude;
+      var lng = pos.coords.longitude;
+      var dist = distanceMeters(lat, lng, SHOP_LAT, SHOP_LNG);
+      upsertMyLocation(lat, lng, 'online', dist < SHOP_RADIUS_M ? 'shop' : (_lastLocType||'onsite'));
+    },
+    function(err) { console.warn('GPS watch:', err.code); },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+  );
+  _gpsInterval = setInterval(silentGPSPing, 5 * 60 * 1000);
+  requestWakeLock();
+  console.log('Background GPS started');
+}
+
+function silentGPSPing() {
+  if (!navigator.geolocation || !currentUserEmail) return;
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      _lastGPSPing = Date.now();
+      var lat = pos.coords.latitude;
+      var lng = pos.coords.longitude;
+      var dist = distanceMeters(lat, lng, SHOP_LAT, SHOP_LNG);
+      upsertMyLocation(lat, lng, 'online', dist < SHOP_RADIUS_M ? 'shop' : (_lastLocType||'onsite'));
+    },
+    function() { upsertMyLocation(null, null, 'online', _lastLocType||'shop'); },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 120000 }
+  );
+}
+
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      _wakeLock = await navigator.wakeLock.request('screen');
+      _wakeLock.addEventListener('release', function() { setTimeout(requestWakeLock, 5000); });
+    }
+  } catch(e) { console.warn('Wake lock:', e.message); }
+}
+
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') {
+    requestWakeLock();
+    silentGPSPing();
+  }
+});
+
 async function pingPresence() {
   if (!locSubscription || !locSubscription.track || !currentUserEmail) return;
   try {
