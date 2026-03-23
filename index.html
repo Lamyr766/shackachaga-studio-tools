@@ -631,9 +631,9 @@ body.lang-en span.fr { display: none !important; }
   <div class="setup-box">
     <div class="setup-logo">Le Shackachaga</div>
     <div class="setup-sub">Studio Tools — One-time setup required. Enter your Supabase credentials to connect.</div>
-    <div class="setup-step"><strong data-i18n="misc_step1"><span class="en">Step 1</span><span class="fr">Étape 1</span></strong> — Go to <code>supabase.com</code>, create free project named <code>shackachaga</code></div>
-    <div class="setup-step"><strong data-i18n="misc_step2"><span class="en">Step 2</span><span class="fr">Étape 2</span></strong> — Run the SQL script below in Supabase SQL Editor</div>
-    <div class="setup-step"><strong data-i18n="misc_step3"><span class="en">Step 3</span><span class="fr">Étape 3</span></strong> — Go to <strong>Project Settings → API</strong>, copy URL and anon key below</div>
+    <div class="setup-step"><strong data-i18n="misc_step1"><span class="en">Step 1</span><span class="fr">Étape 1</span></strong> — Go to <code>supabase.com</code><span class="en">, create free project named</span><span class="fr">, créer un projet gratuit nommé</span> <code>shackachaga</code></div>
+    <div class="setup-step"><strong data-i18n="misc_step2"><span class="en">Step 2</span><span class="fr">Étape 2</span></strong> <span class="en">— Run the SQL script below in Supabase SQL Editor</span><span class="fr">— Exécuter le script SQL ci-dessous dans l'éditeur Supabase</span></div>
+    <div class="setup-step"><strong data-i18n="misc_step3"><span class="en">Step 3</span><span class="fr">Étape 3</span></strong> — Go to <strong><span class="en">Project Settings → API</span><span class="fr">Paramètres du projet → API</span></strong><span class="en">, copy URL and anon key below</span><span class="fr">, copier l'URL et la clé anon ci-dessous</span></div>
     <label><span class="en">Supabase Project URL</span><span class="fr">URL du projet Supabase</span></label>
     <input type="text" id="setup-url" placeholder="https://xxxx.supabase.co">
     <label><span class="en">Supabase Anon Key</span><span class="fr">Clé Anon Supabase</span></label>
@@ -759,7 +759,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <div class="setup-screen" id="login-screen" style="display:none;">
   <div class="setup-box">
     <div class="setup-logo">Le Shackachaga</div>
-    <div class="setup-sub" style="margin-bottom:20px;"><span id="login-subtitle-text">Studio Tools — Sign in to continue</span></div>
+    <div class="setup-sub" style="margin-bottom:20px;"><span id="login-subtitle-text"><span class="en">Studio Tools — Sign in to continue</span><span class="fr">Studio Tools — Connectez-vous pour continuer</span></span></div>
     <div id="login-error" style="display:none;background:#FDECEA;color:var(--red);padding:10px 12px;border-radius:var(--radius-sm);font-size:0.82rem;margin-bottom:12px;"></div>
     <label data-i18n="lbl_email"><span class="en">Email</span><span class="fr">Courriel</span></label>
     <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
@@ -846,7 +846,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     </div>
     <!-- DYNAMIC MATERIAL SECTION — switches based on project type -->
     <div id="mat-section-tables" class="mat-section" style="display:none;">
-      <div class="mat-section-title" id="mat-title-tables">📐 Table Size Chart — Select a standard size</div>
+      <div class="mat-section-title" id="mat-title-tables"><span class="en">📐 Table Size Chart — Select a standard size</span><span class="fr">📐 Tableau des dimensions — Sélectionnez une taille standard</span></div>
       <div class="size-chart" id="size-chart-btns"></div>
       <div id="custom-size-row" style="display:none;">
         <div style="font-size:0.78rem;color:var(--wood-mid);margin-bottom:6px;" id="lbl-custom-dims"><span class="en">Custom dimensions:</span><span class="fr">Dimensions personnalisées:</span></div>
@@ -1014,7 +1014,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     </div>
     <label data-i18n="lbl_vision"><span class="en">Vision Description</span><span class="fr">Description de la vision</span></label>
     <textarea id="i-vis" placeholder="Ce que le client imagine..." data-i18n-ph="ph_vision"></textarea>
-    <div class="intake-section-title">C — Budget & Timeline</div>
+    <div class="intake-section-title"><span class="en">C — Budget &amp; Timeline</span><span class="fr">C — Budget &amp; Délais</span></div>
     <div class="row-2">
       <div><label data-i18n="lbl_budget_range"><span class="en">Budget Range</span><span class="fr">Budget prévu</span></label>
         <select id="i-bud"><option><span class="en">Under $500</span><span class="fr">Moins de 500$</span></option><option>$500–$1,000</option><option>$1,000–$2,500</option><option>$2,500–$5,000</option><option>$5,000+</option><option><span class="en">Prefer to discuss</span><span class="fr">Préfère en discuter</span></option></select>
@@ -1513,4 +1513,4 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
 </div>
 
-<script src="app.js?v=12" defer></script>
+<script src="app.js?v=13" defer></script>
