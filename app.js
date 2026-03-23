@@ -899,6 +899,8 @@ function setLang(lang) {
   document.getElementById('btn-en')?.classList.toggle('active', lang === 'en');
   document.getElementById('btn-fr')?.classList.toggle('active', lang === 'fr');
   document.documentElement.lang = lang === 'fr' ? 'fr-CA' : 'en';
+  // Apply all translations immediately
+  applyTranslations();
 }
 
 function initLang() {
