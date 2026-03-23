@@ -176,7 +176,7 @@ var T = {
     voice_unavailable: 'Audio not available (live only)',
     voice_incoming: 'sent a voice message',
     // ── GPS / Time tracker ────────────────────────
-    gps_getting: '📍 Getting GPS...',
+    gps_getting: currentLang==='fr'?'📍 Localisation...':'📍 Getting GPS...',
     gps_unavailable: '⚠️ GPS not available',
     gps_denied: '⚠️ GPS denied — manual type set',
     gps_updated: '📍 Location updated!',
@@ -1312,7 +1312,7 @@ async function loadWoodStock() {
 
 function openAddWood() {
   currentWoodId = null;
-  document.getElementById('wm-title').textContent = 'Add Material';
+  document.getElementById('wm-title').textContent = currentLang==='fr'?'Ajouter matériau':'Add Material';
   ['wm-id','wm-species','wm-grade','wm-supplier','wm-qty','wm-cost','wm-notes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('wm-unit').value = 'slabs';
   document.getElementById('wm-del-btn').style.display = 'none';
@@ -1323,7 +1323,7 @@ function openEditWood(id) {
   const w = woodItems.find(x => x.id === id);
   if (!w) return;
   currentWoodId = id;
-  document.getElementById('wm-title').textContent = 'Edit Material';
+  document.getElementById('wm-title').textContent = currentLang==='fr'?'Modifier matériau':'Edit Material';
   document.getElementById('wm-id').value = id;
   document.getElementById('wm-species').value = w.species||'';
   document.getElementById('wm-grade').value = w.grade||'';
@@ -1461,7 +1461,7 @@ async function doLogin() {
   const btn   = document.getElementById('login-btn');
   const errEl = document.getElementById('login-error');
   if (!email || !pw) { showLoginError('Please enter your email and password.'); return; }
-  btn.disabled = true; btn.textContent = 'Signing in...';
+  btn.disabled = true; btn.textContent = currentLang==='fr'?'Connexion...':'Signing in...';
   errEl.style.display = 'none';
   const { error } = await sb.auth.signInWithPassword({ email, password: pw });
   if (error) {
@@ -2299,14 +2299,14 @@ function toggleClock() {
     document.getElementById('btn-clock').textContent = t('time_clock_out');
     document.getElementById('clock-btn').className = 'btn btn-red btn-block';
     document.getElementById('clock-display').className = 'clock-display clock-running';
-    document.getElementById('clock-gps').textContent = '📍 Getting GPS...';
+    document.getElementById('clock-gps').textContent = currentLang==='fr'?'📍 Localisation...':'📍 Getting GPS...';
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(pos => {
         currentGPS = {lat: pos.coords.latitude, lng: pos.coords.longitude};
         document.getElementById('clock-gps').textContent =
           `📍 ${currentGPS.lat.toFixed(4)}, ${currentGPS.lng.toFixed(4)} · ${currentLocType}`;
       }, () => {
-        document.getElementById('clock-gps').textContent = '📍 GPS unavailable';
+        document.getElementById('clock-gps').textContent = currentLang==='fr'?'📍 GPS non disponible':'📍 GPS unavailable';
         currentGPS = null;
       });
     }
@@ -3178,7 +3178,7 @@ function renderTeamLocations(members) {
     shop:   {en:'At Shop',     fr:'À l\'atelier',    cls:'loc-shop-badge',   icon:'🏭'},
     travel: {en:'Travelling',  fr:'En déplacement',  cls:'loc-travel-badge', icon:'🚗'},
     onsite: {en:'On-site',     fr:'Sur le chantier', cls:'loc-onsite-badge', icon:'🏗️'},
-    offline:{en:'Offline',     fr:'Hors ligne',       cls:'loc-offline-badge',icon:'⬛'}
+    offline:{en:currentLang==='fr'?'Hors ligne':'Offline',     fr:'Hors ligne',       cls:'loc-offline-badge',icon:'⬛'}
   };
   el.innerHTML = members.map(function(m) {
     var initials = (m.display_name||m.user_email||'?').substring(0,2).toUpperCase();
@@ -3207,7 +3207,7 @@ function renderTeamLocations(members) {
 async function updateMyLocation() {
   var locType = document.getElementById('manual-loc-type') ? document.getElementById('manual-loc-type').value : 'shop';
   var infoEl = document.getElementById('my-location-info');
-  if (infoEl) infoEl.textContent = currentLang==='fr' ? '📍 Obtention du GPS...' : '📍 Getting GPS...';
+  if (infoEl) infoEl.textContent = currentLang==='fr' ? '📍 Obtention du GPS...' : currentLang==='fr'?'📍 Localisation...':'📍 Getting GPS...';
   if (!navigator.geolocation) {
     await upsertMyLocation(null, null, 'online', locType);
     if (infoEl) infoEl.textContent = currentLang==='fr' ? '⚠️ GPS non disponible' : '⚠️ GPS not available';
@@ -3405,7 +3405,7 @@ async function loadCallGrid() {
     return '<div class="call-user-card">'+
       '<div class="call-avatar" style="background:'+(online?'var(--green)':'#90A4AE')+'">'+initials+'</div>'+
       '<div class="call-user-name">'+escapeHtml(name)+'</div>'+
-      '<div style="font-size:0.7rem;color:var(--wood-mid);margin-bottom:8px;">'+(online?(currentLang==='fr'?'En ligne':'Online'):(currentLang==='fr'?'Hors ligne':'Offline'))+'</div>'+
+      '<div style="font-size:0.7rem;color:var(--wood-mid);margin-bottom:8px;">'+(online?(currentLang==='fr'?'En ligne':currentLang==='fr'?'En ligne':'Online'):(currentLang==='fr'?'Hors ligne':currentLang==='fr'?'Hors ligne':'Offline'))+'</div>'+
       '<div class="call-btns">'+
         '<button class="call-btn call-btn-voice" onclick="startCall(\''+m.user_email+'\',false)" title="Voice">📞</button>'+
         '<button class="call-btn call-btn-video" onclick="startCall(\''+m.user_email+'\',true)"  title="Video">🎥</button>'+
@@ -4274,7 +4274,7 @@ function renderMapTeamList(members) {
     var locLbl = m.location_type === 'shop'   ? '🏭 '+(currentLang==='fr'?'Atelier':'Shop') :
                  m.location_type === 'travel' ? '🚗 '+(currentLang==='fr'?'Déplacement':'Travel') :
                  m.location_type === 'onsite' ? '🏗️ '+(currentLang==='fr'?'Chantier':'On-site') :
-                 '⬛ '+(currentLang==='fr'?'Hors ligne':'Offline');
+                 '⬛ '+(currentLang==='fr'?'Hors ligne':currentLang==='fr'?'Hors ligne':'Offline');
     var updated = m.updated_at ? new Date(m.updated_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
     return '<div class="map-user-row">' +
       '<div style="width:36px;height:36px;border-radius:50%;background:'+color+';color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;flex-shrink:0;">'+escapeHtml(name.charAt(0).toUpperCase())+'</div>'+
@@ -4366,7 +4366,7 @@ async function loadMapHistory() {
       var locLbl  = r.location_type === 'shop'   ? '🏭 '+(currentLang==='fr'?'Atelier':'Shop') :
                     r.location_type === 'travel' ? '🚗 '+(currentLang==='fr'?'Déplacement':'Travel') :
                     r.location_type === 'onsite' ? '🏗️ '+(currentLang==='fr'?'Chantier':'On-site') :
-                    '⬛ '+(currentLang==='fr'?'Hors ligne':'Offline');
+                    '⬛ '+(currentLang==='fr'?'Hors ligne':currentLang==='fr'?'Hors ligne':'Offline');
       var coordStr = (r.lat && r.lng) ? r.lat.toFixed(4)+', '+r.lng.toFixed(4) : '—';
       return '<div class="map-user-row" style="cursor:'+(r.lat&&r.lng?'pointer':'default')+'" onclick="'+(r.lat&&r.lng?'if(_leafletMap){_leafletMap.setView(['+r.lat+','+r.lng+'],16);}':'')+'">' +
         '<div style="width:30px;height:30px;border-radius:50%;background:'+color+';color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.78rem;flex-shrink:0;">'+escapeHtml(name.charAt(0).toUpperCase())+'</div>'+
