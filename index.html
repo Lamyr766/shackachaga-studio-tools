@@ -1794,17 +1794,19 @@ var T = {
 window.T = T;
 
 function t(key) {
-  var _T = (typeof T !== 'undefined') ? T : window.T;
-  var _lang = (typeof currentLang !== 'undefined' && currentLang) ? currentLang : 'en';
-  if (!_T) return key;
-  return (_T[_lang] && _T[_lang][key]) || _T['en'][key] || key;
+  try {
+    var _T = window.T || T;
+    var _lang = (window.currentLang || 'en');
+    if (!_T || !_T[_lang]) return (_T && _T['en'] && _T['en'][key]) || key;
+    return _T[_lang][key] || (_T['en'] && _T['en'][key]) || key;
+  } catch(e) { return key; }
 }
 
 
 // ══════════════════════════════════════════════════
 // DROPDOWN / SELECT TRANSLATIONS
 // ══════════════════════════════════════════════════
-const SELECT_OPTIONS = {
+var SELECT_OPTIONS = {
   'q-type': {
     en: ['— Select —','Epoxy River Table','Dining / Coffee Table','Wood Sink','Bathroom Vanity','Custom Desk','Staircase / Structure','Art Piece / Collectible','Other Custom Piece'],
     fr: ['— Sélectionner —','Table époxy rivière','Table salle à manger / café','Évier en bois','Vanité de salle de bain','Bureau sur mesure','Escalier / Structure','Pièce d\'art / Collectionnable','Autre pièce sur mesure']
@@ -2057,8 +2059,8 @@ function initLang() {
 // ══════════════════════════════════════════════════
 // SUPABASE CONFIG
 // ══════════════════════════════════════════════════
-const SUPABASE_URL_KEY = 'shack_sb_url';
-const SUPABASE_KEY_KEY = 'shack_sb_key';
+var SUPABASE_URL_KEY = 'shack_sb_url';
+var SUPABASE_KEY_KEY = 'shack_sb_key';
 var sb = null;
 var lastQuote = null;
 var currentWoodId = null;
@@ -2778,8 +2780,8 @@ if (window.innerWidth < 600) {
 }
 
 // Pre-configured — no setup needed
-const PRECONFIGURED_URL = "https://fwqlzharvjwxbvlcywjw.supabase.co";
-const PRECONFIGURED_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3cWx6aGFydmp3eGJ2bGN5d2p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzQ4MjMsImV4cCI6MjA4OTcxMDgyM30.R8lszNLdXC9exmFJzYICXPHRIbhOMqD4GX7i8HUtZ38";
+var PRECONFIGURED_URL = "https://fwqlzharvjwxbvlcywjw.supabase.co";
+var PRECONFIGURED_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3cWx6aGFydmp3eGJ2bGN5d2p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzQ4MjMsImV4cCI6MjA4OTcxMDgyM30.R8lszNLdXC9exmFJzYICXPHRIbhOMqD4GX7i8HUtZ38";
 
 // Override getConfig to always return pre-baked credentials
 function getConfig() {
@@ -3546,7 +3548,7 @@ function initRevenueYears() {
 // ══════════════════════════════════════════════════
 // SMART MATERIAL CALCULATOR
 // ══════════════════════════════════════════════════
-const TABLE_SIZES = [
+var TABLE_SIZES = [
   {key:'coffee',  name:'Coffee Table',       name_fr:'Table basse',          l:48, w:24, t:1.75},
   {key:'dining4', name:'Dining 4-person',    name_fr:'Salle à manger 4 pl.', l:60, w:36, t:1.75},
   {key:'dining6', name:'Dining 6-person',    name_fr:'Salle à manger 6 pl.', l:72, w:36, t:1.75},
@@ -3560,8 +3562,8 @@ const TABLE_SIZES = [
   {key:'custom',  name:'Custom Size',        name_fr:'Dimensions sur mesure',l:0,  w:0,  t:1.75},
 ];
 
-const TABLE_TYPES = ['Dining Table','Epoxy River Table','Custom Desk'];
-const FBM_TYPES   = ['Wood Sink','Bathroom Vanity','Staircase','Art Piece','Custom Piece'];
+var TABLE_TYPES = ['Dining Table','Epoxy River Table','Custom Desk'];
+var FBM_TYPES   = ['Wood Sink','Bathroom Vanity','Staircase','Art Piece','Custom Piece'];
 let fbmBoards = [{t:1.75, w:8, l:96, qty:1}];
 let selectedTableSize = null;
 
