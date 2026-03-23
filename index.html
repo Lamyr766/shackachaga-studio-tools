@@ -8,6 +8,18 @@
   <meta name="apple-mobile-web-app-title" content="Shackachaga">
   <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkxlIFNoYWNrYWNoYWdhIFN0dWRpbyBUb29scyIsCiAgInNob3J0X25hbWUiOiAiU2hhY2thY2hhZ2EiLAogICJkZXNjcmlwdGlvbiI6ICJTdHVkaW8gbWFuYWdlbWVudCB0b29scyBmb3IgTGUgU2hhY2thY2hhZ2Egd29vZHdvcmtpbmciLAogICJzdGFydF91cmwiOiAiL3NoYWNrYWNoYWdhLXN0dWRpby10b29scy8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNGREY4RjAiLAogICJ0aGVtZV9jb2xvciI6ICIjM0UxRjAwIiwKICAib3JpZW50YXRpb24iOiAicG9ydHJhaXQtcHJpbWFyeSIsCiAgImljb25zIjogWwogICAgeyJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTkyIDE5Mic+PHJlY3Qgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PScyNCcgZmlsbD0nJTIzM0UxRjAwJy8+PHRleHQgeT0nMTMwJyB4PSczMCcgZm9udC1zaXplPScxMjAnIGZvbnQtZmFtaWx5PSdzZXJpZic+8J+qtzwvdGV4dD48L3N2Zz4iLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwifSwKICAgIHsic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDUxMiA1MTInPjxyZWN0IHdpZHRoPSc1MTInIGhlaWdodD0nNTEyJyByeD0nNjQnIGZpbGw9JyUyMzNFMUYwMCcvPjx0ZXh0IHk9JzM3MCcgeD0nNTYnIGZvbnQtc2l6ZT0nMzYwJyBmb250LWZhbWlseT0nc2VyaWYnPvCfqrc8L3RleHQ+PC9zdmc+IiwgInNpemVzIjogIjUxMng1MTIiLCAidHlwZSI6ICJpbWFnZS9zdmcreG1sIn0KICBdCn0=">
   <script>
+// ── ADMIN LIST — must be at top for isAdmin() to work globally ──
+var ADMIN_USERS = ['thebigjay766@gmail.com', 'matg32'];
+var MAP_ADMIN_USERS = ADMIN_USERS;
+
+function isAdmin(email) {
+  if (!email) return false;
+  return ADMIN_USERS.some(function(u) {
+    return email === u || email.startsWith(u + '@') || email.includes(u);
+  });
+}
+
+
 // Handle GitHub Pages SPA routing — redirected from 404.html
 (function(){
   var redirect = sessionStorage.redirect;
@@ -2664,6 +2676,11 @@ function launchApp() {
   loadSavedPosts();
   loadClients();
   initRevenueYears();
+  // Apply admin visibility immediately after login
+  updateMapTabVisibility();
+  // Update time-user-label with current user
+  var timeLabel = document.getElementById('time-user-label');
+  if (timeLabel && currentUserEmail) timeLabel.textContent = 'Logged in as: ' + currentUserEmail;
   // Request GPS permission immediately on login (before initTeam)
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -2704,7 +2721,10 @@ async function initSupabaseWithAuth(url, key) {
     // Listen for auth state changes
     sb.auth.onAuthStateChange((event, session) => {
       if (session) {
-        setSyncStatus('live', session.user.email.split('@')[0]);
+        // Set user globals immediately so isAdmin() works from first load
+        currentUserEmail = session.user.email;
+        currentUserName  = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
+        setSyncStatus('live', currentUserName);
         launchApp();
       } else if (event === 'SIGNED_OUT' || event === 'INITIAL_SESSION' && !session) {
         document.getElementById('login-screen').style.display = 'flex';
@@ -3676,16 +3696,7 @@ var _lastLat           = null;
 var _lastLng           = null;
 var _locTimer          = null;
 
-// Restricted map users
-var ADMIN_USERS = ['thebigjay766@gmail.com', 'matg32'];
-var MAP_ADMIN_USERS = ADMIN_USERS; // alias
-
-function isAdmin(email) {
-  if (!email) return false;
-  return ADMIN_USERS.some(function(u) {
-    return email === u || email.startsWith(u + '@') || email.includes(u);
-  });
-}
+// ADMIN_USERS moved to top of script
 
 // Shop coordinates — Gatineau QC (update to your exact address)
 var SHOP_LAT = 45.4765;
