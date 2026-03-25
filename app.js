@@ -1137,20 +1137,83 @@ function calcQuote() {
 
 async function saveQuoteAsProject() {
   if (!lastQuote || !sb) return;
+  const isFr = currentLang === 'fr';
   const p = {
-    name: lastQuote.client || 'Unknown Client',
-    piece: lastQuote.type || 'Custom piece',
-    amount: lastQuote.sug,
+    name:    lastQuote.client || (isFr?'Client inconnu':'Unknown Client'),
+    piece:   lastQuote.type   || (isFr?'Pièce sur mesure':'Custom piece'),
+    amount:  lastQuote.sug,
     balance: lastQuote.sug,
-    status: 'quote',
-    review: 'No',
-    created: new Date().toLocaleDateString()
+    status:  'quote',
+    review:  'No',
+    created_by: currentUserEmail || null,
+    created: new Date().toLocaleDateString(isFr?'fr-CA':'en-CA')
   };
-  setSyncStatus('syncing','Saving...');
+  setSyncStatus('syncing', isFr?'Sauvegarde...':'Saving...');
   const { error } = await sb.from('projects').insert([p]);
-  if (error) { toast(currentLang==='fr'?'⚠️ Échec de la sauvegarde.':'⚠️ Save failed.'); console.error(error); }
-  else { toast(currentLang==='fr'?'✅ Sauvegardé comme projet!':'✅ Saved as project!'); setSyncStatus('live',currentLang==='fr'?'Synchronisé':'Live sync'); }
+  if (error) {
+    toast(isFr?'⚠️ Échec de la sauvegarde.':'⚠️ Save failed.');
+    console.error(error);
+    return;
+  }
+  // Auto-create client if name given and not already in clients table
+  if (lastQuote.client && lastQuote.client.trim()) {
+    await autoAddClientFromQuote(lastQuote.client.trim());
+  }
+  toast(isFr?'✅ Sauvegardé comme projet!':'✅ Saved as project!');
+  setSyncStatus('live', isFr?'Synchronisé':'Live sync');
 }
+
+// Auto-add client from quote if not already in DB
+async function autoAddClientFromQuote(clientName) {
+  if (!sb || !clientName) return;
+  try {
+    const firstName = clientName.split(' ')[0];
+    const { data: existing } = await sb.from('clients')
+      .select('id').ilike('first_name', firstName+'%').limit(1);
+    if (existing && existing.length > 0) return; // already exists
+    const parts = clientName.trim().split(' ');
+    await sb.from('clients').insert([{
+      first_name:    parts[0] || clientName,
+      last_name:     parts.slice(1).join(' ') || '',
+      client_source: 'Quote',
+      assigned_to:   currentUserEmail || null,
+      created_at:    new Date().toISOString(),
+    }]);
+    setTimeout(()=>toast(currentLang==='fr'?'👤 Client ajouté automatiquement':'👤 Client auto-added'), 1200);
+  } catch(e) { console.warn('autoAddClient:', e.message); }
+}
+
+// Manual "Add to Clients" button from quote result
+async function addClientFromQuote() {
+  if (!lastQuote || !lastQuote.client || !lastQuote.client.trim()) {
+    toast(currentLang==='fr'?'⚠️ Entrez un nom de client':'⚠️ Enter a client name');
+    return;
+  }
+  const name = lastQuote.client.trim();
+  try {
+    const { data: existing } = await sb.from('clients')
+      .select('id').ilike('first_name', name.split(' ')[0]+'%').limit(1);
+    if (existing && existing.length > 0) {
+      toast(currentLang==='fr'?'ℹ️ Client déjà dans la liste':'ℹ️ Client already in list');
+      return;
+    }
+    const parts = name.split(' ');
+    const { error } = await sb.from('clients').insert([{
+      first_name:    parts[0],
+      last_name:     parts.slice(1).join(' ') || '',
+      client_source: 'Quote',
+      assigned_to:   currentUserEmail || null,
+      created_at:    new Date().toISOString(),
+    }]);
+    if (error) throw error;
+    toast(currentLang==='fr'?'✅ Client ajouté!':'✅ Client added!');
+    // Flash the button green
+    const btn = document.getElementById('btn-add-client-quote');
+    if (btn) { btn.style.background='var(--green)'; btn.style.color='white';
+      setTimeout(()=>{ btn.style.background=''; btn.style.color=''; }, 2000); }
+  } catch(e) { toast('⚠️ '+e.message); }
+}
+
 
 function copyQuote() {
   if (!lastQuote) return;
