@@ -766,7 +766,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <label data-i18n="lbl_password"><span class="en">Password</span><span class="fr">Mot de passe</span></label>
     <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
       onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn btn-green btn-block" onclick="doLogin()" id="login-btn"> data-i18n="misc_sign_in"><span class="en">Sign In</span><span class="fr">Se connecter</span></button>
+    <button class="btn btn-green btn-block" onclick="doLogin()" id="login-btn"><span class="en">Sign In</span><span class="fr">Se connecter</span></button>
     <div style="margin-top:14px;text-align:center;">
       <button class="btn btn-ghost btn-sm" onclick="showForgot()" style="font-size:0.78rem;" data-i18n="misc_forgot_pw"><span class="en">Forgot password?</span><span class="fr">Mot de passe oublié?</span></button>
       <span style="color:var(--wood-pale);margin:0 4px;">|</span>
