@@ -938,7 +938,9 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div id="quote-lines"></div>
     <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn btn-green btn-sm" onclick="saveQuoteAsProject()"><span class="en">💾 Save as Project</span><span class="fr">💾 Sauvegarder comme projet</span></button>
-      <button class="btn btn-ghost btn-sm" onclick="copyQuote()"><span class="en">📋 Copy Summary</span><span class="fr">📋 Copier le résumé</span></button>
+      <button class="btn btn-amber btn-sm" id="btn-add-client-quote" onclick="addClientFromQuote()"><span class="en">👤 Add to Clients</span><span class="fr">👤 Ajouter aux clients</span></button>
+      <button class="btn btn-ghost btn-sm" onclick="exportQuotePDF(lastQuote||{})"><span class="en">🧾 Quote PDF</span><span class="fr">🧾 Devis PDF</span></button>
+      <button class="btn btn-ghost btn-sm" onclick="copyQuote()"><span class="en">📋 Copy</span><span class="fr">📋 Copier</span></button>
     </div>
   </div>
 </div>
@@ -1513,4 +1515,4 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
 </div>
 
-<script src="app.js?v=18" defer></script>
+<script src="app.js?v=19" defer></script>
