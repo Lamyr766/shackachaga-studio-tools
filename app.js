@@ -1347,7 +1347,25 @@ function openProject(id) {
       <button class="btn btn-ghost btn-sm" onclick="duplicateProject(${id})">${t('dyn_duplicate')}</button>
       <button class="btn btn-blue btn-sm" onclick="exportQuotePDFById(${p.id})" style="background:var(--blue);">${t('dyn_pdf')}</button>
     </div>
+    <!-- PHOTOS -->
     <div style="margin-top:18px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:0.06em;">
+          📸 ${currentLang==='fr'?'Photos':'Photos'}
+        </div>
+        <label style="background:var(--wood-dark);color:white;border-radius:20px;padding:5px 13px;font-size:0.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;">
+          + ${currentLang==='fr'?'Photo':'Photo'}
+          <input type="file" accept="image/*" multiple style="display:none;"
+            onchange="Array.from(this.files).forEach(function(f){uploadProjectPhoto(${id},f)});this.value='';">
+        </label>
+      </div>
+      <div id="photos-list-${id}">
+        <p style="font-size:0.8rem;color:var(--wood-mid);">${currentLang==='fr'?'Chargement...':'Loading...'}</p>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--wood-pale);margin:16px 0;">
+    <!-- NOTES -->
+    <div style="margin-top:0;">
       <div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">📝 ${currentLang==='fr'?'Notes du projet':'Project Notes'}</div>
       <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center;">
         <select id="note-type-${id}" style="flex:0 0 auto;font-size:0.78rem;padding:6px 8px;min-width:80px;">
