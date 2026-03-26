@@ -1805,6 +1805,7 @@ async function initSupabaseWithAuth(url, key) {
         currentUserEmail = session.user.email;
         currentUserName  = session.user.user_metadata?.full_name || session.user.email.split('@')[0];
         setSyncStatus('live', currentUserName);
+        setTimeout(function(){ showPermissionOnboarding(); }, 1500);
         launchApp();
       } else if (event === 'SIGNED_OUT' || event === 'INITIAL_SESSION' && !session) {
         document.getElementById('login-screen').style.display = 'flex';
@@ -2293,6 +2294,146 @@ async function generatePortalLink(projectId) {
     .catch(function(){ prompt(currentLang==='fr'?'Lien du portail:':'Portal link:', link); });
 }
 
+
+
+// ══════════════════════════════════════════════════════════════════
+// PERMISSION ONBOARDING — shown once after first login on Android
+// ══════════════════════════════════════════════════════════════════
+
+function showPermissionOnboarding() {
+  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!isMobile || localStorage.getItem('shack_perm_onboard_shown')) return;
+  localStorage.setItem('shack_perm_onboard_shown','1');
+
+  var fr = currentLang === 'fr';
+  var overlay = document.createElement('div');
+  overlay.id = 'perm-onboard-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(46,26,0,0.85);z-index:600;display:flex;align-items:flex-end;justify-content:center;';
+
+  var card = document.createElement('div');
+  card.style.cssText = 'background:var(--wood-cream);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;';
+
+  // Handle bar
+  var handle = document.createElement('div');
+  handle.style.cssText = 'width:40px;height:4px;background:var(--wood-pale);border-radius:2px;margin:0 auto 20px;';
+  card.appendChild(handle);
+
+  // Title
+  var titleDiv = document.createElement('div');
+  titleDiv.style.cssText = 'font-family:Georgia,serif;font-size:1.05rem;font-weight:bold;color:var(--wood-dark);margin-bottom:5px;';
+  titleDiv.textContent = 'Le Shackachaga — Studio Tools';
+  card.appendChild(titleDiv);
+
+  // Subtitle
+  var sub = document.createElement('div');
+  sub.style.cssText = 'font-size:0.82rem;color:var(--wood-mid);margin-bottom:18px;';
+  sub.textContent = fr ? 'Pour toutes les fonctionnalités, autorisez ces accès:' : 'To use all features, please allow the following:';
+  card.appendChild(sub);
+
+  // Permission rows config
+  var perms = [
+    {type:'gps',  icon:'📍', label:fr?'Localisation GPS':'GPS Location',  hint:fr?'Pointage, carte équipe':'Time tracking, team map'},
+    {type:'mic',  icon:'🎤', label:fr?'Microphone':'Microphone',           hint:fr?'Appels, notes vocales':'Calls, voice notes'},
+    {type:'notif',icon:'🔔', label:fr?'Notifications':'Notifications',     hint:fr?'Nouveaux messages, appels':'New messages, calls'},
+    {type:'photo',icon:'📷', label:fr?'Photos':'Photos',                   hint:fr?'Demandé à chaque ajout':'Requested when adding photo', auto:true},
+  ];
+
+  var rowsDiv = document.createElement('div');
+  rowsDiv.style.cssText = 'display:flex;flex-direction:column;gap:10px;margin-bottom:20px;';
+
+  perms.forEach(function(p) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:12px;background:white;border-radius:12px;padding:12px 14px;' + (p.auto?'opacity:0.65;':'cursor:pointer;');
+    if (!p.auto) row.onclick = function(){ onboardRequestPerm(row, p.type); };
+
+    var iconDiv = document.createElement('div');
+    iconDiv.style.cssText = 'font-size:1.4rem;width:32px;text-align:center;flex-shrink:0;';
+    iconDiv.textContent = p.icon;
+
+    var textDiv = document.createElement('div');
+    textDiv.style.cssText = 'flex:1;';
+
+    var labelDiv = document.createElement('div');
+    labelDiv.style.cssText = 'font-weight:700;font-size:0.88rem;color:var(--wood-dark);';
+    labelDiv.textContent = p.label;
+
+    var hintDiv = document.createElement('div');
+    hintDiv.style.cssText = 'font-size:0.74rem;color:var(--wood-mid);margin-top:1px;';
+    hintDiv.textContent = p.hint;
+
+    textDiv.appendChild(labelDiv);
+    textDiv.appendChild(hintDiv);
+
+    var statusDiv = document.createElement('div');
+    statusDiv.className = 'perm-status';
+    statusDiv.style.cssText = 'font-size:0.75rem;font-weight:700;color:var(--wood-mid);min-width:40px;text-align:right;flex-shrink:0;';
+    statusDiv.textContent = p.auto ? ('✓ '+(fr?'Auto':'Auto')) : (fr?'Appuyer':'Tap');
+    if (p.auto) statusDiv.style.color = 'var(--green)';
+
+    row.appendChild(iconDiv);
+    row.appendChild(textDiv);
+    row.appendChild(statusDiv);
+    rowsDiv.appendChild(row);
+  });
+  card.appendChild(rowsDiv);
+
+  // Continue button
+  var contBtn = document.createElement('button');
+  contBtn.style.cssText = 'width:100%;padding:14px;background:var(--wood-dark);color:white;border:none;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;margin-bottom:10px;';
+  contBtn.textContent = fr ? "Continuer vers l'application" : 'Continue to app';
+  contBtn.onclick = closePermOnboarding;
+  card.appendChild(contBtn);
+
+  // Fine print
+  var fine = document.createElement('div');
+  fine.style.cssText = 'text-align:center;font-size:0.72rem;color:var(--wood-mid);';
+  fine.textContent = fr ? 'Modifiables dans les paramètres du navigateur.' : 'Changeable anytime in browser settings.';
+  card.appendChild(fine);
+
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+}
+
+async function onboardRequestPerm(rowEl, type) {
+  var fr = currentLang === 'fr';
+  var statusEl = rowEl.querySelector('.perm-status');
+  if (statusEl) { statusEl.textContent = fr?'En cours...':'Requesting...'; statusEl.style.color='var(--amber)'; }
+  rowEl.onclick = null; rowEl.style.cursor = 'default';
+
+  var granted = false;
+  if (type === 'gps') {
+    granted = await new Promise(function(resolve) {
+      if (!navigator.geolocation) { resolve(false); return; }
+      navigator.geolocation.getCurrentPosition(
+        function(){ _gpsGranted=true; localStorage.setItem('shack_gps_granted','1'); resolve(true); },
+        function(){ resolve(false); },
+        {enableHighAccuracy:false, timeout:10000}
+      );
+    });
+  } else if (type === 'mic') {
+    try {
+      var s = await navigator.mediaDevices.getUserMedia({audio:true});
+      s.getTracks().forEach(function(t){ t.stop(); });
+      _micGranted=true; localStorage.setItem('shack_mic_granted','1'); granted=true;
+    } catch(e) {}
+  } else if (type === 'notif' && 'Notification' in window) {
+    var res = await Notification.requestPermission();
+    granted = (res==='granted');
+    if (granted) { _notifGranted=true; localStorage.setItem('notif_enabled','1'); }
+  }
+
+  if (statusEl) {
+    statusEl.textContent = granted ? '✅' : (fr?'✕ Refusé':'✕ Denied');
+    statusEl.style.color = granted ? 'var(--green)' : 'var(--red)';
+  }
+  rowEl.style.opacity = '0.7';
+}
+
+function closePermOnboarding() {
+  var el = document.getElementById('perm-onboard-overlay');
+  if (el) { el.style.opacity='0'; setTimeout(function(){ el.remove(); },200); }
+  if (_gpsGranted) startBackgroundGPS();
+}
 
 // ══════════════════════════════════════════════════════════════════
 // PUSH NOTIFICATIONS (Web Notifications API)
@@ -3764,25 +3905,29 @@ async function requestMicPermissionOnce() {
   if (_micGranted) return true;
   if (navigator.permissions) {
     try {
-      var result = await navigator.permissions.query({name:'microphone'});
-      if (result.state === 'granted') {
-        _micGranted = true;
-        localStorage.setItem('shack_mic_granted', '1');
-        return true;
-      }
+      var res = await navigator.permissions.query({name:'microphone'});
+      if (res.state === 'granted') { _micGranted=true; localStorage.setItem('shack_mic_granted','1'); return true; }
+      if (res.state === 'denied') { toast(currentLang==='fr'?'🎤 Microphone bloqué — vérifiez vos paramètres':'🎤 Mic blocked — check browser settings'); return false; }
     } catch(e) {}
   }
-  // Actually request it
-  try {
-    var stream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
-    stream.getTracks().forEach(function(t){ t.stop(); });
-    _micGranted = true;
-    localStorage.setItem('shack_mic_granted', '1');
-    return true;
-  } catch(e) {
-    toast(currentLang==='fr' ? '🎤 Microphone requis pour les appels' : '🎤 Microphone needed for calls');
-    return false;
-  }
+  // Show friendly pre-prompt then request
+  return new Promise(function(resolve) {
+    showPermissionRequest('mic');
+    var card = document.getElementById('perm-request-card');
+    if (!card) { resolve(false); return; }
+    var btns = card.querySelectorAll('button');
+    if (btns[0]) btns[0].onclick = async function() {
+      card.remove();
+      try {
+        var s = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+        s.getTracks().forEach(function(t){ t.stop(); });
+        _micGranted=true; localStorage.setItem('shack_mic_granted','1');
+        toast(currentLang==='fr'?'🎤 Microphone autorisé!':'🎤 Microphone allowed!');
+        resolve(true);
+      } catch(e) { toast(currentLang==='fr'?'🎤 Microphone refusé':'🎤 Microphone denied'); resolve(false); }
+    };
+    if (btns[1]) btns[1].onclick = function(){ card.remove(); resolve(false); };
+  });
 }
 
 // Friendly permission request card (shown once before browser prompt)
