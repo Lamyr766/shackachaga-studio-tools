@@ -1347,17 +1347,32 @@ function openProject(id) {
       <button class="btn btn-ghost btn-sm" onclick="duplicateProject(${id})">${t('dyn_duplicate')}</button>
       <button class="btn btn-blue btn-sm" onclick="exportQuotePDFById(${p.id})" style="background:var(--blue);">${t('dyn_pdf')}</button>
     </div>
-    <div style="margin-top:16px;">
-      <div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">${t('dyn_add_note')}</div>
-      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
-        <select id="note-type" style="width:auto;flex:1;min-width:80px;font-size:0.78rem;padding:6px 8px;">
-          <option value="note">Note</option><option value="call">Call</option>
-          <option value="email">Email</option><option value="visit">Visit</option>
+    <div style="margin-top:18px;">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">📝 ${currentLang==='fr'?'Notes du projet':'Project Notes'}</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center;">
+        <select id="note-type-${id}" style="flex:0 0 auto;font-size:0.78rem;padding:6px 8px;min-width:80px;">
+          <option value="note">${currentLang==='fr'?'📝 Note':'📝 Note'}</option>
+          <option value="call">${currentLang==='fr'?'📞 Appel':'📞 Call'}</option>
+          <option value="email">${currentLang==='fr'?'📧 Courriel':'📧 Email'}</option>
+          <option value="visit">${currentLang==='fr'?'🤝 Visite':'🤝 Visit'}</option>
+          <option value="milestone">${currentLang==='fr'?'🏁 Étape':'🏁 Milestone'}</option>
         </select>
-        <input type="text" id="note-text" placeholder="${t('dyn_note_placeholder')}" style="flex:3;min-width:120px;font-size:0.82rem;padding:6px 10px;">
-        <button class="btn btn-primary btn-sm" onclick="submitNote('+id+')">Add</button>
+        <input type="text" id="note-text-${id}" placeholder="${currentLang==='fr'?'Ajouter une note...':'Add a note...'}" style="flex:1;min-width:100px;font-size:0.82rem;padding:6px 10px;" onkeydown="if(event.key==='Enter')submitNote(${id})">
+        <button class="btn btn-primary btn-sm" onclick="submitNote(${id})" style="flex-shrink:0;">${currentLang==='fr'?'Ajouter':'Add'}</button>
+        <button id="proj-mic-${id}" onclick="toggleProjectVoice(${id})"
+          style="flex-shrink:0;background:var(--red);color:white;border:none;border-radius:50%;width:36px;height:36px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;"
+          title="${currentLang==='fr'?'Note vocale':'Voice note'}">🎤</button>
       </div>
-      <div id="notes-list-${id}"><p style="font-size:0.8rem;color:var(--wood-mid);">Loading notes...</p></div>
+      <div id="proj-rec-wrap-${id}" style="display:none;background:var(--wood-pale);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--red);animation:pulse-red 1s infinite;flex-shrink:0;"></div>
+          <span id="proj-rec-time-${id}" style="font-size:0.82rem;font-weight:700;color:var(--red);min-width:36px;">0:00</span>
+          <span style="flex:1;font-size:0.78rem;color:var(--wood-mid);">${currentLang==='fr'?'Enregistrement en cours...':'Recording...'}</span>
+          <button onclick="stopProjectVoice(${id})" class="btn btn-green btn-sm" style="padding:5px 12px;">⏹ ${currentLang==='fr'?'Arrêter':'Stop'}</button>
+          <button onclick="cancelProjectVoice(${id})" class="btn btn-ghost btn-sm" style="padding:5px 10px;">✕</button>
+        </div>
+      </div>
+      <div id="notes-list-${id}"><p style="font-size:0.8rem;color:var(--wood-mid);">${currentLang==='fr'?'Chargement...':'Loading...'}</p></div>
     </div>`;
   document.getElementById('proj-modal').classList.add('open');
   // Load notes
@@ -1368,15 +1383,17 @@ function openProject(id) {
 }
 
 async function submitNote(projectId) {
-  const note = document.getElementById('note-text').value.trim();
-  const type = document.getElementById('note-type').value;
-  if (!note) return;
+  const el   = document.getElementById('note-text-'+projectId) || document.getElementById('note-text');
+  const sel  = document.getElementById('note-type-'+projectId) || document.getElementById('note-type');
+  const note = el?.value.trim();
+  const type = sel?.value || 'note';
+  if (!note) { el?.focus(); return; }
   const { data: { user } } = await sb.auth.getUser();
   await addProjectNote(projectId, note, type, user?.email?.split('@')[0]||'Team');
-  document.getElementById('note-text').value = '';
+  if (el) el.value = '';
   const notes = await loadProjectNotes(projectId);
-  const el = document.getElementById('notes-list-'+projectId);
-  if (el) el.innerHTML = renderNotes(notes);
+  const listEl = document.getElementById('notes-list-'+projectId);
+  if (listEl) listEl.innerHTML = renderNotes(notes);
   toast(currentLang==='fr'?'✅ Note ajoutée!':'✅ Note added!');
 }
 
@@ -2044,24 +2061,193 @@ async function addProjectNote(projectId, note, type, author) {
   }]);
 }
 
+function escapeHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+var _projAudios = {};
 function renderNotes(notes) {
-  if (!notes.length) return '<div class="empty-state" style="padding:20px;"><p>No notes yet.</p></div>';
-  const noteTypeLabels = {
-    note: {en:'Note', fr:'Note'}, call: {en:'Call', fr:'Appel'},
-    email: {en:'Email', fr:'Courriel'}, visit: {en:'Visit', fr:'Visite'}
+  if (!notes || !notes.length) {
+    return '<div class="empty-state" style="padding:12px 0;"><p style="font-size:0.82rem;color:var(--wood-mid);">'
+      + (currentLang==='fr'?'Aucune note encore.':'No notes yet.') + '</p></div>';
+  }
+  const lbl = {
+    note:      {en:'📝 Note',      fr:'📝 Note'},
+    call:      {en:'📞 Call',      fr:'📞 Appel'},
+    email:     {en:'📧 Email',     fr:'📧 Courriel'},
+    visit:     {en:'🤝 Visit',     fr:'🤝 Visite'},
+    milestone: {en:'🏁 Milestone', fr:'🏁 Étape'},
+    voice:     {en:'🎤 Voice',     fr:'🎤 Vocal'},
   };
-  return notes.map(n => {
+  return notes.map(function(n, idx) {
     const d = new Date(n.created_at);
-    const timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    const noteLabel = noteTypeLabels[n.type||'note']?.[currentLang] || n.type || 'note';
-    return `<div class="note-item">
-      <div class="note-meta">
-        <span class="note-type note-type-${n.type||'note'}">${noteLabel}</span>
-        ${n.author||'Team'} · ${timeStr}
-      </div>
-      <div style="font-size:0.88rem;">${n.note}</div>
-    </div>`;
+    const timeStr = d.toLocaleDateString(currentLang==='fr'?'fr-CA':'en-CA',
+      {month:'short', day:'numeric'}) + ' ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const typeLabel = (lbl[n.type||'note']||lbl.note)[currentLang];
+    const nid = 'pn-' + (n.id || idx);
+
+    if (n.type === 'voice' && n.voice_data) {
+      const dur = n.voice_duration || 0;
+      const durStr = Math.floor(dur/60)+':'+(('0'+Math.floor(dur%60)).slice(-2));
+      return '<div class="note-item" id="' + nid + '">'
+        + '<div class="note-meta">'
+        +   '<span class="note-type note-type-voice">' + typeLabel + '</span>'
+        +   escapeHtml(n.author||'Team') + ' · ' + timeStr
+        + '</div>'
+        + '<div class="voice-msg-wrap" style="margin-top:6px;">'
+        +   '<button class="voice-play-btn" onclick="playProjVoice(' + JSON.stringify(nid) + ',this)">▶</button>'
+        +   '<div class="voice-waveform">'
+        +     '<div class="voice-progress" id="' + nid + '-prog" style="width:0%"></div>'
+        +   '</div>'
+        +   '<span class="voice-duration" id="' + nid + '-dur">' + durStr + '</span>'
+        + '</div>'
+        + '<audio id="' + nid + '-audio" src="' + (n.voice_data||'') + '" style="display:none"></audio>'
+        + '</div>';
+    }
+
+    return '<div class="note-item">'
+      + '<div class="note-meta">'
+      +   '<span class="note-type note-type-' + escapeHtml(n.type||'note') + '">' + typeLabel + '</span>'
+      +   escapeHtml(n.author||'Team') + ' · ' + timeStr
+      + '</div>'
+      + '<div style="font-size:0.88rem;line-height:1.5;white-space:pre-wrap;">' + escapeHtml(n.note||'') + '</div>'
+      + '</div>';
   }).join('');
+}
+
+function playProjVoice(nid, btn) {
+  var audio = document.getElementById(nid+'-audio');
+  if (!audio) return;
+  // Pause all others
+  document.querySelectorAll('.note-item audio').forEach(function(a) {
+    if (a !== audio) { a.pause(); a.currentTime = 0; }
+  });
+  document.querySelectorAll('.voice-play-btn').forEach(function(b) {
+    if (b !== btn) b.textContent = '▶';
+  });
+  audio.ontimeupdate = function() {
+    var pct = audio.duration ? (audio.currentTime/audio.duration*100) : 0;
+    var prog = document.getElementById(nid+'-prog');
+    var dur  = document.getElementById(nid+'-dur');
+    if (prog) prog.style.width = pct+'%';
+    if (dur && !isNaN(audio.duration)) {
+      var rem = audio.duration - audio.currentTime;
+      dur.textContent = Math.floor(rem/60)+':'+(('0'+Math.floor(rem%60)).slice(-2));
+    }
+  };
+  audio.onended = function() {
+    btn.textContent = '▶';
+    var prog = document.getElementById(nid+'-prog');
+    if (prog) prog.style.width = '0%';
+  };
+  if (audio.paused) { audio.play(); btn.textContent = '⏸'; }
+  else { audio.pause(); btn.textContent = '▶'; }
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// PROJECT VOICE NOTES
+// ══════════════════════════════════════════════════════════════════
+var _pvRecorder = null;
+var _pvChunks   = [];
+var _pvTimer    = null;
+var _pvSecs     = 0;
+var _pvProjId   = null;
+
+async function toggleProjectVoice(projectId) {
+  if (_pvRecorder && _pvRecorder.state === 'recording') {
+    stopProjectVoice(projectId);
+  } else {
+    await startProjectVoice(projectId);
+  }
+}
+
+async function startProjectVoice(projectId) {
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    _pvChunks  = [];
+    _pvSecs    = 0;
+    _pvProjId  = projectId;
+    var mime   = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+                   ? 'audio/webm;codecs=opus'
+                   : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+    _pvRecorder = new MediaRecorder(stream, mime ? {mimeType:mime, audioBitsPerSecond:32000} : {audioBitsPerSecond:32000});
+    _pvRecorder.ondataavailable = function(e){ if(e.data.size>0) _pvChunks.push(e.data); };
+    _pvRecorder.onstop = function(){
+      stream.getTracks().forEach(function(t){ t.stop(); });
+      saveProjectVoiceNote(projectId, _pvSecs);
+    };
+    _pvRecorder.start(250);
+    // Show recording UI
+    var wrap = document.getElementById('proj-rec-wrap-'+projectId);
+    var mic  = document.getElementById('proj-mic-'+projectId);
+    if (wrap) wrap.style.display = 'block';
+    if (mic)  { mic.style.background='#ff1744'; mic.style.animation='pulse-red 1s infinite'; }
+    // Timer
+    clearInterval(_pvTimer);
+    _pvTimer = setInterval(function(){
+      _pvSecs++;
+      var t = document.getElementById('proj-rec-time-'+projectId);
+      if (t) t.textContent = Math.floor(_pvSecs/60)+':'+(('0'+(_pvSecs%60)).slice(-2));
+      if (_pvSecs >= 120) stopProjectVoice(projectId);
+    }, 1000);
+  } catch(e) {
+    toast(currentLang==='fr'?'🎤 Microphone refusé':'🎤 Mic denied');
+  }
+}
+
+function stopProjectVoice(projectId) {
+  if (!_pvRecorder || _pvRecorder.state !== 'recording') return;
+  clearInterval(_pvTimer);
+  _pvRecorder.stop();
+  var wrap = document.getElementById('proj-rec-wrap-'+projectId);
+  var mic  = document.getElementById('proj-mic-'+projectId);
+  if (wrap) wrap.style.display = 'none';
+  if (mic)  { mic.style.background='var(--red)'; mic.style.animation=''; mic.textContent='🎤'; }
+  var t = document.getElementById('proj-rec-time-'+projectId);
+  if (t) t.textContent = '0:00';
+}
+
+function cancelProjectVoice(projectId) {
+  clearInterval(_pvTimer);
+  if (_pvRecorder) {
+    try { _pvRecorder.ondataavailable = null; _pvRecorder.onstop = null; _pvRecorder.stop(); } catch(e){}
+    _pvRecorder = null;
+  }
+  _pvChunks = []; _pvSecs = 0;
+  var wrap = document.getElementById('proj-rec-wrap-'+projectId);
+  var mic  = document.getElementById('proj-mic-'+projectId);
+  if (wrap) wrap.style.display = 'none';
+  if (mic)  { mic.style.background='var(--red)'; mic.style.animation=''; mic.textContent='🎤'; }
+}
+
+async function saveProjectVoiceNote(projectId, durationSecs) {
+  if (!_pvChunks.length || !sb) return;
+  toast(currentLang==='fr'?'⏳ Sauvegarde vocale...':'⏳ Saving voice note...');
+  var mime = _pvChunks[0]?.type || 'audio/webm';
+  var blob = new Blob(_pvChunks, {type: mime});
+  _pvChunks = [];
+  var reader = new FileReader();
+  reader.onloadend = async function() {
+    try {
+      var userData = await sb.auth.getUser();
+      var author = userData?.data?.user?.email?.split('@')[0] || 'Team';
+      var { error } = await sb.from('project_notes').insert([{
+        project_id:     projectId,
+        note:           currentLang==='fr'?'Note vocale':'Voice note',
+        type:           'voice',
+        voice_data:     reader.result,
+        voice_duration: durationSecs,
+        author:         author,
+        created_at:     new Date().toISOString()
+      }]);
+      if (error) throw error;
+      var notes = await loadProjectNotes(projectId);
+      var el = document.getElementById('notes-list-'+projectId);
+      if (el) el.innerHTML = renderNotes(notes);
+      toast(currentLang==='fr'?'🎤 Note vocale sauvegardée!':'🎤 Voice note saved!');
+    } catch(e) { toast('⚠️ '+e.message); }
+  };
+  reader.readAsDataURL(blob);
 }
 
 // ══════════════════════════════════════════════════
