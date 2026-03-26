@@ -2967,76 +2967,172 @@ async function deleteTimeLog(id) {
 // REVENUE CHART
 // ══════════════════════════════════════════════════
 function renderRevenue() {
-  const year = parseInt(document.getElementById('rev-year')?.value || new Date().getFullYear());
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  // Filter projects delivered in selected year
-  const yearProjects = allProjects.filter(p => {
-    const d = p.delivery || p.created || '';
-    return d.includes(year) || d.includes(year.toString().slice(2));
-  });
-  // Monthly buckets
-  const monthly = Array(12).fill(null).map((_,i) => ({month:months[i],collected:0,outstanding:0}));
+  const isFr  = currentLang === 'fr';
+  const year  = parseInt(document.getElementById('rev-year')?.value || new Date().getFullYear());
+  const MFR   = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  const MEN   = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const months = isFr ? MFR : MEN;
+
+  // ── Build monthly data ────────────────────────────────────────
+  const monthly = months.map((m,i) => ({month:m,collected:0,outstanding:0,projects:0}));
   allProjects.forEach(p => {
-    const dateStr = p.delivery || p.created || '';
-    // Try to find month from various date formats
-    let monthIdx = -1;
-    if (dateStr) {
-      const d = new Date(dateStr);
-      if (!isNaN(d.getTime()) && d.getFullYear() === year) monthIdx = d.getMonth();
-    }
-    if (monthIdx >= 0 && p.status === 'done') {
-      const collected = (p.amount||0) - (p.balance||0);
-      monthly[monthIdx].collected += collected;
-      monthly[monthIdx].outstanding += (p.balance||0);
+    const ds = p.delivery || p.created || '';
+    if (!ds) return;
+    const d = new Date(ds);
+    if (isNaN(d.getTime()) || d.getFullYear() !== year) return;
+    const mi = d.getMonth();
+    if (p.status === 'done') {
+      monthly[mi].collected  += (p.amount||0) - (p.balance||0);
+      monthly[mi].outstanding += (p.balance||0);
+      monthly[mi].projects++;
     }
   });
-  const maxVal = Math.max(...monthly.map(m => m.collected + m.outstanding), 1);
+
+  // ── KPI stats ─────────────────────────────────────────────────
+  const doneProjects = allProjects.filter(p => p.status === 'done');
+  const activeProjects = allProjects.filter(p => !['done'].includes(p.status));
+  const ytd       = doneProjects.reduce((s,p) => s+(p.amount||0), 0);
+  const collected = allProjects.reduce((s,p) => s+((p.amount||0)-(p.balance||0)), 0);
+  const outstanding = allProjects.reduce((s,p) => s+(p.balance||0), 0);
+  const pipeline  = activeProjects.reduce((s,p) => s+(p.amount||0), 0);
+  const avgOrder  = doneProjects.length ? Math.round(ytd / doneProjects.length) : 0;
+
+  const rvYtd  = document.getElementById('rv-ytd');
+  const rvColl = document.getElementById('rv-collected');
+  const rvOut  = document.getElementById('rv-outstanding');
+  const rvProj = document.getElementById('rv-projects');
+  if (rvYtd)  rvYtd.textContent  = '$'+(ytd>=1000?(ytd/1000).toFixed(1)+'k':ytd.toLocaleString());
+  if (rvColl) rvColl.textContent = '$'+(collected>=1000?(collected/1000).toFixed(1)+'k':collected.toLocaleString());
+  if (rvOut)  rvOut.textContent  = '$'+(outstanding>=1000?(outstanding/1000).toFixed(1)+'k':outstanding.toLocaleString());
+  if (rvProj) rvProj.textContent = doneProjects.length;
+
+  // ── SVG Bar Chart ─────────────────────────────────────────────
   const chart = document.getElementById('rev-chart');
   if (!chart) return;
-  chart.innerHTML = monthly.map(m => {
+
+  const maxVal = Math.max(...monthly.map(m => m.collected + m.outstanding), 1);
+  const W = 700, H = 180, PAD = 30, BAR_W = 32, GAP = (W - PAD*2) / 12;
+
+  let svgBars = '', svgLabels = '', svgGrid = '';
+
+  // Grid lines
+  for (let g = 0; g <= 4; g++) {
+    const y = PAD + (H - PAD) * (1 - g/4);
+    const val = Math.round(maxVal * g/4);
+    const valStr = val >= 1000 ? (val/1000).toFixed(0)+'k' : val.toString();
+    svgGrid += `<line x1="${PAD}" y1="${y}" x2="${W-10}" y2="${y}" stroke="var(--wood-pale)" stroke-width="1"/>`;
+    svgGrid += `<text x="${PAD-4}" y="${y+4}" text-anchor="end" font-size="9" fill="var(--wood-mid)">${valStr}</text>`;
+  }
+
+  monthly.forEach((m, i) => {
+    const x    = PAD + i * GAP + GAP/2;
     const total = m.collected + m.outstanding;
-    const collH = Math.round((m.collected/maxVal)*140);
-    const outH  = Math.round((m.outstanding/maxVal)*140);
-    return `<div class="bar-col">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:140px;">
-        ${m.outstanding?`<div class="bar bar-outstanding" style="height:${outH}px;width:100%;">${m.outstanding>0?'$'+(m.outstanding/1000).toFixed(1)+'k':''}</div>`:''}
-        ${m.collected?`<div class="bar bar-delivered" style="height:${collH}px;width:100%;">${m.collected>0?'$'+(m.collected/1000).toFixed(1)+'k':''}</div>`:''}
-        ${!total?`<div style="height:4px;width:100%;background:var(--wood-pale);border-radius:4px;"></div>`:''}
-      </div>
-      <div class="bar-label">${m.month}</div>
-    </div>`;
-  }).join('');
-  // Summary stats
-  const ytd = allProjects.filter(p=>p.status==='done').reduce((s,p)=>s+(p.amount||0),0);
-  const coll = allProjects.reduce((s,p)=>s+((p.amount||0)-(p.balance||0)),0);
-  const out  = allProjects.reduce((s,p)=>s+(p.balance||0),0);
-  const deliv = allProjects.filter(p=>p.status==='done').length;
-  document.getElementById('rv-ytd').textContent = '$'+(ytd/1000).toFixed(1)+'k';
-  document.getElementById('rv-collected').textContent = '$'+(coll/1000).toFixed(1)+'k';
-  document.getElementById('rv-outstanding').textContent = '$'+(out/1000).toFixed(1)+'k';
-  document.getElementById('rv-projects').textContent = deliv;
-  // By type
+    const collH = total ? Math.round((m.collected / maxVal) * (H - PAD)) : 0;
+    const outH  = total ? Math.round((m.outstanding / maxVal) * (H - PAD)) : 0;
+    const baseY = H;
+
+    if (outH > 0) {
+      svgBars += `<rect x="${x - BAR_W/2}" y="${baseY - collH - outH}" width="${BAR_W}" height="${outH}" rx="3" fill="var(--wood-light)" opacity="0.7"/>`;
+    }
+    if (collH > 0) {
+      svgBars += `<rect x="${x - BAR_W/2}" y="${baseY - collH}" width="${BAR_W}" height="${collH}" rx="3" fill="var(--green-light)"/>`;
+    }
+    if (total === 0) {
+      svgBars += `<rect x="${x - BAR_W/2}" y="${baseY - 3}" width="${BAR_W}" height="3" rx="2" fill="var(--wood-pale)"/>`;
+    }
+
+    // Month label
+    svgLabels += `<text x="${x}" y="${H + 14}" text-anchor="middle" font-size="9" fill="${total > 0 ? 'var(--wood-dark)' : 'var(--wood-mid)'}" font-weight="${total > 0 ? '700' : '400'}">${m.month}</text>`;
+
+    // Value label on top of bar
+    if (total > 0 && collH + outH > 18) {
+      const label = total >= 1000 ? '$'+(total/1000).toFixed(1)+'k' : '$'+total;
+      svgBars += `<text x="${x}" y="${baseY - collH - outH - 4}" text-anchor="middle" font-size="8" fill="var(--wood-dark)" font-weight="700">${label}</text>`;
+    }
+  });
+
+  chart.innerHTML = `<svg viewBox="0 0 ${W} ${H+20}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;overflow:visible;">
+    ${svgGrid}${svgBars}${svgLabels}
+  </svg>`;
+
+  // ── Donut Chart — Revenue by project type ────────────────────
   const byType = {};
-  allProjects.filter(p=>p.status==='done').forEach(p => {
-    const t = p.piece||'Other';
-    byType[t] = (byType[t]||0) + (p.amount||0);
+  doneProjects.forEach(p => {
+    const key = translateProjectType(p.piece||'') || (isFr?'Autre':'Other');
+    byType[key] = (byType[key]||0) + (p.amount||0);
   });
   const typeEl = document.getElementById('rev-by-type');
-  if (typeEl) {
-    typeEl.innerHTML = Object.entries(byType).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([type,amt]) => `
-      <div class="price-row"><span class="price-label">${type}</span><span class="price-val">$${amt.toLocaleString()}</span></div>`).join('') || `<p style="color:var(--wood-mid);font-size:0.85rem;padding:10px 0;">${t('dyn_no_delivered')}</p>`;
+  if (typeEl && Object.keys(byType).length) {
+    const entries = Object.entries(byType).sort((a,b) => b[1]-a[1]).slice(0,6);
+    const totalType = entries.reduce((s,[,v]) => s+v, 0);
+    const COLORS = ['#C4956A','#2D6A4F','#7B4B1A','#3B82F6','#F59E0B','#9E9E9E'];
+    // Donut SVG
+    const R=60, CX=80, CY=75, strokeW=28;
+    let donut = '', startAngle = -Math.PI/2, legendItems = '';
+    entries.forEach(([type, amt], i) => {
+      const frac   = amt / totalType;
+      const angle  = frac * 2 * Math.PI;
+      const x1     = CX + R * Math.cos(startAngle);
+      const y1     = CY + R * Math.sin(startAngle);
+      const endA   = startAngle + angle;
+      const x2     = CX + R * Math.cos(endA);
+      const y2     = CY + R * Math.sin(endA);
+      const large  = angle > Math.PI ? 1 : 0;
+      const pct    = Math.round(frac * 100);
+      if (pct > 0) {
+        donut += `<path d="M ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2}" stroke="${COLORS[i]}" stroke-width="${strokeW}" fill="none" stroke-linecap="butt" opacity="0.9"/>`;
+      }
+      legendItems += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+        <div style="width:10px;height:10px;border-radius:2px;background:${COLORS[i]};flex-shrink:0;"></div>
+        <div style="flex:1;font-size:0.75rem;color:var(--wood-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(type)}</div>
+        <div style="font-size:0.75rem;font-weight:700;color:var(--wood-dark);">$${amt.toLocaleString()}</div>
+        <div style="font-size:0.68rem;color:var(--wood-mid);min-width:28px;text-align:right;">${pct}%</div>
+      </div>`;
+      startAngle = endA;
+    });
+    // Center text
+    donut += `<text x="${CX}" y="${CY-6}" text-anchor="middle" font-size="11" fill="var(--wood-dark)" font-weight="700">$${totalType>=1000?(totalType/1000).toFixed(0)+'k':totalType}</text>`;
+    donut += `<text x="${CX}" y="${CY+8}" text-anchor="middle" font-size="9" fill="var(--wood-mid)">${isFr?'livré':'delivered'}</text>`;
+
+    typeEl.innerHTML = `<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+      <svg viewBox="0 0 ${CX*2} ${CY*2+10}" xmlns="http://www.w3.org/2000/svg" style="width:140px;flex-shrink:0;">${donut}</svg>
+      <div style="flex:1;min-width:160px;padding-top:4px;">${legendItems}</div>
+    </div>`;
+  } else if (typeEl) {
+    typeEl.innerHTML = `<p style="color:var(--wood-mid);font-size:0.85rem;padding:10px 0;">${t('dyn_no_delivered')}</p>`;
   }
-  // Top clients
+
+  // ── Top Clients ───────────────────────────────────────────────
   const byClient = {};
-  allProjects.filter(p=>p.status==='done').forEach(p => {
+  doneProjects.forEach(p => {
     const n = p.name||'Unknown';
     byClient[n] = (byClient[n]||0) + (p.amount||0);
   });
   const clientEl = document.getElementById('rev-top-clients');
   if (clientEl) {
-    clientEl.innerHTML = Object.entries(byClient).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,amt]) => `
-      <div class="price-row"><span class="price-label">${name}</span><span class="price-val">$${amt.toLocaleString()}</span></div>`).join('') || `<p style="color:var(--wood-mid);font-size:0.85rem;padding:10px 0;">${t('dyn_no_delivered')}</p>`;
+    const clientEntries = Object.entries(byClient).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const maxClient = clientEntries[0]?.[1] || 1;
+    clientEl.innerHTML = clientEntries.map(([name, amt]) => {
+      const pct = Math.round(amt/maxClient*100);
+      return `<div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-size:0.82rem;font-weight:600;color:var(--wood-dark);">${escapeHtml(name)}</span>
+          <span style="font-size:0.82rem;font-weight:700;color:var(--wood-dark);">$${amt.toLocaleString()}</span>
+        </div>
+        <div style="background:var(--wood-pale);border-radius:4px;height:6px;overflow:hidden;">
+          <div style="height:100%;border-radius:4px;background:var(--wood-mid);width:${pct}%;transition:width 0.6s ease;"></div>
+        </div>
+      </div>`;
+    }).join('') || `<p style="color:var(--wood-mid);font-size:0.85rem;padding:10px 0;">${t('dyn_no_delivered')}</p>`;
   }
+
+  // ── Pipeline & avg order ───────────────────────────────────────
+  const pipelineEl = document.getElementById('rv-pipeline');
+  const avgEl      = document.getElementById('rv-avg');
+  const activeEl   = document.getElementById('rv-active');
+  if (pipelineEl) pipelineEl.textContent = '$'+(pipeline>=1000?(pipeline/1000).toFixed(1)+'k':pipeline.toLocaleString());
+  if (avgEl)      avgEl.textContent      = avgOrder ? '$'+avgOrder.toLocaleString() : '—';
+  if (activeEl)   activeEl.textContent   = activeProjects.length;
 }
 
 function initRevenueYears() {
