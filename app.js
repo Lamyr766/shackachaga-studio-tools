@@ -1375,6 +1375,12 @@ function openProject(id) {
       <div id="notes-list-${id}"><p style="font-size:0.8rem;color:var(--wood-mid);">${currentLang==='fr'?'Chargement...':'Loading...'}</p></div>
     </div>`;
   document.getElementById('proj-modal').classList.add('open');
+  // Load photos + cache them for viewer
+  loadProjectPhotos(id).then(function(photos) {
+    photos.forEach(function(p){ _photoCache[p.id] = p; });
+    var pel = document.getElementById('photos-list-'+id);
+    if (pel) pel.innerHTML = renderPhotos(photos, id);
+  });
   // Load notes
   loadProjectNotes(id).then(notes => {
     const el = document.getElementById('notes-list-'+id);
@@ -2143,6 +2149,143 @@ function playProjVoice(nid, btn) {
   else { audio.pause(); btn.textContent = '▶'; }
 }
 
+
+
+// ══════════════════════════════════════════════════════════════════
+// PROJECT PHOTOS
+// ══════════════════════════════════════════════════════════════════
+
+async function loadProjectPhotos(projectId) {
+  if (!sb) return [];
+  const { data } = await sb.from('project_photos')
+    .select('*').eq('project_id', projectId)
+    .order('created_at', {ascending: false});
+  return data || [];
+}
+
+async function uploadProjectPhoto(projectId, file) {
+  if (!sb || !file) return;
+  if (file.size > 8 * 1024 * 1024) {
+    toast(currentLang==='fr'?'⚠️ Photo trop grande (max 8MB)':'⚠️ Photo too large (max 8MB)');
+    return;
+  }
+  toast(currentLang==='fr'?'⏳ Envoi de la photo...':'⏳ Uploading photo...');
+  const b64 = await compressAndEncodePhoto(file, 1200, 0.78);
+  try {
+    const userData = await sb.auth.getUser();
+    const author = userData?.data?.user?.email?.split('@')[0] || 'Team';
+    const { error } = await sb.from('project_photos').insert([{
+      project_id: projectId,
+      photo_data: b64,
+      caption:    file.name.replace(/\.[^.]+$/, ''),
+      author:     author,
+      created_at: new Date().toISOString()
+    }]);
+    if (error) throw error;
+    toast(currentLang==='fr'?'📸 Photo ajoutée!':'📸 Photo added!');
+    const photos = await loadProjectPhotos(projectId);
+    const el = document.getElementById('photos-list-'+projectId);
+    if (el) el.innerHTML = renderPhotos(photos, projectId);
+  } catch(e) { toast('⚠️ '+e.message); }
+}
+
+async function deleteProjectPhoto(photoId, projectId) {
+  if (!sb) return;
+  if (!confirm(currentLang==='fr'?'Supprimer cette photo?':'Delete this photo?')) return;
+  await sb.from('project_photos').delete().eq('id', photoId);
+  toast(currentLang==='fr'?'🗑 Photo supprimée.':'🗑 Photo deleted.');
+  const photos = await loadProjectPhotos(projectId);
+  const el = document.getElementById('photos-list-'+projectId);
+  if (el) el.innerHTML = renderPhotos(photos, projectId);
+}
+
+function renderPhotos(photos, projectId) {
+  if (!photos || !photos.length) {
+    return '<div style="text-align:center;padding:16px 0;">'
+      + '<div style="font-size:2rem;margin-bottom:4px;">📷</div>'
+      + '<p style="font-size:0.8rem;color:var(--wood-mid);">'
+      + (currentLang==='fr'?'Aucune photo. Appuyez + Ajouter.':'No photos yet. Tap + Add.')
+      + '</p></div>';
+  }
+  return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:4px;">'
+    + photos.map(function(p) {
+        return '<div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--wood-pale);cursor:pointer;" onclick="openPhotoViewer(' + p.id + ',' + projectId + ')">'
+          + '<img src="' + p.photo_data + '" style="width:100%;height:100%;object-fit:cover;" loading="lazy">'
+          + '<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.55));padding:3px 5px;">'
+          + '<div style="font-size:0.58rem;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+          + escapeHtml(p.caption||p.author||'') + '</div></div></div>';
+      }).join('')
+    + '</div>';
+}
+
+// photo data stored in a lookup by id when modal opens
+var _photoCache = {};
+
+function openPhotoViewer(photoId, projectId) {
+  var p = _photoCache[photoId];
+  if (!p) return;
+  var existing = document.getElementById('photo-viewer-overlay');
+  if (existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'photo-viewer-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;';
+
+  var topBar = document.createElement('div');
+  topBar.style.cssText = 'position:absolute;top:14px;right:14px;display:flex;gap:8px;';
+
+  var delBtn = document.createElement('button');
+  delBtn.textContent = '🗑 ' + (currentLang==='fr'?'Supprimer':'Delete');
+  delBtn.style.cssText = 'background:var(--red);color:white;border:none;border-radius:8px;padding:7px 13px;font-size:0.8rem;cursor:pointer;font-weight:600;';
+  delBtn.onclick = function(){ overlay.remove(); deleteProjectPhoto(photoId, projectId); };
+
+  var closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'background:rgba(255,255,255,0.18);color:white;border:none;border-radius:8px;padding:7px 13px;font-size:0.9rem;cursor:pointer;';
+  closeBtn.onclick = function(){ overlay.remove(); };
+
+  topBar.appendChild(delBtn);
+  topBar.appendChild(closeBtn);
+
+  var img = document.createElement('img');
+  img.src = p.photo_data;
+  img.style.cssText = 'max-width:100%;max-height:78vh;border-radius:12px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,0.5);';
+
+  overlay.appendChild(topBar);
+  overlay.appendChild(img);
+
+  if (p.caption) {
+    var cap = document.createElement('div');
+    cap.textContent = p.caption;
+    cap.style.cssText = 'color:rgba(255,255,255,0.8);font-size:0.9rem;margin-top:12px;text-align:center;';
+    overlay.appendChild(cap);
+  }
+
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+function compressAndEncodePhoto(file, maxPx, quality) {
+  return new Promise(function(resolve) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var w = img.width, h = img.height;
+        if (w > maxPx || h > maxPx) {
+          if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+          else       { w = Math.round(w * maxPx / h); h = maxPx; }
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 // ══════════════════════════════════════════════════════════════════
 // PROJECT VOICE NOTES
