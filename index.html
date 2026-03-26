@@ -1224,10 +1224,15 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <select id="rev-year" onchange="renderRevenue()" style="width:auto;font-size:0.82rem;padding:7px 10px;"></select>
   </div>
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-num" id="rv-ytd">—</div><div class="stat-label" data-i18n="misc_ytd"><span class="en">YTD Revenue</span><span class="fr">Revenu annuel</span></div></div>
-    <div class="stat-card"><div class="stat-num" id="rv-collected">—</div><div class="stat-label" data-i18n="misc_collected"><span class="en">Collected</span><span class="fr">Perçu</span></div></div>
-    <div class="stat-card"><div class="stat-num" id="rv-outstanding">—</div><div class="stat-label" data-i18n="misc_outstanding"><span class="en">Outstanding</span><span class="fr">Impayé</span></div></div>
-    <div class="stat-card"><div class="stat-num" id="rv-projects">—</div><div class="stat-label">Delivered</div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-ytd">—</div><div class="stat-label"><span class="en">YTD Revenue</span><span class="fr">Revenu annuel</span></div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-collected">—</div><div class="stat-label"><span class="en">Collected</span><span class="fr">Perçu</span></div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-outstanding">—</div><div class="stat-label"><span class="en">Outstanding</span><span class="fr">Impayé</span></div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-projects">—</div><div class="stat-label"><span class="en">Delivered</span><span class="fr">Livrés</span></div></div>
+  </div>
+  <div class="stats-row" style="margin-top:8px;">
+    <div class="stat-card"><div class="stat-num" id="rv-pipeline">—</div><div class="stat-label"><span class="en">Pipeline</span><span class="fr">Pipeline</span></div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-active">—</div><div class="stat-label"><span class="en">Active</span><span class="fr">Actifs</span></div></div>
+    <div class="stat-card"><div class="stat-num" id="rv-avg">—</div><div class="stat-label"><span class="en">Avg Order</span><span class="fr">Commande moy.</span></div></div>
   </div>
   <div class="card">
     <div class="card-title"><span class="en">Monthly Revenue</span><span class="fr">Revenus mensuels</span></div>
@@ -1545,4 +1550,4 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
 </div>
 
-<script src="app.js?v=28" defer></script>
+<script src="app.js?v=29" defer></script>
