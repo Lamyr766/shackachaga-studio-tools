@@ -2126,19 +2126,19 @@ function renderNotes(notes) {
     if (n.type === 'voice' && n.voice_data) {
       const dur = n.voice_duration || 0;
       const durStr = Math.floor(dur/60)+':'+(('0'+Math.floor(dur%60)).slice(-2));
+      _voiceNoteData[nid] = n.voice_data;
       return '<div class="note-item" id="' + nid + '">'
         + '<div class="note-meta">'
         +   '<span class="note-type note-type-voice">' + typeLabel + '</span>'
         +   escapeHtml(n.author||'Team') + ' · ' + timeStr
         + '</div>'
         + '<div class="voice-msg-wrap" style="margin-top:6px;">'
-        +   '<button class="voice-play-btn" onclick="playProjVoice(' + JSON.stringify(nid) + ',this)">▶</button>'
+        +   '<button class="voice-play-btn" data-nid="' + nid + '" onclick="playProjVoice(this.dataset.nid,this)">▶</button>'
         +   '<div class="voice-waveform">'
         +     '<div class="voice-progress" id="' + nid + '-prog" style="width:0%"></div>'
         +   '</div>'
         +   '<span class="voice-duration" id="' + nid + '-dur">' + durStr + '</span>'
         + '</div>'
-        + '<audio id="' + nid + '-audio" src="' + (n.voice_data||'') + '" style="display:none"></audio>'
         + '</div>';
     }
 
@@ -2154,7 +2154,20 @@ function renderNotes(notes) {
 
 function playProjVoice(nid, btn) {
   var audio = document.getElementById(nid+'-audio');
-  if (!audio) return;
+  if (!audio) {
+    var data = _voiceNoteData[nid];
+    if (!data) {
+      toast(currentLang==='fr'?'⚠️ Audio non disponible':'⚠️ Audio not available');
+      return;
+    }
+    audio = document.createElement('audio');
+    audio.id  = nid+'-audio';
+    audio.src = data;
+    audio.style.display = 'none';
+    var container = document.getElementById(nid);
+    if (container) container.appendChild(audio);
+    else document.body.appendChild(audio);
+  }
   // Pause all others
   document.querySelectorAll('.note-item audio').forEach(function(a) {
     if (a !== audio) { a.pause(); a.currentTime = 0; }
