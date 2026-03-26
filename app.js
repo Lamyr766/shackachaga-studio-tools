@@ -2103,6 +2103,7 @@ function escapeHtml(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 var _projAudios = {};
+var _voiceNoteData = {}; // audio data map: nid -> base64 data URL
 function renderNotes(notes) {
   if (!notes || !notes.length) {
     return '<div class="empty-state" style="padding:12px 0;"><p style="font-size:0.82rem;color:var(--wood-mid);">'
