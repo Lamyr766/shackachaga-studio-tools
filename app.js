@@ -2170,6 +2170,100 @@ function playProjVoice(nid, btn) {
 
 
 // ══════════════════════════════════════════════════════════════════
+// DELIVERY CALENDAR
+// ══════════════════════════════════════════════════════════════════
+var _calYear=new Date().getFullYear(), _calMonth=new Date().getMonth(), _calSelectedDay=null;
+
+function initCalendar() {
+  if (!allProjects||!allProjects.length) { loadProjects().then(function(){ renderCalendar(); }); }
+  else renderCalendar();
+}
+function calNav(dir) {
+  _calMonth+=dir;
+  if (_calMonth>11){_calMonth=0;_calYear++;} if (_calMonth<0){_calMonth=11;_calYear--;}
+  _calSelectedDay=null; var d=document.getElementById('cal-day-detail'); if(d) d.style.display='none'; renderCalendar();
+}
+function calGoToday() {
+  _calYear=new Date().getFullYear(); _calMonth=new Date().getMonth();
+  _calSelectedDay=null; var d=document.getElementById('cal-day-detail'); if(d) d.style.display='none'; renderCalendar();
+}
+function getStatusColor(status, delivDate) {
+  var t=new Date(); t.setHours(0,0,0,0);
+  if (delivDate && new Date(delivDate)<t && status!=='done') return 'var(--red)';
+  return {quote:'var(--amber)',active:'var(--blue)',finish:'#7B4B1A',ready:'var(--green)',done:'#9E9E9E'}[status]||'var(--wood-mid)';
+}
+function renderCalendar() {
+  var fr=currentLang==='fr';
+  var MN=fr?['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']:['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var DN=fr?['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var lbl=document.getElementById('cal-month-label'); if(lbl) lbl.textContent=MN[_calMonth]+' '+_calYear;
+  var dmap={};
+  (allProjects||[]).forEach(function(p){ if(!p.delivery) return; if(!dmap[p.delivery]) dmap[p.delivery]=[]; dmap[p.delivery].push(p); });
+  var fd=new Date(_calYear,_calMonth,1), ld=new Date(_calYear,_calMonth+1,0);
+  var sdow=(fd.getDay()+6)%7, today=new Date(); today.setHours(0,0,0,0);
+  var html='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">';
+  DN.forEach(function(d){ html+='<div style="text-align:center;font-size:0.65rem;font-weight:700;color:var(--wood-mid);padding:4px 0;text-transform:uppercase;">'+d+'</div>'; });
+  for(var e=0;e<sdow;e++) html+='<div style="min-height:58px;"></div>';
+  for(var day=1;day<=ld.getDate();day++) {
+    var ds=_calYear+'-'+String(_calMonth+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    var dps=dmap[ds]||[], isT=new Date(_calYear,_calMonth,day).getTime()===today.getTime();
+    var isSel=_calSelectedDay===ds, isPast=new Date(_calYear,_calMonth,day)<today;
+    var bg=isSel?'background:var(--wood-pale);border:2px solid var(--wood-mid);':'border:2px solid transparent;';
+    var ot=isT?'outline:2px solid var(--wood-dark);outline-offset:-2px;':'';
+    html+='<div style="min-height:58px;padding:3px;border-radius:6px;cursor:pointer;'+bg+ot+'" data-ds="'+ds+'">';
+    html+='<div style="font-size:0.72rem;font-weight:'+(isT?800:600)+';color:'+(isPast&&!dps.length?'var(--wood-mid)':'var(--wood-dark)')+';">'+day+(isT?' <span style="font-size:0.58rem;background:var(--wood-dark);color:white;border-radius:3px;padding:1px 3px;">'+(fr?'auj':'tod')+'</span>':'')+  '</div>';
+    dps.slice(0,3).forEach(function(p){ var c=getStatusColor(p.status,p.delivery); html+='<div style="background:'+c+';color:white;border-radius:3px;padding:1px 4px;font-size:0.58rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px;">'+escapeHtml((p.name||'').split(' ')[0])+'</div>'; });
+    if(dps.length>3) html+='<div style="font-size:0.58rem;color:var(--wood-mid);font-weight:700;">+'+(dps.length-3)+'</div>';
+    html+='</div>';
+  }
+  var tot=sdow+ld.getDate(), rem=tot%7; if(rem>0) for(var r=rem;r<7;r++) html+='<div style="min-height:58px;"></div>';
+  html+='</div>';
+  var grid=document.getElementById('cal-grid');
+  if(grid){
+    grid.innerHTML=html;
+    grid.querySelectorAll('[data-ds]').forEach(function(el){
+      el.addEventListener('click',function(){ calSelectDay(el.getAttribute('data-ds')); });
+    });
+  }
+}
+function calSelectDay(dateStr) {
+  _calSelectedDay=dateStr; renderCalendar();
+  var fr=currentLang==='fr', today=new Date(); today.setHours(0,0,0,0);
+  var projs=(allProjects||[]).filter(function(p){ return p.delivery===dateStr; });
+  var titleEl=document.getElementById('cal-day-title');
+  if(titleEl) titleEl.textContent=new Date(dateStr).toLocaleDateString(fr?'fr-CA':'en-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  var detail=document.getElementById('cal-day-detail'), projsDiv=document.getElementById('cal-day-projects');
+  if(!projs.length){
+    if(projsDiv) projsDiv.innerHTML='<p style="font-size:0.82rem;color:var(--wood-mid);">'+(fr?'Aucune livraison prévue ce jour.':'No deliveries scheduled this day.')+'</p>';
+    if(detail) detail.style.display='block'; return;
+  }
+  if(projsDiv){
+    projsDiv.innerHTML='';
+    projs.forEach(function(p){
+      var st=getStatus()[p.status]||getStatus().new, col=getStatusColor(p.status,p.delivery);
+      var isOD=new Date(p.delivery)<today&&p.status!=='done', pid=p.id;
+      var card=document.createElement('div'); card.className='proj-card';
+      card.style.cssText='cursor:pointer;border-left:4px solid '+col+';margin-bottom:8px;padding:10px 12px;';
+      card.onclick=function(){ closeCalDay(); showPage('dashboard'); setTimeout(function(){ openProject(pid); },300); };
+      var nm=document.createElement('div'); nm.style.fontWeight='700'; nm.textContent=p.name||'—';
+      var pc=document.createElement('div'); pc.style.cssText='font-size:0.78rem;color:var(--wood-mid);'; pc.textContent=translateProjectType(p.piece||'');
+      var bdg=document.createElement('span'); bdg.className='badge '+st.cls; bdg.textContent=st.label;
+      var amt=document.createElement('div'); amt.style.cssText='font-size:0.78rem;margin-top:4px;color:'+(isOD?'var(--red)':'var(--wood-mid)')+';';
+      amt.textContent='$'+(p.amount||0).toLocaleString()+(isOD?' · '+(fr?'EN RETARD':'OVERDUE'):'');
+      var hint=document.createElement('div'); hint.style.cssText='font-size:0.72rem;color:var(--wood-mid);margin-top:3px;';
+      hint.textContent=(fr?'Appuyez pour ouvrir →':'Tap to open →');
+      [nm,pc,bdg,amt,hint].forEach(function(el){ card.appendChild(el); });
+      projsDiv.appendChild(card);
+    });
+  }
+  if(detail){ detail.style.display='block'; detail.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+}
+function closeCalDay() {
+  var d=document.getElementById('cal-day-detail'); if(d) d.style.display='none';
+  _calSelectedDay=null; renderCalendar();
+}
+
+// ══════════════════════════════════════════════════════════════════
 // PROJECT PHOTOS
 // ══════════════════════════════════════════════════════════════════
 
