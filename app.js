@@ -1074,6 +1074,11 @@ function showPage(page) {
   if (page === 'messages') initMessages();
   if (page === 'roster') initRosterPage();
   if (page === 'map') { initTeam().then(function(){ initMap(); loadMapTimeSummary(); loadMapHistory(); }); }
+  if (page === 'calendar') initCalendar();
+  if (page === 'intake') {
+    // Reset intake form on each open
+    if (typeof applyTranslations === 'function') applyTranslations();
+  }
 }
 
 function toast(msg, dur=2400) {
