@@ -2965,68 +2965,64 @@ function openAddClient() {
 
 function buildClientForm(c) {
   var isEdit = !!c;
-  var src = c ? (c.client_source||'') : '';
-  var assigned = c ? (c.assigned_to||'') : '';
-  var referred = c ? (c.referred_by||'') : '';
-  return `
-    <div class="row-2">
-      <div><label data-i18n="lbl_first_name">First Name</label><input type="text" id="cm-fn" value="\${c?c.first_name||'':''}" placeholder="Jean"></div>
-      <div><label data-i18n="lbl_last_name">Last Name</label><input type="text" id="cm-ln" value="\${c?c.last_name||'':''}" placeholder="Tremblay"></div>
-    </div>
-    <div class="row-2">
-      <div><label data-i18n="lbl_email">Email</label><input type="email" id="cm-em" value="\${c?c.email||'':''}"></div>
-      <div><label data-i18n="lbl_phone">Phone</label><input type="tel" id="cm-ph" value="\${c?c.phone||'':''}"></div>
-    </div>
-    <div class="row-2">
-      <div><label data-i18n="lbl_city">City</label><input type="text" id="cm-ci" value="\${c?c.city||'':''}" placeholder="Gatineau"></div>
-      <div><label data-i18n="lbl_pref_wood">Preferred Wood</label><input type="text" id="cm-wd" value="\${c?c.preferred_wood||'':(c&&c.notes?'':'')}" placeholder="e.g. Black Walnut"></div>
-    </div>
-    <div style="background:var(--wood-pale);border-radius:var(--radius-sm);padding:12px;margin:10px 0;border-left:3px solid var(--amber);">
-      <div style="font-size:0.72rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">🛡️ <span data-i18n="prot_client_source">Client Source & Ownership</span></div>
-      <label data-i18n="prot_client_source">How Did They Find Us?</label>
-      <select id="cm-src">
-        <option value="Instagram" \${src==='Instagram'?'selected':''}>Instagram</option>
-        <option value="Facebook" \${src==='Facebook'?'selected':''}>Facebook</option>
-        <option value="Google" \${src==='Google'?'selected':''}>Google Search</option>
-        <option value="Referral" \${src==='Referral'?'selected':''}>Client Referral</option>
-        <option value="Word of mouth" \${src==='Word of mouth'?'selected':''}>Word of Mouth</option>
-        <option value="Signage" \${src==='Signage'?'selected':''}>Signage / Drive-by</option>
-        <option value="Website" \${src==='Website'?'selected':''}>Website</option>
-        <option value="Other" \${src==='Other'||!src?'selected':''}>Other</option>
-      </select>
-      <div class="row-2" style="margin-top:8px;">
-        <div><label data-i18n="prot_referred_by">Referred By</label><input type="text" id="cm-referred" value="\${referred}" placeholder="e.g. Marie Tremblay"></div>
-        <div><label data-i18n="prot_assigned_to">Assigned To</label>
-          <select id="cm-assigned">
-            <option value="">— \${t('dyn_loading')} —</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <label data-i18n="lbl_notes">Notes</label>
-    <textarea id="cm-nt" placeholder="Any notes...">\${c?c.notes||'':''}</textarea>
-    \${isEdit ? \`
-    <div style="margin-top:12px;">
-      <div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">📝 <span data-i18n="prot_interaction_history">Interaction History</span></div>
-      <div id="client-interaction-list" style="max-height:180px;overflow-y:auto;margin-bottom:8px;font-size:0.82rem;"></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <select id="cm-itype" style="flex:1;font-size:0.8rem;padding:7px;">
-          <option value="call">📞 \${t('prot_itype_call')}</option>
-          <option value="visit">🏠 \${t('prot_itype_visit')}</option>
-          <option value="meeting">🏗️ \${t('prot_itype_meeting')}</option>
-          <option value="email">📧 \${t('prot_itype_email')}</option>
-          <option value="quote">💰 \${t('prot_itype_quote')}</option>
-          <option value="followup">🔄 \${t('prot_itype_followup')}</option>
-        </select>
-        <input type="text" id="cm-inote" placeholder="Notes..." style="flex:2;">
-        <button class="btn btn-amber btn-sm" onclick="logClientInteraction(\${c.id})">\${t('prot_log_interaction')}</button>
-      </div>
-    </div>\` : ''}
-    <div style="display:flex;gap:8px;margin-top:14px;">
-      <button class="btn btn-green" onclick="saveClient(\${isEdit?c.id:'null'})">✅ \${isEdit?t('dyn_save'):t('misc_save_create')}</button>
-      <button class="btn btn-ghost" onclick="closeModal('client-modal')">\${t('dyn_no_matches')||'Cancel'}</button>
-    </div>
-  `;
+  var isFr   = currentLang === 'fr';
+  var fn     = c ? (c.first_name||'')     : '';
+  var ln     = c ? (c.last_name||'')      : '';
+  var em     = c ? (c.email||'')          : '';
+  var ph     = c ? (c.phone||'')          : '';
+  var ci     = c ? (c.city||'')           : '';
+  var wd     = c ? (c.preferred_wood||'') : '';
+  var nt     = c ? (c.notes||'')          : '';
+  var src    = c ? (c.client_source||'')  : '';
+  var ref    = c ? (c.referred_by||'')    : '';
+
+  var srcVals   = ['Instagram','Facebook','Google','Word of mouth','Etsy','Houzz','Other'];
+  var srcFr     = ['Instagram','Facebook','Google','Bouche à oreille','Etsy','Houzz','Autre'];
+  var srcLabels = isFr ? srcFr : srcVals;
+  var srcSelect = srcVals.map(function(val, i) {
+    return '<option value="' + escapeHtml(val) + '"' + (src===val?' selected':'') + '>' + escapeHtml(srcLabels[i]) + '</option>';
+  }).join('');
+
+  var interactionSection = isEdit ? (
+    '<div style="margin-top:12px;">' +
+    '<div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">📋 ' +
+    (isFr?'Historique des interactions':'Interaction History') + '</div>' +
+    '<div id="client-interaction-list" style="max-height:180px;overflow-y:auto;margin-bottom:8px;font-size:0.82rem;"></div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+    '<select id="ci-type" style="flex:0 0 auto;font-size:0.78rem;padding:6px 8px;">' +
+    '<option value="note">📝 ' + (isFr?'Note':'Note') + '</option>' +
+    '<option value="call">📞 ' + (isFr?'Appel':'Call') + '</option>' +
+    '<option value="email">📧 ' + (isFr?'Courriel':'Email') + '</option>' +
+    '<option value="visit">🤝 ' + (isFr?'Visite':'Visit') + '</option>' +
+    '<option value="followup">🔁 ' + (isFr?'Suivi':'Follow-up') + '</option>' +
+    '</select>' +
+    '<input type="text" id="cm-inote" placeholder="' + (isFr?'Ajouter une note...':'Add a note...') + '" style="flex:1;min-width:100px;font-size:0.82rem;padding:6px 10px;">' +
+    '<button class="btn btn-primary btn-sm" onclick="logInteraction(' + c.id + ')">' + (isFr?'Ajouter':'Add') + '</button>' +
+    '</div></div>'
+  ) : '';
+
+  var deleteBtn = isEdit ? ('<button class="btn btn-red btn-sm" onclick="deleteClient(' + c.id + ')">🗑 ' + (isFr?'Supprimer':'Delete') + '</button>') : '';
+
+  return '<div class="row-2">'
+    + '<div><label>' + (isFr?'Prénom':'First Name') + '</label><input type="text" id="cm-fn" value="' + escapeHtml(fn) + '"></div>'
+    + '<div><label>' + (isFr?'Nom de famille':'Last Name') + '</label><input type="text" id="cm-ln" value="' + escapeHtml(ln) + '"></div>'
+    + '</div><div class="row-2">'
+    + '<div><label>' + (isFr?'Courriel':'Email') + '</label><input type="email" id="cm-em" value="' + escapeHtml(em) + '"></div>'
+    + '<div><label>' + (isFr?'Téléphone':'Phone') + '</label><input type="tel" id="cm-ph" value="' + escapeHtml(ph) + '"></div>'
+    + '</div><div class="row-2">'
+    + '<div><label>' + (isFr?'Ville':'City') + '</label><input type="text" id="cm-ci" value="' + escapeHtml(ci) + '"></div>'
+    + '<div><label>' + (isFr?'Bois préféré':'Preferred Wood') + '</label><input type="text" id="cm-wd" value="' + escapeHtml(wd) + '"></div>'
+    + '</div>'
+    + '<div><label>' + (isFr?'Source':'How Did They Find Us?') + '</label><select id="cm-src">' + srcSelect + '</select></div>'
+    + '<div><label>' + (isFr?'Référé par':'Referred By') + '</label><input type="text" id="cm-referred" value="' + escapeHtml(ref) + '"></div>'
+    + '<label>' + (isFr?'Notes':'Notes') + '</label>'
+    + '<textarea id="cm-nt">' + escapeHtml(nt) + '</textarea>'
+    + interactionSection
+    + '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">'
+    + '<button class="btn btn-green btn-sm" onclick="saveClient(' + (isEdit?c.id:'null') + ')">' + (isEdit ? t('dyn_save') : ('✅ ' + t('misc_save_create'))) + '</button>'
+    + deleteBtn
+    + '<button class="btn btn-ghost btn-sm" onclick="closeModal(\'client-modal\')">' + (isFr?'Annuler':'Cancel') + '</button>'
+    + '</div>';
 }
 
 async function openClient(id) {
@@ -4571,9 +4567,6 @@ function toggleCamera() {
   var btn=document.getElementById('btn-cam'); if(btn) btn.textContent=isCamOff?'📷':'📹';
 }
 
-function escapeHtml(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
 
 
 
