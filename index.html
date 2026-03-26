@@ -1260,7 +1260,10 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 <div id="page-team" class="page">
   <div class="section-header">
     <div class="section-title" id="section-team-title"><span class="en">Team</span><span class="fr">Équipe</span></div>
-    <div style="font-size:0.72rem;color:var(--wood-mid);" id="team-online-count">— online</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="font-size:0.72rem;color:var(--wood-mid);" id="team-online-count">— online</div>
+      <button id="notif-toggle-btn" onclick="requestNotifPermission()" class="btn btn-ghost btn-sm" style="font-size:0.72rem;padding:5px 10px;white-space:nowrap;"><span class="en">🔕 Enable notifications</span><span class="fr">🔕 Activer les notifications</span></button>
+    </div>
   </div>
 
   <!-- Auto-answer bar — MY toggle (all users) + per-user panel (admin only) -->
@@ -1550,4 +1553,4 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
 </div>
 
-<script src="app.js?v=29" defer></script>
+<script src="app.js?v=30" defer></script>
