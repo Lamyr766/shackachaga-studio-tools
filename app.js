@@ -1453,7 +1453,7 @@ async function updateProject(id) {
 async function advanceProject(id, newStatus) {
   if (!sb) return;
   await sb.from('projects').update({status: newStatus, updated_at: new Date().toISOString()}).eq('id', id);
-  toast(currentLang==='fr'?'→ Statut mis à jour!':'→ Status updated!'); closeModal('proj-modal');
+  toast(currentLang==='fr'?'→ Statut mis à jour!':'→ Status updated!'); closeModal('proj-modal'); notifProjectAdvanced(document.getElementById('pm-title')?.textContent||'', newStatus);
 }
 
 async function deleteProject(id) {
@@ -2292,6 +2292,124 @@ async function generatePortalLink(projectId) {
     .then(function(){ toast(currentLang==='fr'?'🔗 Lien copié!':'🔗 Link copied!'); })
     .catch(function(){ prompt(currentLang==='fr'?'Lien du portail:':'Portal link:', link); });
 }
+
+
+// ══════════════════════════════════════════════════════════════════
+// PUSH NOTIFICATIONS (Web Notifications API)
+// ══════════════════════════════════════════════════════════════════
+
+var _notifGranted = (window.Notification && Notification.permission === 'granted');
+
+async function requestNotifPermission() {
+  if (!('Notification' in window)) {
+    toast(currentLang==='fr'?'⚠️ Notifications non supportées':'⚠️ Notifications not supported');
+    return false;
+  }
+  if (Notification.permission === 'granted') {
+    _notifGranted = true;
+    toast(currentLang==='fr'?'🔔 Notifications déjà activées!':'🔔 Notifications already enabled!');
+    updateNotifBtn();
+    return true;
+  }
+  if (Notification.permission === 'denied') {
+    toast(currentLang==='fr'?'🔕 Notifications bloquées — vérifiez les paramètres du navigateur':'🔕 Notifications blocked — check browser settings');
+    return false;
+  }
+  const result = await Notification.requestPermission();
+  _notifGranted = (result === 'granted');
+  if (_notifGranted) {
+    localStorage.setItem('notif_enabled','1');
+    toast(currentLang==='fr'?'🔔 Notifications activées!':'🔔 Notifications enabled!');
+    // Send a test notification
+    sendNotif(
+      currentLang==='fr'?'Le Shackachaga — Studio Tools':'Le Shackachaga — Studio Tools',
+      currentLang==='fr'?'✅ Notifications activées pour votre atelier!':'✅ Notifications enabled for your workshop!',
+      '🪵'
+    );
+  } else {
+    toast(currentLang==='fr'?'🔕 Notifications refusées':'🔕 Notifications denied');
+  }
+  updateNotifBtn();
+  return _notifGranted;
+}
+
+function sendNotif(title, body, icon) {
+  if (!_notifGranted || !('Notification' in window)) return;
+  try {
+    var n = new Notification(title, {
+      body:  body,
+      icon:  icon || '/favicon.ico',
+      badge: '/favicon.ico',
+      tag:   'shack-' + Date.now(),
+    });
+    n.onclick = function(){ window.focus(); n.close(); };
+    setTimeout(function(){ n.close(); }, 8000);
+  } catch(e) { console.warn('Notification failed:', e.message); }
+}
+
+function updateNotifBtn() {
+  var btn = document.getElementById('notif-toggle-btn');
+  if (!btn) return;
+  var granted = window.Notification && Notification.permission === 'granted';
+  btn.textContent = granted
+    ? (currentLang==='fr'?'🔔 Activées':'🔔 Enabled')
+    : (currentLang==='fr'?'🔕 Activer les notifications':'🔕 Enable notifications');
+  btn.style.background = granted ? 'var(--green)' : '';
+  btn.style.color      = granted ? 'white' : '';
+}
+
+// Hook notifications into key events:
+// 1. New chat message from another user
+// 2. Incoming call
+// 3. Project status advance
+// 4. Team member clocks in
+
+function notifNewMessage(fromName, preview) {
+  if (!_notifGranted || !fromName) return;
+  sendNotif(
+    'Le Shackachaga — ' + escapeHtml(fromName),
+    preview ? preview.substring(0,80) : (currentLang==='fr'?'Nouveau message':'New message'),
+    '💬'
+  );
+}
+
+function notifIncomingCall(fromName, isVideo) {
+  if (!_notifGranted) return;
+  sendNotif(
+    'Le Shackachaga',
+    (currentLang==='fr'?'📞 Appel entrant de ':'📞 Incoming call from ') + escapeHtml(fromName||'Team'),
+    isVideo ? '📹' : '📞'
+  );
+}
+
+function notifProjectAdvanced(projectName, newStatus) {
+  if (!_notifGranted) return;
+  var statusLabels = {
+    quote:'Devis envoyé/Quote Sent', active:'Fabrication/In Production',
+    finish:'Finition/Finishing', ready:'Prêt/Ready', done:'Livré/Delivered'
+  };
+  var label = statusLabels[newStatus] || newStatus;
+  var parts = label.split('/');
+  var localLabel = currentLang==='fr' ? (parts[0]||label) : (parts[1]||label);
+  sendNotif(
+    'Le Shackachaga — ' + escapeHtml(projectName||''),
+    (currentLang==='fr'?'→ Statut mis à jour: ':'→ Status updated: ') + localLabel
+  );
+}
+
+function notifClockIn(memberName) {
+  if (!_notifGranted) return;
+  sendNotif(
+    'Le Shackachaga',
+    (currentLang==='fr'?' vient de pointer entrée':' just clocked in') + ' — ' + escapeHtml(memberName||'Team')
+  );
+}
+
+// Auto-check on load
+window.addEventListener('load', function() {
+  _notifGranted = !!(window.Notification && Notification.permission === 'granted');
+  setTimeout(updateNotifBtn, 500);
+});
 
 // ══════════════════════════════════════════════════════════════════
 // DELIVERY CALENDAR
@@ -3964,7 +4082,7 @@ function setupChatRealtime() {
       if (m.content === '__VOICE__' && m.voice_data) {
         appendVoiceMessage(m, false);
         var name = m.sender_name || (m.sender_email||'').split('@')[0];
-        toast('🎙️ '+name+' '+(t('voice_incoming')));
+        toast('🎙️ '+name+' '+(t('voice_incoming'))); notifNewMessage(name, currentLang==='fr'?'Note vocale':'Voice note');
         if (navigator.vibrate) navigator.vibrate([100]);
       } else {
         var el = document.getElementById('chat-messages');
