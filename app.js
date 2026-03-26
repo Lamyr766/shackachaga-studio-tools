@@ -944,10 +944,9 @@ function applyTranslations() {
   setTxt('label-rev-clients', 'rev_top_clients');
   setTxt('label-post-card', 'post_card_title');
   setTxt('label-wood-modal', 'wm_add_title');
-  // Sync label
-  const syncLabel = document.getElementById('sync-label');
-  if (syncLabel && syncLabel.textContent === currentLang==='fr'?'Veuillez vous connecter':'Please sign in' || syncLabel?.textContent === 'Veuillez vous connecter') {
-    setSyncStatus('', t('sync_signed_out'));
+  // Sync label — only update if not yet authenticated (don't overwrite live status)
+  if (!window.currentUserEmail) {
+    setSyncStatus('', currentLang==='fr'?'Veuillez vous connecter':'Please sign in');
   }
   // Translate all dropdowns
   translateSelects(lang);
@@ -1383,7 +1382,7 @@ async function submitNote(projectId) {
 
 async function updateProject(id) {
   if (!sb) return;
-  setSyncStatus('syncing','Saving...');
+  setSyncStatus('syncing', currentLang==='fr'?'Sauvegarde...':'Saving...');
   const { error } = await sb.from('projects').update({
     amount: parseFloat(document.getElementById('pm-amt').value)||0,
     balance: parseFloat(document.getElementById('pm-bal').value)||0,
@@ -1437,7 +1436,7 @@ async function saveIntake() {
     status: 'new', review: 'No',
     created: new Date().toLocaleDateString()
   };
-  setSyncStatus('syncing','Saving...');
+  setSyncStatus('syncing', currentLang==='fr'?'Sauvegarde...':'Saving...');
   const { error } = await sb.from('projects').insert([p]);
   if (error) { toast(currentLang==='fr'?'⚠️ Échec de la sauvegarde.':'⚠️ Save failed.'); console.error(error); return; }
   // Reset form
@@ -1532,7 +1531,7 @@ async function saveWood() {
     notes: document.getElementById('wm-notes').value,
     updated_at: new Date().toISOString()
   };
-  setSyncStatus('syncing','Saving...');
+  setSyncStatus('syncing', currentLang==='fr'?'Sauvegarde...':'Saving...');
   let error;
   if (currentWoodId) {
     ({ error } = await sb.from('wood_stock').update(data).eq('id', currentWoodId));
@@ -1602,7 +1601,7 @@ function copyCaption(textId, tagsId) {
 
 async function savePost() {
   if (!lastPost || !sb) return;
-  setSyncStatus('syncing','Saving...');
+  setSyncStatus('syncing', currentLang==='fr'?'Sauvegarde...':'Saving...');
   const { error } = await sb.from('saved_posts').insert([lastPost]);
   if (error) toast(currentLang==='fr'?'⚠️ Échec de la sauvegarde.':'⚠️ Save failed.');
   else { toast(currentLang==='fr'?'💾 Légende sauvegardée!':'💾 Caption saved!'); setSyncStatus('live',currentLang==='fr'?'Synchronisé':'Live sync'); loadSavedPosts(); }
@@ -1662,7 +1661,7 @@ async function doLogout() {
   document.querySelector('header').style.display = 'none';
   document.querySelector('nav').style.display = 'none';
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  setSyncStatus('', 'Signed out');
+  setSyncStatus('', currentLang==='fr'?'Déconnecté':'Signed out');
   toast(currentLang==='fr'?'Déconnecté.':'Signed out.');
 }
 
