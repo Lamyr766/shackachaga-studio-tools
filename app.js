@@ -731,6 +731,18 @@ var T = {
 };
 // Expose T globally so t() works from any context
 window.T = T;
+
+// Portal mode detection
+(function(){
+  var pt = new URLSearchParams(window.location.search).get('portal');
+  if (pt) {
+    window._portalToken = pt;
+    window._isPortalMode = true;
+    window.addEventListener('DOMContentLoaded', function(){ initPortalView(pt); });
+  }
+})();
+
+
 // Apply translations immediately on load (before login)
 if (document.readyState !== "loading") { setTimeout(function(){if(typeof applyTranslations==="function")applyTranslations();},0); } else { document.addEventListener("DOMContentLoaded",function(){if(typeof applyTranslations==="function")applyTranslations();}); }
 
@@ -1346,6 +1358,7 @@ function openProject(id) {
       <button class="btn btn-red btn-sm" onclick="deleteProject(${id})">${t('dyn_delete')}</button>
       <button class="btn btn-ghost btn-sm" onclick="duplicateProject(${id})">${t('dyn_duplicate')}</button>
       <button class="btn btn-blue btn-sm" onclick="exportQuotePDFById(${p.id})" style="background:var(--blue);">${t('dyn_pdf')}</button>
+      <button class="btn btn-ghost btn-sm" onclick="generatePortalLink(${id})">🔗 ${currentLang==='fr'?'Lien client':'Client link'}</button>
     </div>
     <!-- PHOTOS -->
     <div style="margin-top:18px;">
@@ -2168,6 +2181,117 @@ function playProjVoice(nid, btn) {
 }
 
 
+
+
+// ══════════════════════════════════════════════════════════════════
+// CLIENT PORTAL
+// ══════════════════════════════════════════════════════════════════
+
+async function initPortalView(token) {
+  var shell = document.getElementById('app-shell');
+  if (shell) shell.style.display = 'none';
+  var pc = document.getElementById('portal-container');
+  if (!pc) return;
+  pc.style.display = 'block';
+  var url = localStorage.getItem('sb_url') || window.PRECONFIGURED_URL;
+  var key = localStorage.getItem('sb_key') || window.PRECONFIGURED_KEY;
+  if (!url || !key) { showPortalError(pc, 'Configuration manquante'); return; }
+  try {
+    var sbc = window.supabase.createClient(url, key);
+    var res = await sbc.from('projects').select('*').eq('portal_token', token).limit(1);
+    if (res.error || !res.data || !res.data.length) {
+      showPortalError(pc, 'Projet introuvable / Project not found'); return;
+    }
+    renderPortalView(pc, res.data[0]);
+  } catch(e) { showPortalError(pc, e.message); }
+}
+
+function showPortalError(container, msg) {
+  container.innerHTML = '<div style="text-align:center;padding:60px 20px;">'
+    + '<div style="font-size:3rem;margin-bottom:16px;">🪵</div>'
+    + '<div style="font-family:Georgia,serif;font-size:1.2rem;color:#7B4B1A;margin-bottom:8px;">Le Shackachaga</div>'
+    + '<p style="color:#999;font-size:0.9rem;">'+escapeHtml(msg)+'</p></div>';
+}
+
+function renderPortalView(container, p) {
+  var lang = (navigator.language||'fr').startsWith('fr') ? 'fr' : 'en';
+  var isFr = lang === 'fr';
+  var SM = {
+    new:   {fr:'Nouveau',          en:'New',              pct:5,  col:'#9E9E9E'},
+    quote: {fr:'Devis envoyé',     en:'Quote Sent',       pct:15, col:'#F59E0B'},
+    active:{fr:'En fabrication',   en:'In Production',    pct:50, col:'#3B82F6'},
+    finish:{fr:'Finition',         en:'Finishing',        pct:80, col:'#7B4B1A'},
+    ready: {fr:'Prêt à livrer',    en:'Ready to Deliver', pct:95, col:'#2D6A4F'},
+    done:  {fr:'Livré',            en:'Delivered',        pct:100,col:'#9E9E9E'},
+  };
+  var st   = SM[p.status] || SM.new;
+  var pct  = st.pct;
+  var paid = p.amount ? Math.round(((p.amount||0)-(p.balance||0))/(p.amount)*100) : 0;
+  var delivStr = '';
+  if (p.delivery) delivStr = new Date(p.delivery).toLocaleDateString(isFr?'fr-CA':'en-CA',{year:'numeric',month:'long',day:'numeric'});
+  var pieceName = p.piece || '';
+  var pieceMap = {'Epoxy River Table':'Table rivière époxy','Wood Sink':'Évier en bois','Bathroom Vanity':'Meuble-lavabo','Custom Desk':'Bureau sur mesure','Staircase / Structure':'Escalier / Structure','Dining / Coffee Table':'Table salle à manger / café','Art Piece / Collectible':"Pièce d'art",'Other Custom Piece':'Pièce sur mesure'};
+  if (isFr && pieceMap[pieceName]) pieceName = pieceMap[pieceName];
+
+  container.innerHTML =
+    '<div style="max-width:500px;margin:0 auto;padding:24px 16px;">'
+  + '<div style="text-align:center;margin-bottom:24px;">'
+  + '<div style="font-family:Georgia,serif;font-size:1.5rem;font-weight:bold;color:#7B4B1A;">Le Shackachaga</div>'
+  + '<div style="font-size:0.72rem;color:#aaa;letter-spacing:0.1em;text-transform:uppercase;">Gatineau, QC · Artisan Woodworking</div>'
+  + '</div>'
+  // Project card
+  + '<div style="background:#FAF6F0;border-radius:14px;padding:18px;margin-bottom:16px;">'
+  + '<div style="font-size:0.68rem;text-transform:uppercase;color:#aaa;letter-spacing:0.08em;margin-bottom:3px;">'+(isFr?'Votre projet':'Your project')+'</div>'
+  + '<div style="font-size:1.15rem;font-weight:700;color:#2E1A00;">'+escapeHtml(p.name||'—')+'</div>'
+  + '<div style="font-size:0.85rem;color:#7B4B1A;margin-top:2px;">'+escapeHtml(pieceName)+'</div>'
+  + '</div>'
+  // Status card
+  + '<div style="background:white;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 2px 12px rgba(46,26,0,0.08);">'
+  + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+  + '<span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#aaa;">'+(isFr?'Statut':'Status')+'</span>'
+  + '<span style="background:'+st.col+';color:white;border-radius:20px;padding:4px 13px;font-size:0.8rem;font-weight:700;">'+st[lang]+'</span>'
+  + '</div>'
+  + '<div style="background:#F2EDE8;border-radius:6px;height:10px;overflow:hidden;margin-bottom:6px;">'
+  + '<div style="height:100%;border-radius:6px;background:'+st.col+';width:'+pct+'%;"></div>'
+  + '</div>'
+  + '<div style="font-size:0.68rem;color:#aaa;text-align:right;margin-bottom:14px;">'+pct+'%</div>'
+  // Step dots
+  + '<div style="display:flex;justify-content:space-between;">'
+  + Object.entries(SM).map(function(kv){
+      var k=kv[0], s=kv[1], done=pct>=s.pct;
+      return '<div style="text-align:center;flex:1;">'
+        + '<div style="width:18px;height:18px;border-radius:50%;margin:0 auto 3px;font-size:0.6rem;display:flex;align-items:center;justify-content:center;font-weight:700;background:'+(done?st.col:'#F2EDE8')+';color:'+(done?'white':'#ccc')+';border:2px solid '+(k===p.status?st.col:'transparent')+';">'+(done?'✓':'')+'</div>'
+        + '<div style="font-size:0.52rem;color:'+(done?'#7B4B1A':'#ccc')+';font-weight:'+(k===p.status?'700':'400')+';">'+s[lang].split(' ')[0]+'</div>'
+        + '</div>';
+    }).join('')
+  + '</div></div>'
+  // Details
+  + '<div style="background:white;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 2px 12px rgba(46,26,0,0.08);">'
+  + (p.amount?'<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F2EDE8;"><span style="font-size:0.82rem;color:#aaa;">'+(isFr?'Montant total':'Total amount')+'</span><span style="font-size:0.88rem;font-weight:700;color:#2E1A00;">$'+Number(p.amount).toLocaleString()+'</span></div>':'')
+  + (p.amount?'<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F2EDE8;"><span style="font-size:0.82rem;color:#aaa;">'+(isFr?'Acompte reçu':'Deposit received')+'</span><span style="font-size:0.88rem;font-weight:700;color:'+(paid>0?'#2D6A4F':'#aaa')+';">'+paid+'%</span></div>':'')
+  + (delivStr?'<div style="display:flex;justify-content:space-between;padding:7px 0;"><span style="font-size:0.82rem;color:#aaa;">'+(isFr?'Livraison prévue':'Expected delivery')+'</span><span style="font-size:0.88rem;font-weight:700;color:#2E1A00;">'+delivStr+'</span></div>':'')
+  + '</div>'
+  // Footer contact
+  + '<div style="text-align:center;padding:16px 0;">'
+  + '<div style="font-size:0.78rem;color:#aaa;margin-bottom:8px;">'+(isFr?'Des questions? Contactez-nous.':'Questions? Get in touch.')+'</div>'
+  + '<a href="tel:+13673218019" style="color:#7B4B1A;font-weight:600;font-size:0.9rem;text-decoration:none;display:block;margin-bottom:4px;">📞 (367) 321-8019</a>'
+  + '<a href="mailto:info@shackachaga.com" style="color:#7B4B1A;font-size:0.82rem;text-decoration:none;">✉️ info@shackachaga.com</a>'
+  + '<div style="margin-top:20px;font-size:0.62rem;color:#ccc;letter-spacing:0.08em;text-transform:uppercase;">Le Shackachaga · '+(isFr?'Cinq générations de savoir-faire':'Five generations of craftsmanship')+'</div>'
+  + '</div></div>';
+}
+
+async function generatePortalLink(projectId) {
+  if (!sb) return;
+  var token = 'shk-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,9);
+  var err = (await sb.from('projects').update({portal_token:token}).eq('id',projectId)).error;
+  if (err) { toast(currentLang==='fr'?'⚠️ Erreur':'⚠️ Error'); return; }
+  var p = allProjects.find(function(x){ return x.id===projectId; });
+  if (p) p.portal_token = token;
+  var link = location.origin + location.pathname + '?portal=' + token;
+  navigator.clipboard.writeText(link)
+    .then(function(){ toast(currentLang==='fr'?'🔗 Lien copié!':'🔗 Link copied!'); })
+    .catch(function(){ prompt(currentLang==='fr'?'Lien du portail:':'Portal link:', link); });
+}
 
 // ══════════════════════════════════════════════════════════════════
 // DELIVERY CALENDAR
