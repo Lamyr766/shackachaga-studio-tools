@@ -835,7 +835,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
       <option value="Custom Piece"><span class="en">Other Custom Piece</span><span class="fr">Autre pièce sur mesure</span></option>
     </select>
     <div class="row-2">
-      <div><label data-i18n="lbl_client_name"><span class="en">Client Name</span><span class="fr">Nom du client</span></label><input type="text" id="q-client" placeholder="ex. Marie L." data-i18n-ph="ph_client"></div>
+      <div><label data-i18n="lbl_client_name"><span class="en">Client Name</span><span class="fr">Nom du client</span></label><input type="text" id="q-client" placeholder="" data-i18n-ph="ph_client"></div>
       <div><label>Wood Species</label>
         <select id="q-wood">
           <option value="1.0"><span class="en">Ambrosia Maple</span><span class="fr">Érable moucheté</span></option>
@@ -977,8 +977,8 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   <div class="card">
     <div class="intake-section-title" data-i18n="sec_intake_a"><span class="en">A — Contact</span><span class="fr">A — Contact</span></div>
     <div class="row-2">
-      <div><label data-i18n="lbl_first_name"><span class="en">First Name</span><span class="fr">Prénom</span></label><input type="text" id="i-fn" placeholder="Prénom / First name" data-i18n-ph="ph_first"></div>
-      <div><label data-i18n="lbl_last_name"><span class="en">Last Name</span><span class="fr">Nom de famille</span></label><input type="text" id="i-ln" placeholder="Nom / Last name" data-i18n-ph="ph_last"></div>
+      <div><label data-i18n="lbl_first_name"><span class="en">First Name</span><span class="fr">Prénom</span></label><input type="text" id="i-fn" placeholder="" data-i18n-ph="ph_first"></div>
+      <div><label data-i18n="lbl_last_name"><span class="en">Last Name</span><span class="fr">Nom de famille</span></label><input type="text" id="i-ln" placeholder="" data-i18n-ph="ph_last"></div>
     </div>
     <div class="row-2">
       <div><label data-i18n="lbl_email"><span class="en">Email</span><span class="fr">Courriel</span></label><input type="email" id="i-em" placeholder="jean@courriel.com" data-i18n-ph="ph_email"></div>
@@ -1553,4 +1553,4 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
 </div>
 
-<script src="app.js?v=34" defer></script>
+<script src="app.js?v=35" defer></script>
