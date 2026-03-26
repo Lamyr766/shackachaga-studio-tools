@@ -1881,13 +1881,43 @@ function exportQuotePDFById(id) {
   exportQuotePDF(p);
 }
 function exportQuotePDF(p) {
-  const d = new Date();
-  const validUntil = new Date(d.getTime() + 30*24*60*60*1000).toLocaleDateString();
-  const gst = (p.amount * 0.05).toFixed(2);
-  const qst = (p.amount * 0.09975).toFixed(2);
+  const d      = new Date();
+  const lang   = currentLang || 'fr';
+  const isFr   = lang === 'fr';
+  const locale = isFr ? 'fr-CA' : 'en-CA';
+  const dateStr    = d.toLocaleDateString(locale, {year:'numeric',month:'long',day:'numeric'});
+  const validUntil = new Date(d.getTime() + 30*24*60*60*1000).toLocaleDateString(locale, {year:'numeric',month:'long',day:'numeric'});
+  const gst   = (p.amount * 0.05).toFixed(2);
+  const qst   = (p.amount * 0.09975).toFixed(2);
   const total = (p.amount * 1.14975).toFixed(2);
-  const dep = (p.amount * 0.5).toFixed(2);
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  const dep   = (p.amount * 0.5).toFixed(2);
+  const quoteNum = `${isFr?'SOUMISSION':'QUOTE'} #SH-${p.id||'000'}`;
+
+  const L = {
+    quoteFor:     isFr ? 'Soumission pour'        : 'Quote For',
+    quoteDetails: isFr ? 'Détails'                : 'Quote Details',
+    date:         isFr ? 'Date'                   : 'Date',
+    validUntil:   isFr ? 'Valide jusqu\'au'       : 'Valid until',
+    projectDesc:  isFr ? 'Description du projet'  : 'Project Description',
+    customPiece:  isFr ? 'Pièce sur mesure'       : 'Custom piece',
+    dims:         isFr ? 'Dimensions'             : 'Dimensions',
+    wood:         isFr ? 'Essence de bois'        : 'Wood species',
+    style:        isFr ? 'Style'                  : 'Style',
+    pricing:      isFr ? 'Tarification'           : 'Pricing',
+    subtotal:     isFr ? 'Sous-total'             : 'Subtotal',
+    gst:          isFr ? 'TPS (5%)'              : 'GST (5%)',
+    qst:          isFr ? 'TVQ (9,975%)'          : 'QST (9.975%)',
+    totalTax:     isFr ? 'Total (taxes incluses)' : 'Total (taxes included)',
+    deposit:      isFr ? 'Dépôt requis (50%)'    : 'Deposit required (50%)',
+    payTerms:     isFr ? 'Paiement et conditions' : 'Payment & Terms',
+    payBody:      isFr
+      ? 'Paiement accepté par virement Interac, chèque ou argent comptant.<br>Cette soumission est valide 30 jours à partir de la date d\'émission.<br>Les légères variations de couleur et de grain sont inhérentes au bois naturel — elles font partie du charme de chaque pièce unique.<br>Toute modification après le début de la fabrication peut entraîner des frais supplémentaires.'
+      : 'Payment accepted by Interac e-Transfer, cheque, or cash.<br>This quote is valid for 30 days from the date of issue.<br>Minor variations in colour and grain are inherent to natural wood — they are part of the charm of each unique piece.<br>Any modifications after fabrication starts may incur additional charges.',
+    closing:      isFr ? 'Merci pour votre confiance. C\'est un honneur de créer pour vous.' : 'Thank you for your trust. It is an honour to create for you.',
+    footer:       isFr ? 'Le Shackachaga · Gatineau, QC · Cinq générations de savoir-faire' : 'Le Shackachaga · Gatineau, QC · Five generations of craftsmanship',
+  };
+
+  const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8">
 <style>
   body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:20px;color:#2E1A00;}
   .logo{font-size:24px;font-weight:bold;color:#7B4B1A;margin-bottom:4px;}
@@ -1899,273 +1929,56 @@ function exportQuotePDF(p) {
   .section-title{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:#7B4B1A;margin-bottom:8px;}
   .footer{margin-top:40px;font-size:11px;color:#999;text-align:center;}
   @media print{body{margin:0;}}
-
-/* LANGUAGE TOGGLE */
-.lang-bar{background:#1a0f00;display:flex;justify-content:flex-end;align-items:center;padding:4px 12px;gap:6px;}
-.lang-btn{background:transparent;border:1px solid rgba(196,149,106,0.4);color:rgba(196,149,106,0.7);font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:600;letter-spacing:0.08em;padding:3px 10px;border-radius:20px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;}
-.lang-btn.active{background:var(--wood-light);border-color:var(--wood-light);color:var(--wood-dark);}
-.lang-btn:hover:not(.active){border-color:var(--wood-light);color:var(--wood-light);}
-
-
-
-/* WOOD MATERIAL CALCULATOR */
-.mat-section{background:var(--wood-pale);border-radius:var(--radius-sm);padding:14px;margin:12px 0;border-left:3px solid var(--wood-mid);}
-.mat-section-title{font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;}
-.size-chart{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px;}
-.size-btn{padding:8px 10px;border:1.5px solid var(--wood-pale);border-radius:var(--radius-sm);background:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;text-align:center;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
-.size-btn:hover,.size-btn.active{border-color:var(--wood-mid);background:var(--wood-pale);font-weight:600;}
-.size-btn .size-name{font-weight:600;color:var(--wood-dark);display:block;}
-.size-btn .size-dims{font-size:0.68rem;color:var(--wood-mid);display:block;margin-top:2px;}
-.size-btn .size-fbm{font-size:0.65rem;color:var(--green);display:block;margin-top:1px;}
-.fbm-board-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:6px;align-items:center;margin-bottom:6px;}
-@media(max-width:480px){.fbm-board-row{grid-template-columns:1fr 1fr;gap:5px;}}
-.fbm-total-box{background:var(--white);border-radius:var(--radius-sm);padding:10px 14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
-.fbm-total-label{font-size:0.8rem;color:var(--wood-mid);}
-.fbm-total-val{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--green);}
-.fbm-rate-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
-.custom-dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;}
-
-
-/* ── TEAM TAB ─────────────────────────────────────── */
-.team-tabs{display:flex;gap:0;background:var(--wood-pale);border-radius:var(--radius-sm);padding:3px;margin-bottom:16px;}
-.team-tab{flex:1;padding:8px 4px;text-align:center;font-size:0.72rem;font-weight:600;border-radius:6px;cursor:pointer;color:var(--wood-mid);transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
-.team-tab.active{background:var(--wood-dark);color:var(--white);}
-
-/* CHAT */
-.chat-wrap{display:flex;flex-direction:column;height:420px;background:var(--white);border-radius:var(--radius-sm);overflow:hidden;box-shadow:0 2px 8px rgba(46,26,0,0.08);}
-.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
-.chat-msg{max-width:78%;padding:8px 12px;border-radius:16px;font-size:0.85rem;line-height:1.45;word-break:break-word;}
-.chat-msg.mine{align-self:flex-end;background:var(--wood-dark);color:var(--white);border-bottom-right-radius:4px;}
-.chat-msg.theirs{align-self:flex-start;background:var(--wood-pale);color:var(--wood-dark);border-bottom-left-radius:4px;}
-.chat-msg-name{font-size:0.65rem;font-weight:700;margin-bottom:2px;opacity:0.7;}
-.chat-msg-time{font-size:0.6rem;opacity:0.5;margin-top:3px;text-align:right;}
-.chat-input-wrap{display:flex;gap:8px;padding:10px;border-top:1px solid var(--wood-pale);background:var(--wood-cream);}
-.chat-input-wrap input{flex:1;padding:9px 14px;border:1.5px solid var(--wood-pale);border-radius:30px;font-size:0.88rem;font-family:'DM Sans',sans-serif;outline:none;}
-.chat-input-wrap input:focus{border-color:var(--wood-mid);}
-.chat-send-btn{background:var(--wood-dark);border:none;color:var(--white);border-radius:50%;width:38px;height:38px;font-size:1.1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-
-/* GPS TEAM MAP */
-.team-map{background:var(--wood-pale);border-radius:var(--radius-sm);height:200px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:var(--wood-mid);margin-bottom:12px;overflow:hidden;position:relative;}
-.team-member-card{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white);border-radius:var(--radius-sm);box-shadow:0 2px 8px rgba(46,26,0,0.07);margin-bottom:8px;}
-.member-avatar{width:36px;height:36px;border-radius:50%;background:var(--wood-mid);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;}
-.member-info{flex:1;}
-.member-name{font-weight:600;font-size:0.88rem;}
-.member-status{font-size:0.72rem;color:var(--wood-mid);}
-.member-loc-badge{font-size:0.68rem;padding:2px 8px;border-radius:10px;font-weight:700;}
-.loc-shop-badge{background:#EAF4EE;color:var(--green);}
-.loc-travel-badge{background:#FDF8EC;color:#7a5c00;}
-.loc-onsite-badge{background:#E8F4FD;color:var(--blue);}
-.loc-offline-badge{background:var(--wood-pale);color:var(--wood-mid);}
-.online-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.dot-green{background:var(--green-light);}
-.dot-amber{background:var(--amber);}
-.dot-grey{background:#90A4AE;}
-
-/* CALL UI */
-.call-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px;}
-.call-user-card{background:var(--white);border-radius:var(--radius-sm);padding:14px;text-align:center;box-shadow:0 2px 8px rgba(46,26,0,0.08);cursor:pointer;transition:all 0.15s;}
-.call-user-card:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
-.call-avatar{width:48px;height:48px;border-radius:50%;background:var(--wood-mid);color:var(--white);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;margin:0 auto 8px;}
-.call-user-name{font-size:0.82rem;font-weight:600;margin-bottom:6px;}
-.call-btns{display:flex;gap:6px;justify-content:center;}
-.call-btn{border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
-.call-btn-voice{background:#EAF4EE;color:var(--green);}
-.call-btn-video{background:#E8F4FD;color:var(--blue);}
-
-/* ACTIVE CALL OVERLAY */
-.call-overlay{position:fixed;inset:0;background:rgba(46,26,0,0.92);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
-.call-overlay.hidden{display:none;}
-.call-video-wrap{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;}
-.call-video-wrap video{border-radius:12px;background:#111;width:160px;height:120px;object-fit:cover;}
-.call-video-wrap video.main-video{width:280px;height:200px;}
-.call-status-text{color:var(--white);font-size:1rem;margin-bottom:20px;text-align:center;}
-.call-controls{display:flex;gap:14px;}
-.call-ctrl-btn{border:none;border-radius:50%;width:52px;height:52px;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.call-ctrl-btn.hangup{background:var(--red);}
-.call-ctrl-btn.mute{background:rgba(255,255,255,0.2);}
-.call-ctrl-btn.cam{background:rgba(255,255,255,0.2);}
-
-/* INCOMING CALL */
-.incoming-call{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--wood-dark);color:var(--white);border-radius:var(--radius);padding:16px 20px;z-index:400;box-shadow:0 8px 32px rgba(0,0,0,0.4);min-width:260px;text-align:center;display:none;}
-.incoming-call.show{display:block;animation:slideUp 0.3s ease;}
-@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
-
-
-/* MAP PAGE */
-.map-stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
-.map-stat-box{flex:1;min-width:80px;background:var(--wood-pale);border-radius:var(--radius-sm);padding:10px;text-align:center;}
-.map-stat-val{font-size:1.3rem;font-weight:700;font-family:'Playfair Display',serif;color:var(--wood-dark);}
-.map-stat-lbl{font-size:0.7rem;color:var(--wood-mid);text-transform:uppercase;}
-.map-user-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--wood-pale);}
-.map-user-row:last-child{border-bottom:none;}
-.map-loc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.map-time-bar{height:8px;border-radius:4px;background:var(--wood-pale);margin-top:4px;overflow:hidden;}
-.map-time-fill{height:100%;border-radius:4px;background:var(--green-light);}
-
-
-/* VOICE MESSAGES */
-.voice-msg-wrap{display:flex;align-items:center;gap:8px;padding:4px 0;}
-.voice-play-btn{background:var(--wood-dark);border:none;color:white;border-radius:50%;width:32px;height:32px;cursor:pointer;flex-shrink:0;font-size:0.9rem;display:flex;align-items:center;justify-content:center;}
-.voice-play-btn.playing{background:var(--green);}
-.voice-waveform{flex:1;height:28px;background:var(--wood-pale);border-radius:14px;position:relative;overflow:hidden;cursor:pointer;}
-.voice-progress{height:100%;background:linear-gradient(90deg,var(--wood-mid),var(--wood-dark));border-radius:14px;transition:width 0.1s;width:0%;}
-.voice-duration{font-size:0.68rem;color:var(--wood-mid);flex-shrink:0;min-width:28px;text-align:right;}
-.voice-record-wrap{display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid var(--wood-pale);}
-.voice-record-btn{background:var(--red);border:none;color:white;border-radius:50%;width:36px;height:36px;font-size:1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
-.voice-record-btn.recording{background:#ff1744;animation:pulse-red 1s infinite;}
-@keyframes pulse-red{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
-.voice-timer{font-size:0.78rem;color:var(--red);font-weight:700;min-width:36px;}
-
-
-
-/* ── ANDROID / MOBILE FIXES ────────────────────────── */
-@media (max-width: 480px) {
-  /* Header — prevent sign-out from being clipped */
-  .header-inner {
-    padding: 6px 10px;
-    flex-wrap: nowrap;
-    gap: 6px;
-  }
-  .header-inner .logo div {
-    font-size: 0.8rem;
-  }
-  .header-inner .logo span {
-    display: none; /* hide "Studio Tools" sub-label on small screens */
-  }
-  .sync-status {
-    font-size: 0.65rem;
-    max-width: 80px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  /* Sign out button — always fully visible */
-  button[onclick="doLogout()"],
-  button[data-i18n="misc_sign_out"] {
-    font-size: 0.68rem !important;
-    padding: 6px 8px !important;
-    min-width: 64px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  /* Nav — horizontal scroll, never wraps */
-  #main-nav {
-    display: flex;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    gap: 0;
-    padding: 0;
-  }
-  #main-nav::-webkit-scrollbar { display: none; }
-  .nav-tab {
-    flex-shrink: 0;
-    font-size: 0.72rem;
-    padding: 10px 12px;
-    white-space: nowrap;
-  }
-  /* Pages — full width, no horizontal overflow */
-  .page {
-    padding: 12px 10px;
-    overflow-x: hidden;
-  }
-  /* Cards — full width */
-  .card { padding: 12px; }
-  /* Buttons — easier to tap */
-  .btn { min-height: 44px; font-size: 0.9rem; }
-  /* Tables / grids — scroll horizontally */
-  .call-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
-  /* Row-2 — stack on very small screens */
-  .row-2 { grid-template-columns: 1fr; }
-  /* Modal — full screen on mobile */
-  .modal {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    margin: 0 !important;
-    border-radius: 12px 12px 0 0 !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-  }
-  .modal-overlay {
-    align-items: flex-end !important;
-  }
-  /* Revenue chart — scrollable */
-  #rev-chart { overflow-x: auto; }
-}
-
-@media (max-width: 360px) {
-  .nav-tab { font-size: 0.65rem; padding: 9px 9px; }
-  .btn-block { font-size: 0.88rem; }
-}
-
-/* AUTO-ANSWER TOGGLE */
-.auto-answer-bar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--wood-pale);border-radius:var(--radius-sm);margin-bottom:10px;font-size:0.82rem;}
-.auto-answer-bar .aa-label{flex:1;font-weight:600;color:var(--wood-dark);}
-.aa-toggle{position:relative;width:44px;height:24px;flex-shrink:0;}
-.aa-toggle input{opacity:0;width:0;height:0;}
-.aa-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:24px;transition:0.3s;}
-.aa-slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;}
-.aa-toggle input:checked + .aa-slider{background:var(--green);}
-.aa-toggle input:checked + .aa-slider:before{transform:translateX(20px);}
-.aa-countdown{font-size:0.72rem;color:var(--amber);font-weight:700;min-width:20px;text-align:center;}
-
 </style></head><body>
 <div class="logo">Le Shackachaga</div>
 <div class="sub">www.leshackachaga.com · info@shackachaga.com · (367)-321-8019 · Gatineau, QC</div>
 <hr>
 <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
-  <div><div class="section-title">Quote For</div><strong>${p.name||'—'}</strong><br>
-  ${p.email?p.email+'<br>':''}${p.phone||''}</div>
-  <div style="text-align:right;"><div class="section-title">Quote Details</div>
-  Date: ${d.toLocaleDateString()}<br>Valid until: ${validUntil}<br>
-  <strong style="color:#9B2335;">QUOTE #SH-${p.id||'000'}</strong></div>
+  <div>
+    <div class="section-title">${L.quoteFor}</div>
+    <strong>${p.name||'—'}</strong><br>
+    ${p.email?p.email+'<br>':''}${p.phone||''}
+  </div>
+  <div style="text-align:right;">
+    <div class="section-title">${L.quoteDetails}</div>
+    ${L.date}: ${dateStr}<br>
+    ${L.validUntil}: ${validUntil}<br>
+    <strong style="color:#9B2335;">${quoteNum}</strong>
+  </div>
 </div>
-<div class="section"><div class="section-title">Project Description</div>
-<div style="font-size:13px;line-height:1.6;padding:12px;background:#FAF6F0;border-radius:8px;">
-  <strong>${p.piece||'Custom piece'}</strong><br>
-  ${p.dims?'Dimensions: '+p.dims+'<br>':''}
-  ${p.wood?'Wood species: '+p.wood+'<br>':''}
-  ${p.style?'Style: '+p.style+'<br>':''}
-  ${p.vision||''}
-</div></div>
-<div class="section"><div class="section-title">Pricing</div>
-<div class="row"><span>Subtotal</span><span>$${(p.amount||0).toLocaleString()}</span></div>
-<div class="row"><span>GST (5%)</span><span>$${gst}</span></div>
-<div class="row"><span>QST (9.975%)</span><span>$${qst}</span></div>
-<div class="total-row"><span>Total (taxes included)</span><span>$${total}</span></div>
-<div class="row" style="color:#7B4B1A;"><span>Deposit required to start (50%)</span><span>$${dep}</span></div>
+<div class="section">
+  <div class="section-title">${L.projectDesc}</div>
+  <div style="font-size:13px;line-height:1.6;padding:12px;background:#FAF6F0;border-radius:8px;">
+    <strong>${translateProjectType(p.piece)||L.customPiece}</strong><br>
+    ${p.dims?L.dims+': '+p.dims+'<br>':''}
+    ${p.wood?L.wood+': '+p.wood+'<br>':''}
+    ${p.style?L.style+': '+p.style+'<br>':''}
+    ${p.vision||''}
+  </div>
 </div>
-<div class="section"><div class="section-title">Payment & Terms</div>
-<div style="font-size:12px;line-height:1.7;color:#555;">
-Payment accepted by Interac e-Transfer, cheque, or cash.<br>
-This quote is valid for 30 days from the date of issue.<br>
-Minor variations in colour and grain are inherent to natural wood — they are part of the charm of each unique piece.<br>
-Any modifications after fabrication starts may incur additional charges.
-</div></div>
+<div class="section">
+  <div class="section-title">${L.pricing}</div>
+  <div class="row"><span>${L.subtotal}</span><span>$${(p.amount||0).toLocaleString()}</span></div>
+  <div class="row"><span>${L.gst}</span><span>$${gst}</span></div>
+  <div class="row"><span>${L.qst}</span><span>$${qst}</span></div>
+  <div class="total-row"><span>${L.totalTax}</span><span>$${total}</span></div>
+  <div class="row" style="color:#7B4B1A;"><span>${L.deposit}</span><span>$${dep}</span></div>
+</div>
+<div class="section">
+  <div class="section-title">${L.payTerms}</div>
+  <div style="font-size:12px;line-height:1.7;color:#555;">${L.payBody}</div>
+</div>
 <hr>
-<div style="text-align:center;font-style:italic;color:#7B4B1A;font-size:13px;">Thank you for your trust. It is an honour to create for you.</div>
-<div class="footer">Le Shackachaga · Gatineau, QC · Five generations of craftsmanship</div>
+<div style="text-align:center;font-style:italic;color:#7B4B1A;font-size:13px;">${L.closing}</div>
+<div class="footer">${L.footer}</div>
+</body></html>`;
 
-<script>
-if ('serviceWorker' in navigator) {
-  const swCode = `
-const CACHE = 'shack-v21';
-const ASSETS = [location.href];
-self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))));
-self.addEventListener('fetch', e => e.respondWith(
-  fetch(e.request).catch(() => caches.match(e.request))
-));`;
-  const blob = new Blob([swCode], {type:'application/javascript'});
-  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
-}
-<\/script>
-<\/body><\/html>`;
   const w = window.open('','_blank');
   w.document.write(html);
   w.document.close();
   setTimeout(() => w.print(), 500);
 }
+
 
 // ══════════════════════════════════════════════════
 // GLOBAL SEARCH
