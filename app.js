@@ -1109,24 +1109,25 @@ function calcQuote() {
 
   lastQuote = {type, client, matT, lab, ohAmt, mgAmt, del, min, sug, dep, total, gst, qst};
 
-  document.getElementById('q-res-title').textContent = (client ? client + ' — ' : '') + (type || 'Custom Project');
+  document.getElementById('q-res-title').textContent = (client ? client + ' — ' : '') + (translateProjectType(type) || (isFr?'Projet sur mesure':'Custom Project'));
 
+  const isFr = currentLang === 'fr';
   let html = [
-    ['Materials (incl. wood factor)', `$${matT.toFixed(2)}`],
-    [`Labour (${hrs}h × $${rate} × complexity)`, `$${lab.toFixed(2)}`],
-    [`Overhead (${Math.round(oh*100)}%)`, `$${ohAmt.toFixed(2)}`],
-    [`Profit margin (${Math.round(mg*100)}%)`, `$${mgAmt.toFixed(2)}`],
-    ...(del ? [['Delivery', `$${del.toFixed(2)}`]] : [])
+    [isFr ? `Matériaux (incl. facteur bois)` : `Materials (incl. wood factor)`, `$${matT.toFixed(2)}`],
+    [isFr ? `Main-d'œuvre (${hrs}h × ${rate}$/h × complexité)` : `Labour (${hrs}h × $${rate} × complexity)`, `$${lab.toFixed(2)}`],
+    [isFr ? `Frais généraux (${Math.round(oh*100)}%)` : `Overhead (${Math.round(oh*100)}%)`, `$${ohAmt.toFixed(2)}`],
+    [isFr ? `Marge bénéficiaire (${Math.round(mg*100)}%)` : `Profit margin (${Math.round(mg*100)}%)`, `$${mgAmt.toFixed(2)}`],
+    ...(del ? [[isFr ? 'Livraison' : 'Delivery', `$${del.toFixed(2)}`]] : [])
   ].map(([l,v]) => `<div class="price-row"><span class="price-label">${l}</span><span class="price-val">${v}</span></div>`).join('');
 
   html += `<div class="result-box green">
-    <div class="price-row"><span class="price-label">Minimum price floor</span><span class="price-val">$${min.toFixed(0)}</span></div>
-    <div class="price-row"><span class="price-label">Suggested price</span><span class="price-total">$${sug.toLocaleString()}</span></div>
-    <div class="price-row"><span class="price-label">50% deposit</span><span class="price-val">$${dep.toLocaleString()}</span></div>
+    <div class="price-row"><span class="price-label">${isFr?'Prix plancher minimum':'Minimum price floor'}</span><span class="price-val">$${min.toFixed(0)}</span></div>
+    <div class="price-row"><span class="price-label">${isFr?'Prix suggéré':'Suggested price'}</span><span class="price-total">$${sug.toLocaleString()}</span></div>
+    <div class="price-row"><span class="price-label">${isFr?'Dépôt 50%':'50% deposit'}</span><span class="price-val">$${dep.toLocaleString()}</span></div>
     <div style="border-top:1px solid rgba(45,106,79,0.2);margin-top:8px;padding-top:8px;">
-      <div class="price-row"><span class="price-label">+ GST (5%)</span><span class="price-val">$${gst.toFixed(2)}</span></div>
-      <div class="price-row"><span class="price-label">+ QST (9.975%)</span><span class="price-val">$${qst.toFixed(2)}</span></div>
-      <div class="price-row"><span class="price-label" style="font-weight:700;">Total with taxes</span><span class="price-total">$${total.toFixed(2)}</span></div>
+      <div class="price-row"><span class="price-label">${isFr?'+ TPS (5%)':'+ GST (5%)'}</span><span class="price-val">$${gst.toFixed(2)}</span></div>
+      <div class="price-row"><span class="price-label">${isFr?'+ TVQ (9,975%)':'+ QST (9.975%)'}</span><span class="price-val">$${qst.toFixed(2)}</span></div>
+      <div class="price-row"><span class="price-label" style="font-weight:700;">${isFr?'Total taxes incluses':'Total with taxes'}</span><span class="price-total">$${total.toFixed(2)}</span></div>
     </div>
   </div>`;
 
