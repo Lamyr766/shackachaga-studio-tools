@@ -1351,10 +1351,10 @@ function openProject(id) {
     <div style="margin-top:18px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:0.06em;">
-          📸 ${currentLang==='fr'?'Photos':'Photos'}
+          📸 ${currentLang==='fr'?'Photos du projet':'Project Photos'}
         </div>
         <label style="background:var(--wood-dark);color:white;border-radius:20px;padding:5px 13px;font-size:0.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;">
-          + ${currentLang==='fr'?'Photo':'Photo'}
+          + ${currentLang==='fr'?'Ajouter photo':'Add photo'}
           <input type="file" accept="image/*" multiple style="display:none;"
             onchange="Array.from(this.files).forEach(function(f){uploadProjectPhoto(${id},f)});this.value='';">
         </label>
