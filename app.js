@@ -2195,7 +2195,7 @@ async function initPortalView(token) {
   pc.style.display = 'block';
   var url = localStorage.getItem('sb_url') || window.PRECONFIGURED_URL;
   var key = localStorage.getItem('sb_key') || window.PRECONFIGURED_KEY;
-  if (!url || !key) { showPortalError(pc, 'Configuration manquante'); return; }
+  if (!url || !key) { showPortalError(pc, 'Configuration manquante / Missing configuration'); return; }
   try {
     var sbc = window.supabase.createClient(url, key);
     var res = await sbc.from('projects').select('*').eq('portal_token', token).limit(1);
