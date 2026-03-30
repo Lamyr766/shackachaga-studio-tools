@@ -2631,6 +2631,11 @@ async function deleteWorkTask(taskId) {
 }
 
 function showAddTaskModal(dateStr) {
+  // Default to today if called without a date (e.g. from the + Plan a Task button)
+  if (!dateStr) {
+    var n = new Date();
+    dateStr = n.getFullYear() + '-' + ('0'+(n.getMonth()+1)).slice(-2) + '-' + ('0'+n.getDate()).slice(-2);
+  }
   var fr=currentLang==='fr';
   var el=document.getElementById('add-task-modal'); if(el) el.remove();
   var d=new Date(dateStr+'T12:00:00');
