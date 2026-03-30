@@ -9,7 +9,7 @@
 var ADMIN_USERS = ['thebigjay766@gmail.com','matg32_@hotmail.com','claude@anthropic.com'];
 
 // Admin-only tabs (hidden for regular employees)
-var ADMIN_TABS = ['tab-revenue','tab-post','tab-team','tab-map','tab-roster'];
+var ADMIN_TABS = ['tab-revenue','tab-post','tab-team','tab-map','tab-roster','tab-intake'];
 
 function isAdmin(email) {
   var e = (email || currentUserEmail || '').toLowerCase().trim();
