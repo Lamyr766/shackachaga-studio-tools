@@ -1074,6 +1074,7 @@ function showPage(page) {
   if (page === 'messages') initMessages();
   if (page === 'roster') initRosterPage();
   if (page === 'map') { initTeam().then(function(){ initMap(); loadMapTimeSummary(); loadMapHistory(); }); }
+  if (page === 'qb') { initQBPage(); }
   if (page === 'calendar') initCalendar();
   if (page === 'intake') {
     // Reset intake form on each open
@@ -6150,7 +6151,7 @@ function playVoiceMsg(msgId) {
 // ADMIN ACCESS CONTROL
 // ══════════════════════════════════════════════════
 var ADMIN_USERS = ['thebigjay766@gmail.com','matg32_@hotmail.com','claude@anthropic.com'];
-var ADMIN_TABS  = ['tab-revenue','tab-post','tab-team','tab-map','tab-roster','tab-intake'];
+var ADMIN_TABS  = ['tab-revenue','tab-post','tab-team','tab-map','tab-roster','tab-intake','tab-qb'];
 function isAdmin(email) {
   var e = (email || currentUserEmail || '').toLowerCase().trim();
   return ADMIN_USERS.some(function(a){ return a.toLowerCase() === e; });
@@ -6163,3 +6164,372 @@ function applyTabVisibility() {
   });
 }
 
+
+
+// ══════════════════════════════════════════════════════════════════
+// QUICKBOOKS ONLINE INTEGRATION
+// ══════════════════════════════════════════════════════════════════
+
+var _qbTokens    = null;   // {access_token, refresh_token, expires_at, realm_id}
+var _qbCreds     = null;   // {client_id, client_secret, realm_id}
+var QB_AUTH_URL  = 'https://appcenter.intuit.com/connect/oauth2';
+var QB_TOKEN_URL = 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer';
+var QB_API_BASE  = 'https://quickbooks.api.intuit.com/v3/company';
+var QB_SCOPE     = 'com.intuit.quickbooks.accounting';
+var QB_REDIRECT  = window.location.origin + window.location.pathname;
+
+// ── Init ─────────────────────────────────────────────────────────
+function initQBPage() {
+  _qbCreds  = loadQBCreds();
+  _qbTokens = loadQBTokens();
+  // Check if we're returning from OAuth redirect with ?code=
+  var params = new URLSearchParams(window.location.search);
+  var code   = params.get('code');
+  var state  = params.get('state');
+  var realmId= params.get('realmId');
+  if (code && state === 'qb_oauth') {
+    // Remove code from URL cleanly
+    window.history.replaceState({}, '', window.location.pathname);
+    qbExchangeCode(code, realmId);
+    return;
+  }
+  qbRenderState();
+}
+
+// ── Credential storage ────────────────────────────────────────────
+function loadQBCreds() {
+  try { return JSON.parse(localStorage.getItem('qb_creds') || 'null'); } catch(e){ return null; }
+}
+function saveQBCreds(creds) {
+  localStorage.setItem('qb_creds', JSON.stringify(creds));
+  _qbCreds = creds;
+}
+function loadQBTokens() {
+  try { return JSON.parse(localStorage.getItem('qb_tokens') || 'null'); } catch(e){ return null; }
+}
+function saveQBTokens(t) {
+  localStorage.setItem('qb_tokens', JSON.stringify(t));
+  _qbTokens = t;
+}
+
+// ── Save credentials + start OAuth ───────────────────────────────
+function qbSaveCredentials() {
+  var fr = currentLang === 'fr';
+  var clientId     = document.getElementById('qb-client-id')?.value?.trim();
+  var clientSecret = document.getElementById('qb-client-secret')?.value?.trim();
+  var realmId      = document.getElementById('qb-realm-id')?.value?.trim();
+  if (!clientId || !clientSecret || !realmId) {
+    toast(fr ? '⚠️ Remplissez tous les champs' : '⚠️ Fill in all fields');
+    return;
+  }
+  saveQBCreds({client_id: clientId, client_secret: clientSecret, realm_id: realmId});
+  // Build OAuth URL and open popup
+  var authUrl = QB_AUTH_URL
+    + '?client_id='    + encodeURIComponent(clientId)
+    + '&redirect_uri=' + encodeURIComponent(QB_REDIRECT)
+    + '&response_type=code'
+    + '&scope='        + encodeURIComponent(QB_SCOPE)
+    + '&state=qb_oauth';
+  toast(fr ? '🔗 Redirection vers QuickBooks...' : '🔗 Redirecting to QuickBooks...');
+  setTimeout(function(){ window.location.href = authUrl; }, 800);
+}
+
+// ── Exchange authorization code for tokens ────────────────────────
+async function qbExchangeCode(code, realmId) {
+  var fr = currentLang === 'fr';
+  if (!_qbCreds) { toast(fr ? '⚠️ Identifiants manquants' : '⚠️ Missing credentials'); return; }
+  toast(fr ? '⏳ Connexion à QuickBooks...' : '⏳ Connecting to QuickBooks...');
+  try {
+    var creds64 = btoa(_qbCreds.client_id + ':' + _qbCreds.client_secret);
+    var body = 'grant_type=authorization_code'
+      + '&code='         + encodeURIComponent(code)
+      + '&redirect_uri=' + encodeURIComponent(QB_REDIRECT);
+    var res = await fetch(QB_TOKEN_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + creds64,
+        'Content-Type':  'application/x-www-form-urlencoded',
+        'Accept':        'application/json',
+      },
+      body: body
+    });
+    var data = await res.json();
+    if (!res.ok || !data.access_token) {
+      throw new Error(data.error_description || data.error || 'Token exchange failed');
+    }
+    var tokens = {
+      access_token:   data.access_token,
+      refresh_token:  data.refresh_token,
+      expires_at:     Date.now() + (data.expires_in - 60) * 1000,
+      realm_id:       realmId || _qbCreds.realm_id,
+    };
+    saveQBTokens(tokens);
+    if (realmId) {
+      _qbCreds.realm_id = realmId;
+      saveQBCreds(_qbCreds);
+    }
+    // Fetch company info to confirm
+    await qbGetCompanyInfo();
+    toast(fr ? '✅ QuickBooks connecté!' : '✅ QuickBooks connected!');
+    qbLogEntry(fr ? '✅ Connexion établie' : '✅ Connection established');
+    qbRenderState();
+  } catch(e) {
+    toast('⚠️ QB: ' + e.message);
+    qbLogEntry('❌ ' + e.message);
+  }
+}
+
+// ── Token refresh ─────────────────────────────────────────────────
+async function qbRefreshTokens() {
+  if (!_qbTokens?.refresh_token || !_qbCreds) return false;
+  try {
+    var creds64 = btoa(_qbCreds.client_id + ':' + _qbCreds.client_secret);
+    var res = await fetch(QB_TOKEN_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + creds64,
+        'Content-Type':  'application/x-www-form-urlencoded',
+        'Accept':        'application/json',
+      },
+      body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(_qbTokens.refresh_token)
+    });
+    var data = await res.json();
+    if (!res.ok || !data.access_token) throw new Error(data.error || 'Refresh failed');
+    _qbTokens.access_token  = data.access_token;
+    _qbTokens.refresh_token = data.refresh_token || _qbTokens.refresh_token;
+    _qbTokens.expires_at    = Date.now() + (data.expires_in - 60) * 1000;
+    saveQBTokens(_qbTokens);
+    return true;
+  } catch(e) {
+    qbLogEntry('⚠️ Token refresh failed: ' + e.message);
+    return false;
+  }
+}
+
+// ── Authenticated QB API call ─────────────────────────────────────
+async function qbAPI(method, endpoint, body) {
+  if (!_qbTokens) throw new Error('Not connected to QuickBooks');
+  // Refresh if expired
+  if (Date.now() > _qbTokens.expires_at) {
+    var ok = await qbRefreshTokens();
+    if (!ok) throw new Error('Session expired — please reconnect');
+  }
+  var url = QB_API_BASE + '/' + _qbTokens.realm_id + '/' + endpoint
+    + (endpoint.includes('?') ? '&' : '?') + 'minorversion=70';
+  var opts = {
+    method: method || 'GET',
+    headers: {
+      'Authorization': 'Bearer ' + _qbTokens.access_token,
+      'Accept':        'application/json',
+      'Content-Type':  'application/json',
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  var res = await fetch(url, opts);
+  var data = await res.json();
+  if (!res.ok) throw new Error(data?.Fault?.Error?.[0]?.Message || 'QB API error ' + res.status);
+  return data;
+}
+
+// ── Get company info ──────────────────────────────────────────────
+async function qbGetCompanyInfo() {
+  var data = await qbAPI('GET', 'companyinfo/' + _qbTokens.realm_id);
+  var name = data?.CompanyInfo?.CompanyName || 'QuickBooks Company';
+  localStorage.setItem('qb_company_name', name);
+  var el = document.getElementById('qb-company-name');
+  if (el) el.textContent = name;
+  return name;
+}
+
+// ── Sync: Clients → QB Customers ─────────────────────────────────
+async function qbSyncClients() {
+  var fr = currentLang === 'fr';
+  if (!_qbTokens) { toast(fr ? '⚠️ Non connecté' : '⚠️ Not connected'); return; }
+  if (!allClients?.length) { await loadClients(); }
+  toast(fr ? '⏳ Sync clients...' : '⏳ Syncing clients...');
+  var pushed = 0, skipped = 0, errors = 0;
+
+  for (var i = 0; i < allClients.length; i++) {
+    var c = allClients[i];
+    var displayName = ((c.first_name||'') + ' ' + (c.last_name||'')).trim() || c.email || 'Client';
+    try {
+      var customer = {
+        DisplayName:      displayName,
+        GivenName:        c.first_name || '',
+        FamilyName:       c.last_name  || '',
+        PrimaryEmailAddr: c.email ? { Address: c.email } : undefined,
+        PrimaryPhone:     c.phone ? { FreeFormNumber: c.phone } : undefined,
+        BillAddr:         c.city  ? { City: c.city } : undefined,
+        Notes:            c.notes || undefined,
+      };
+      // Remove undefined keys
+      Object.keys(customer).forEach(function(k){ if (customer[k] === undefined) delete customer[k]; });
+      await qbAPI('POST', 'customer', customer);
+      pushed++;
+    } catch(e) {
+      if (e.message.includes('Duplicate')) skipped++;
+      else { errors++; qbLogEntry('⚠️ ' + displayName + ': ' + e.message); }
+    }
+  }
+
+  var msg = fr
+    ? pushed + ' client(s) envoyés, ' + skipped + ' doublons ignorés'
+    : pushed + ' pushed, ' + skipped + ' duplicates skipped';
+  if (errors) msg += (fr ? ', ' + errors + ' erreur(s)' : ', ' + errors + ' error(s)');
+  toast('✅ ' + msg);
+  qbLogEntry('👥 ' + msg);
+  updateQBStats();
+}
+
+// ── Sync: Projects → QB Invoices ─────────────────────────────────
+async function qbSyncInvoices() {
+  var fr = currentLang === 'fr';
+  if (!_qbTokens) { toast(fr ? '⚠️ Non connecté' : '⚠️ Not connected'); return; }
+  if (!allProjects?.length) { await loadProjects(); }
+  var toSync = allProjects.filter(function(p){ return p.amount && p.amount > 0; });
+  toast(fr ? '⏳ Sync factures...' : '⏳ Syncing invoices...');
+  var pushed = 0, errors = 0;
+
+  for (var i = 0; i < toSync.length; i++) {
+    var p = toSync[i];
+    var isFr2 = currentLang === 'fr';
+    try {
+      var invoice = {
+        Line: [{
+          Amount:          p.amount,
+          DetailType:      'SalesItemLineDetail',
+          Description:     translateProjectType(p.piece || '') + (p.notes ? ' — ' + p.notes : ''),
+          SalesItemLineDetail: { UnitPrice: p.amount, Qty: 1 },
+        }],
+        CustomerRef:      { name: p.name || 'Client' },
+        DocNumber:        'SHACK-' + p.id,
+        TxnDate:          (p.delivery || new Date().toISOString().split('T')[0]),
+        DueDate:          (p.delivery || new Date().toISOString().split('T')[0]),
+        PrivateNote:      (isFr2 ? 'Importé depuis Le Shackachaga Studio Tools' : 'Imported from Le Shackachaga Studio Tools'),
+      };
+      if (p.status === 'done') invoice.Balance = 0;
+      await qbAPI('POST', 'invoice', invoice);
+      pushed++;
+    } catch(e) {
+      errors++;
+      qbLogEntry('⚠️ Invoice ' + p.id + ': ' + e.message);
+    }
+  }
+
+  var msg = fr
+    ? pushed + ' facture(s) envoyée(s)' + (errors ? ', ' + errors + ' erreur(s)' : '')
+    : pushed + ' invoice(s) pushed' + (errors ? ', ' + errors + ' error(s)' : '');
+  toast('✅ ' + msg);
+  qbLogEntry('🧾 ' + msg);
+  updateQBStats();
+}
+
+// ── Sync: Wood stock purchases → QB Expenses ─────────────────────
+async function qbSyncExpenses() {
+  var fr = currentLang === 'fr';
+  if (!_qbTokens) { toast(fr ? '⚠️ Non connecté' : '⚠️ Not connected'); return; }
+  toast(fr ? '⏳ Sync dépenses...' : '⏳ Syncing expenses...');
+  // Load wood stock to use as materials expense
+  var pushed = 0;
+  try {
+    if (allWoodStock && allWoodStock.length) {
+      var totalCost = allWoodStock.reduce(function(s, w){ return s + ((w.cost_per_unit||0) * (w.quantity||1)); }, 0);
+      if (totalCost > 0) {
+        var expense = {
+          Line: [{
+            Amount:        totalCost,
+            DetailType:    'AccountBasedExpenseLineDetail',
+            Description:   fr ? 'Matériaux — Inventaire Le Shackachaga' : 'Materials — Le Shackachaga Inventory',
+            AccountBasedExpenseLineDetail: {
+              AccountRef: { name: 'Cost of Goods Sold' },
+            },
+          }],
+          PaymentType: 'Cash',
+          TxnDate:     new Date().toISOString().split('T')[0],
+          PrivateNote: fr ? 'Importé depuis Le Shackachaga Studio Tools' : 'Imported from Le Shackachaga Studio Tools',
+        };
+        await qbAPI('POST', 'purchase', expense);
+        pushed++;
+      }
+    }
+    var msg = fr ? pushed + ' dépense(s) envoyée(s)' : pushed + ' expense(s) pushed';
+    toast('✅ ' + msg);
+    qbLogEntry('💸 ' + msg);
+  } catch(e) {
+    toast('⚠️ ' + e.message);
+    qbLogEntry('❌ Expenses: ' + e.message);
+  }
+  updateQBStats();
+}
+
+// ── Full sync ─────────────────────────────────────────────────────
+async function qbFullSync() {
+  var fr = currentLang === 'fr';
+  toast(fr ? '🔄 Synchronisation complète...' : '🔄 Full sync in progress...');
+  qbLogEntry(fr ? '── Synchronisation complète démarrée ──' : '── Full sync started ──');
+  await qbSyncClients();
+  await qbSyncInvoices();
+  await qbSyncExpenses();
+  var now = new Date().toLocaleTimeString(fr ? 'fr-CA' : 'en-CA', {hour:'2-digit', minute:'2-digit'});
+  localStorage.setItem('qb_last_sync', now);
+  updateQBStats();
+  toast(fr ? '🎉 Synchronisation terminée!' : '🎉 Full sync complete!');
+  qbLogEntry(fr ? '✅ Synchronisation terminée' : '✅ Sync complete');
+}
+
+// ── UI helpers ────────────────────────────────────────────────────
+function qbRenderState() {
+  var connected = !!_qbTokens?.access_token;
+  var connectCard = document.getElementById('qb-connect-card');
+  var syncedCard  = document.getElementById('qb-synced-card');
+  if (!connectCard || !syncedCard) return;
+  connectCard.style.display = connected ? 'none' : 'block';
+  syncedCard.style.display  = connected ? 'block' : 'none';
+  if (connected) {
+    var name = localStorage.getItem('qb_company_name') || 'QuickBooks';
+    var nameEl = document.getElementById('qb-company-name');
+    if (nameEl) nameEl.textContent = name;
+    updateQBStats();
+    // Render existing log
+    var log = JSON.parse(localStorage.getItem('qb_log') || '[]');
+    var logEl = document.getElementById('qb-log');
+    if (logEl) logEl.innerHTML = log.map(function(l){ return '<div style="padding:3px 0;border-bottom:1px solid var(--wood-pale);">'+escapeHtml(l)+'</div>'; }).join('') || ('<span style="color:var(--wood-mid);">' + (currentLang==='fr'?'Aucune activité encore':'No activity yet') + '</span>');
+  }
+}
+
+function updateQBStats() {
+  var statC = document.getElementById('qb-stat-clients');
+  var statI = document.getElementById('qb-stat-invoices');
+  var statL = document.getElementById('qb-stat-last');
+  if (statC) statC.textContent = allClients?.length || '—';
+  if (statI) statI.textContent = allProjects?.filter(function(p){ return p.amount > 0; }).length || '—';
+  var last = localStorage.getItem('qb_last_sync');
+  if (statL) statL.textContent = last || '—';
+}
+
+function qbLogEntry(msg) {
+  var log = JSON.parse(localStorage.getItem('qb_log') || '[]');
+  var ts  = new Date().toLocaleTimeString(currentLang==='fr'?'fr-CA':'en-CA', {hour:'2-digit',minute:'2-digit'});
+  log.unshift('[' + ts + '] ' + msg);
+  log = log.slice(0, 50); // keep last 50 entries
+  localStorage.setItem('qb_log', JSON.stringify(log));
+  var logEl = document.getElementById('qb-log');
+  if (logEl) {
+    var div = document.createElement('div');
+    div.style.cssText = 'padding:3px 0;border-bottom:1px solid var(--wood-pale);';
+    div.textContent = '[' + ts + '] ' + msg;
+    logEl.insertBefore(div, logEl.firstChild);
+  }
+}
+
+function qbDisconnect() {
+  var fr = currentLang === 'fr';
+  if (!confirm(fr ? 'Déconnecter QuickBooks?' : 'Disconnect QuickBooks?')) return;
+  localStorage.removeItem('qb_tokens');
+  localStorage.removeItem('qb_creds');
+  localStorage.removeItem('qb_company_name');
+  localStorage.removeItem('qb_log');
+  _qbTokens = null; _qbCreds = null;
+  toast(fr ? '🔌 QuickBooks déconnecté' : '🔌 QuickBooks disconnected');
+  qbRenderState();
+}
