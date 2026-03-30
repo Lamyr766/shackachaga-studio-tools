@@ -3,6 +3,28 @@
 // ══════════════════════════════════════════════════
 // COMPLETE BILINGUAL TRANSLATION SYSTEM
 // ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// ADMIN ACCESS CONTROL
+// ══════════════════════════════════════════════════
+var ADMIN_USERS = ['thebigjay766@gmail.com','matg32_@hotmail.com','claude@anthropic.com'];
+
+// Admin-only tabs (hidden for regular employees)
+var ADMIN_TABS = ['tab-revenue','tab-post','tab-team','tab-map','tab-roster'];
+
+function isAdmin(email) {
+  var e = (email || currentUserEmail || '').toLowerCase().trim();
+  return ADMIN_USERS.some(function(a){ return a.toLowerCase() === e; });
+}
+
+function applyTabVisibility() {
+  var admin = isAdmin();
+  ADMIN_TABS.forEach(function(tabId) {
+    var el = document.getElementById(tabId);
+    if (el) el.style.display = admin ? '' : 'none';
+  });
+}
+
+
 var T = {
   en: {
     // Nav
@@ -1004,6 +1026,7 @@ function setLang(lang) {
   document.documentElement.lang = lang === 'fr' ? 'fr-CA' : 'en';
   // Apply all translations immediately
   applyTranslations();
+  applyTabVisibility();
 }
 
 function initLang() {
@@ -1768,7 +1791,7 @@ function launchApp() {
   loadClients();
   initRevenueYears();
   // Apply admin visibility immediately after login
-  updateMapTabVisibility();
+  applyTabVisibility();
   // Update time-user-label with current user
   var timeLabel = document.getElementById('time-user-label');
   if (timeLabel && currentUserEmail) timeLabel.textContent = currentLang==='fr'?'Connecté: ':'Logged in as: ' + currentUserEmail;
