@@ -2703,6 +2703,175 @@ function getTasksForDate(ds) {
 
 
 // ══════════════════════════════════════════════════════════════════
+// CLIENT MANAGEMENT
+// ══════════════════════════════════════════════════════════════════
+
+var allClients = [];
+
+async function loadClients() {
+  if (!sb) return;
+  const { data } = await sb.from('clients').select('*').order('first_name');
+  allClients = data || [];
+  renderClients(allClients);
+  // Update stats
+  document.getElementById('cs-total').textContent = allClients.length;
+  const totalRev = allClients.reduce((s,c) => s+(c.total_spent||0), 0);
+  document.getElementById('cs-revenue').textContent = '$'+(totalRev>=1000?(totalRev/1000).toFixed(1)+'k':totalRev.toLocaleString());
+  document.getElementById('cs-repeat').textContent = allClients.filter(c=>(c.project_count||0)>1).length;
+}
+
+function renderClients(clients) {
+  const list = document.getElementById('client-list');
+  if (!clients.length) {
+    list.innerHTML = `<div class="empty-state"><div class="icon">👥</div><p>${t('dyn_no_clients')}</p></div>`;
+    return;
+  }
+  list.innerHTML = clients.map(c => `
+    <div class="client-card" onclick="openClient(${c.id})">
+      <div class="proj-header">
+        <div>
+          <div class="client-name">${c.first_name||''} ${c.last_name||''}</div>
+          <div class="client-meta">${[c.email, c.phone, c.city].filter(Boolean).join(' · ')}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:700;color:var(--green);font-size:0.88rem;">$${(c.total_spent||0).toLocaleString()}</div>
+          <div style="font-size:0.72rem;color:var(--wood-mid);">${c.project_count||0} ${t('dyn_projects_word')}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function filterClients() {
+  const q = document.getElementById('client-search').value.toLowerCase();
+  if (!q) { renderClients(allClients); return; }
+  renderClients(allClients.filter(c =>
+    (c.first_name+' '+c.last_name).toLowerCase().includes(q) ||
+    c.email?.toLowerCase().includes(q) ||
+    c.city?.toLowerCase().includes(q) ||
+    c.phone?.includes(q)
+  ));
+}
+
+function openAddClient() {
+  document.getElementById('cm-title').textContent = t('nav_clients')+' — '+t('btn_add_new');
+  document.getElementById('cm-body').innerHTML = buildClientForm(null);
+  document.getElementById('client-modal').classList.add('open');
+  applyTranslations(currentLang);
+}
+
+function buildClientForm(c) {
+  var isEdit = !!c;
+  var isFr   = currentLang === 'fr';
+  var fn     = c ? (c.first_name||'')     : '';
+  var ln     = c ? (c.last_name||'')      : '';
+  var em     = c ? (c.email||'')          : '';
+  var ph     = c ? (c.phone||'')          : '';
+  var ci     = c ? (c.city||'')           : '';
+  var wd     = c ? (c.preferred_wood||'') : '';
+  var nt     = c ? (c.notes||'')          : '';
+  var src    = c ? (c.client_source||'')  : '';
+  var ref    = c ? (c.referred_by||'')    : '';
+
+  var srcVals   = ['Instagram','Facebook','Google','Word of mouth','Etsy','Houzz','Other'];
+  var srcFr     = ['Instagram','Facebook','Google','Bouche à oreille','Etsy','Houzz','Autre'];
+  var srcLabels = isFr ? srcFr : srcVals;
+  var srcSelect = srcVals.map(function(val, i) {
+    return '<option value="' + escapeHtml(val) + '"' + (src===val?' selected':'') + '>' + escapeHtml(srcLabels[i]) + '</option>';
+  }).join('');
+
+  var interactionSection = isEdit ? (
+    '<div style="margin-top:12px;">' +
+    '<div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">📋 ' +
+    (isFr?'Historique des interactions':'Interaction History') + '</div>' +
+    '<div id="client-interaction-list" style="max-height:180px;overflow-y:auto;margin-bottom:8px;font-size:0.82rem;"></div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+    '<select id="ci-type" style="flex:0 0 auto;font-size:0.78rem;padding:6px 8px;">' +
+    '<option value="note">📝 ' + (isFr?'Note':'Note') + '</option>' +
+    '<option value="call">📞 ' + (isFr?'Appel':'Call') + '</option>' +
+    '<option value="email">📧 ' + (isFr?'Courriel':'Email') + '</option>' +
+    '<option value="visit">🤝 ' + (isFr?'Visite':'Visit') + '</option>' +
+    '<option value="followup">🔁 ' + (isFr?'Suivi':'Follow-up') + '</option>' +
+    '</select>' +
+    '<input type="text" id="cm-inote" placeholder="' + (isFr?'Ajouter une note...':'Add a note...') + '" style="flex:1;min-width:100px;font-size:0.82rem;padding:6px 10px;">' +
+    '<button class="btn btn-primary btn-sm" onclick="logInteraction(' + c.id + ')">' + (isFr?'Ajouter':'Add') + '</button>' +
+    '</div></div>'
+  ) : '';
+
+  var deleteBtn = isEdit ? ('<button class="btn btn-red btn-sm" onclick="deleteClient(' + c.id + ')">🗑 ' + (isFr?'Supprimer':'Delete') + '</button>') : '';
+
+  return '<div class="row-2">'
+    + '<div><label>' + (isFr?'Prénom':'First Name') + '</label><input type="text" id="cm-fn" value="' + escapeHtml(fn) + '"></div>'
+    + '<div><label>' + (isFr?'Nom de famille':'Last Name') + '</label><input type="text" id="cm-ln" value="' + escapeHtml(ln) + '"></div>'
+    + '</div><div class="row-2">'
+    + '<div><label>' + (isFr?'Courriel':'Email') + '</label><input type="email" id="cm-em" value="' + escapeHtml(em) + '"></div>'
+    + '<div><label>' + (isFr?'Téléphone':'Phone') + '</label><input type="tel" id="cm-ph" value="' + escapeHtml(ph) + '"></div>'
+    + '</div><div class="row-2">'
+    + '<div><label>' + (isFr?'Ville':'City') + '</label><input type="text" id="cm-ci" value="' + escapeHtml(ci) + '"></div>'
+    + '<div><label>' + (isFr?'Bois préféré':'Preferred Wood') + '</label><input type="text" id="cm-wd" value="' + escapeHtml(wd) + '"></div>'
+    + '</div>'
+    + '<div><label>' + (isFr?'Source':'How Did They Find Us?') + '</label><select id="cm-src">' + srcSelect + '</select></div>'
+    + '<div><label>' + (isFr?'Référé par':'Referred By') + '</label><input type="text" id="cm-referred" value="' + escapeHtml(ref) + '"></div>'
+    + '<label>' + (isFr?'Notes':'Notes') + '</label>'
+    + '<textarea id="cm-nt">' + escapeHtml(nt) + '</textarea>'
+    + interactionSection
+    + '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">'
+    + '<button class="btn btn-green btn-sm" onclick="saveClient(' + (isEdit?c.id:'null') + ')">' + (isEdit ? t('dyn_save') : ('✅ ' + t('misc_save_create'))) + '</button>'
+    + deleteBtn
+    + '<button class="btn btn-ghost btn-sm" onclick="closeModal(\'client-modal\')">' + (isFr?'Annuler':'Cancel') + '</button>'
+    + '</div>';
+}
+
+async function openClient(id) {
+  const c = allClients.find(x => x.id === id);
+  if (!c) return;
+  const projects = allProjects.filter(p => p.email === c.email || p.name === c.first_name+' '+c.last_name);
+  document.getElementById('cm-title').textContent = c.first_name + ' ' + c.last_name;
+  document.getElementById('cm-body').innerHTML = `
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+      ${c.email?`<span style="font-size:0.82rem;color:var(--wood-mid);">✉️ ${c.email}</span>`:''}
+      ${c.phone?`<span style="font-size:0.82rem;color:var(--wood-mid);">📞 ${c.phone}</span>`:''}
+      ${c.city?`<span style="font-size:0.82rem;color:var(--wood-mid);">📍 ${c.city}</span>`:''}
+    </div>
+    <div class="stats-row" style="margin-bottom:14px;">
+      <div class="stat-card"><div class="stat-num" style="font-size:1.2rem;">$${(c.total_spent||0).toLocaleString()}</div><div class="stat-label">${t('client_spent')}</div></div>
+      <div class="stat-card"><div class="stat-num" style="font-size:1.2rem;">${c.project_count||0}</div><div class="stat-label">${t('client_projects')}</div></div>
+    </div>
+    ${projects.length?`<div style="margin-bottom:14px;"><div style="font-size:0.78rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;margin-bottom:8px;">Projects</div>
+    ${projects.map(p=>`<div style="font-size:0.85rem;padding:6px 0;border-bottom:1px solid var(--wood-pale);">
+      <span class="badge badge-${p.status||'new'}" style="margin-right:6px;">${p.status||'new'}</span>${p.piece||'—'} · $${(p.amount||0).toLocaleString()}</div>`).join('')}</div>`:''}
+    ${c.notes?`<div style="background:var(--wood-pale);padding:10px;border-radius:var(--radius-sm);font-size:0.85rem;">${c.notes}</div>`:''}
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+      <button class="btn btn-red btn-sm" onclick="deleteClient(${id})">🗑 Delete</button>
+    </div>`;
+  document.getElementById('client-modal').classList.add('open');
+}
+
+async function saveClient() {
+  if (!sb) return;
+  const data = {
+    first_name: document.getElementById('cm-fn').value.trim(),
+    last_name: document.getElementById('cm-ln').value.trim(),
+    email: document.getElementById('cm-em').value.trim(),
+    phone: document.getElementById('cm-ph').value.trim(),
+    city: document.getElementById('cm-ci').value.trim(),
+    source: document.getElementById('cm-src').value,
+    preferred_wood: document.getElementById('cm-wd').value.trim(),
+    notes: document.getElementById('cm-nt').value.trim(),
+  };
+  if (!data.first_name) { toast(currentLang==='fr'?'⚠️ Prénom requis.':'⚠️ First name required.'); return; }
+  const { error } = await sb.from('clients').insert([data]);
+  if (!error) { toast(currentLang==='fr'?'✅ Client sauvegardé!':'✅ Client saved!'); closeModal('client-modal'); loadClients(); }
+  else toast(currentLang==='fr'?'⚠️ Échec de la sauvegarde.':'⚠️ Save failed.');
+}
+
+async function deleteClient(id) {
+  if (!confirm(currentLang==='fr'?'Supprimer ce client?':'Delete this client?')) return;
+  await sb.from('clients').delete().eq('id', id);
+  toast(currentLang==='fr'?'🗑 Supprimé.':'🗑 Deleted.'); closeModal('client-modal'); loadClients();
+}
+
+
+// ══════════════════════════════════════════════════════════════════
 // PERMISSION SYSTEM — onboarding + individual pre-prompts
 // ══════════════════════════════════════════════════════════════════
 
