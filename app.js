@@ -2701,6 +2701,315 @@ function getTasksForDate(ds) {
   return _workTasks.filter(function(t){return t.date===ds;});
 }
 
+
+// ══════════════════════════════════════════════════════════════════
+// PERMISSION SYSTEM — onboarding + individual pre-prompts
+// ══════════════════════════════════════════════════════════════════
+
+// ── State ─────────────────────────────────────────────────────────
+var _micGranted   = localStorage.getItem('shack_mic_granted') === '1';
+var _gpsGranted   = localStorage.getItem('shack_gps_granted') === '1';
+var _notifGranted = (window.Notification && Notification.permission === 'granted');
+
+// ── Onboarding sheet (fires once on first mobile login) ───────────
+function showPermissionOnboarding() {
+  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!isMobile || localStorage.getItem('shack_perm_onboard_shown')) return;
+  localStorage.setItem('shack_perm_onboard_shown', '1');
+  var fr = currentLang === 'fr';
+  var overlay = document.createElement('div');
+  overlay.id = 'perm-onboard-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(46,26,0,0.85);z-index:9999;display:flex;align-items:flex-end;justify-content:center;';
+  var card = document.createElement('div');
+  card.style.cssText = 'background:var(--wood-cream);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;';
+
+  var handle = document.createElement('div');
+  handle.style.cssText = 'width:40px;height:4px;background:var(--wood-pale);border-radius:2px;margin:0 auto 20px;';
+  card.appendChild(handle);
+
+  var title = document.createElement('div');
+  title.style.cssText = 'font-family:Georgia,serif;font-size:1.05rem;font-weight:bold;color:var(--wood-dark);margin-bottom:5px;';
+  title.textContent = 'Le Shackachaga — Studio Tools';
+  card.appendChild(title);
+
+  var sub = document.createElement('div');
+  sub.style.cssText = 'font-size:0.82rem;color:var(--wood-mid);margin-bottom:18px;';
+  sub.textContent = fr ? 'Pour toutes les fonctionnalités, autorisez ces accès:' : 'To use all features, please allow the following:';
+  card.appendChild(sub);
+
+  var perms = [
+    {type:'gps',   icon:'📍', label:fr?'Localisation GPS':'GPS Location',  hint:fr?'Pointage, carte équipe':'Time tracking, team map'},
+    {type:'mic',   icon:'🎤', label:fr?'Microphone':'Microphone',           hint:fr?'Appels, notes vocales':'Calls, voice notes'},
+    {type:'notif', icon:'🔔', label:fr?'Notifications':'Notifications',     hint:fr?'Nouveaux messages, appels':'New messages, calls'},
+    {type:'photo', icon:'📷', label:fr?'Photos':'Photos',                   hint:fr?'Demandé à chaque ajout':'Requested each time', auto:true},
+  ];
+
+  var rowsDiv = document.createElement('div');
+  rowsDiv.style.cssText = 'display:flex;flex-direction:column;gap:10px;margin-bottom:20px;';
+
+  perms.forEach(function(p) {
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:12px;background:white;border-radius:12px;padding:12px 14px;' + (p.auto ? 'opacity:0.65;' : 'cursor:pointer;');
+    if (!p.auto) row.onclick = function(){ onboardRequestPerm(row, p.type); };
+
+    var iconDiv = document.createElement('div');
+    iconDiv.style.cssText = 'font-size:1.4rem;width:32px;text-align:center;flex-shrink:0;';
+    iconDiv.textContent = p.icon;
+
+    var textDiv = document.createElement('div');
+    textDiv.style.cssText = 'flex:1;';
+    var lbl = document.createElement('div');
+    lbl.style.cssText = 'font-weight:700;font-size:0.88rem;color:var(--wood-dark);';
+    lbl.textContent = p.label;
+    var hint = document.createElement('div');
+    hint.style.cssText = 'font-size:0.74rem;color:var(--wood-mid);margin-top:1px;';
+    hint.textContent = p.hint;
+    textDiv.appendChild(lbl);
+    textDiv.appendChild(hint);
+
+    var status = document.createElement('div');
+    status.className = 'perm-status';
+    status.style.cssText = 'font-size:0.75rem;font-weight:700;min-width:40px;text-align:right;flex-shrink:0;color:var(--wood-mid);';
+    status.textContent = p.auto ? ('✓ ' + (fr ? 'Auto' : 'Auto')) : (fr ? 'Appuyer' : 'Tap');
+    if (p.auto) status.style.color = 'var(--green)';
+
+    row.appendChild(iconDiv); row.appendChild(textDiv); row.appendChild(status);
+    rowsDiv.appendChild(row);
+  });
+  card.appendChild(rowsDiv);
+
+  var contBtn = document.createElement('button');
+  contBtn.style.cssText = 'width:100%;padding:14px;background:var(--wood-dark);color:white;border:none;border-radius:12px;font-weight:700;font-size:0.95rem;cursor:pointer;margin-bottom:10px;';
+  contBtn.textContent = fr ? "Continuer vers l'application" : 'Continue to app';
+  contBtn.onclick = closePermOnboarding;
+  card.appendChild(contBtn);
+
+  var fine = document.createElement('div');
+  fine.style.cssText = 'text-align:center;font-size:0.72rem;color:var(--wood-mid);';
+  fine.textContent = fr ? 'Modifiables dans les paramètres du navigateur.' : 'Changeable anytime in browser settings.';
+  card.appendChild(fine);
+
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+}
+
+async function onboardRequestPerm(rowEl, type) {
+  var fr = currentLang === 'fr';
+  var statusEl = rowEl.querySelector('.perm-status');
+  if (statusEl) { statusEl.textContent = fr ? 'En cours...' : 'Requesting...'; statusEl.style.color = 'var(--amber)'; }
+  rowEl.onclick = null; rowEl.style.cursor = 'default';
+
+  var granted = false;
+  if (type === 'gps') {
+    granted = await new Promise(function(resolve) {
+      if (!navigator.geolocation) { resolve(false); return; }
+      navigator.geolocation.getCurrentPosition(
+        function() { _gpsGranted = true; localStorage.setItem('shack_gps_granted','1'); resolve(true); },
+        function() { resolve(false); },
+        {enableHighAccuracy: false, timeout: 10000}
+      );
+    });
+  } else if (type === 'mic') {
+    try {
+      var s = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
+      s.getTracks().forEach(function(t){ t.stop(); });
+      _micGranted = true; localStorage.setItem('shack_mic_granted','1'); granted = true;
+    } catch(e) { granted = false; }
+  } else if (type === 'notif') {
+    if ('Notification' in window) {
+      var res = await Notification.requestPermission();
+      granted = (res === 'granted');
+      if (granted) { _notifGranted = true; localStorage.setItem('notif_enabled','1'); }
+    }
+  }
+
+  if (statusEl) {
+    statusEl.textContent = granted ? '✅' : (fr ? '✕ Refusé' : '✕ Denied');
+    statusEl.style.color  = granted ? 'var(--green)' : 'var(--red)';
+  }
+  rowEl.style.opacity = '0.7';
+}
+
+function closePermOnboarding() {
+  var el = document.getElementById('perm-onboard-overlay');
+  if (el) el.remove();
+  if (_gpsGranted) startBackgroundGPS();
+}
+
+// ── Individual pre-prompt card (shown before native browser dialog) ─
+function showPermissionRequest(type) {
+  if (document.getElementById('perm-request-card')) return;
+  var fr  = currentLang === 'fr';
+  var isGPS = (type === 'gps');
+  var isMic = (type === 'mic');
+  var info = isGPS
+    ? {icon:'📍', title:fr?'Accès à la position':'Location Access', msg:fr?"Requis pour le pointage et la carte d'équipe.":'Required for time tracking and the team map.'}
+    : isMic
+    ? {icon:'🎤', title:fr?'Accès au microphone':'Microphone Access', msg:fr?'Requis pour les appels et les notes vocales.':'Required for calls and voice notes.'}
+    : {icon:'🔔', title:fr?'Notifications':'Notifications', msg:fr?'Recevez des alertes pour les messages et appels.':'Get alerts for new messages and calls.'};
+
+  var card = document.createElement('div');
+  card.id = 'perm-request-card';
+  card.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:min(320px,90vw);background:var(--wood-dark);color:white;border-radius:14px;padding:18px 20px;z-index:9998;box-shadow:0 8px 32px rgba(0,0,0,0.3);text-align:center;';
+
+  var iconEl = document.createElement('div');
+  iconEl.style.cssText = 'font-size:2rem;margin-bottom:8px;';
+  iconEl.textContent = info.icon;
+
+  var titleEl = document.createElement('div');
+  titleEl.style.cssText = 'font-weight:700;font-size:0.95rem;margin-bottom:6px;';
+  titleEl.textContent = info.title;
+
+  var msgEl = document.createElement('div');
+  msgEl.style.cssText = 'font-size:0.8rem;opacity:0.85;margin-bottom:14px;';
+  msgEl.textContent = info.msg;
+
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:10px;justify-content:center;';
+
+  var allowBtn = document.createElement('button');
+  allowBtn.style.cssText = 'flex:1;padding:10px;background:var(--amber);border:none;border-radius:8px;font-weight:700;font-size:0.88rem;cursor:pointer;color:white;';
+  allowBtn.textContent = fr ? 'Autoriser' : 'Allow';
+  allowBtn.onclick = function() { card.remove(); grantPermission(type); };
+
+  var laterBtn = document.createElement('button');
+  laterBtn.style.cssText = 'padding:10px 14px;background:rgba(255,255,255,0.15);border:none;border-radius:8px;font-size:0.88rem;cursor:pointer;color:white;';
+  laterBtn.textContent = fr ? 'Plus tard' : 'Later';
+  laterBtn.onclick = function() { card.remove(); };
+
+  btnRow.appendChild(allowBtn); btnRow.appendChild(laterBtn);
+  card.appendChild(iconEl); card.appendChild(titleEl); card.appendChild(msgEl); card.appendChild(btnRow);
+  document.body.appendChild(card);
+  setTimeout(function(){ if (card.parentNode) card.remove(); }, 15000);
+}
+
+// Called when user taps Allow in the pre-prompt card
+async function grantPermission(type) {
+  if (type === 'gps') {
+    navigator.geolocation && navigator.geolocation.getCurrentPosition(
+      function() { _gpsGranted = true; localStorage.setItem('shack_gps_granted','1'); startBackgroundGPS(); toast(currentLang==='fr'?'📍 GPS autorisé!':'📍 GPS allowed!'); },
+      function() { toast(currentLang==='fr'?'📍 GPS refusé':'📍 GPS denied'); },
+      {enableHighAccuracy: false, timeout: 10000}
+    );
+  } else if (type === 'mic') {
+    try {
+      var s = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
+      s.getTracks().forEach(function(t){ t.stop(); });
+      _micGranted = true; localStorage.setItem('shack_mic_granted','1');
+      toast(currentLang==='fr'?'🎤 Microphone autorisé!':'🎤 Microphone allowed!');
+    } catch(e) { toast(currentLang==='fr'?'🎤 Microphone refusé':'🎤 Microphone denied'); }
+  } else if (type === 'notif') {
+    if ('Notification' in window) {
+      var res = await Notification.requestPermission();
+      _notifGranted = (res === 'granted');
+      if (_notifGranted) {
+        localStorage.setItem('notif_enabled','1');
+        toast(currentLang==='fr'?'🔔 Notifications activées!':'🔔 Notifications enabled!');
+        sendNotif('Le Shackachaga', currentLang==='fr'?'✅ Notifications activées!':'✅ Notifications enabled!');
+      } else {
+        toast(currentLang==='fr'?'🔔 Notifications refusées':'🔔 Notifications denied');
+      }
+    }
+  }
+}
+
+// ── Mic permission — shows pre-prompt, then native dialog ──────────
+async function requestMicPermissionOnce() {
+  if (_micGranted) return true;
+  if (navigator.permissions) {
+    try {
+      var res = await navigator.permissions.query({name: 'microphone'});
+      if (res.state === 'granted')  { _micGranted = true; localStorage.setItem('shack_mic_granted','1'); return true; }
+      if (res.state === 'denied')   { toast(currentLang==='fr'?'🎤 Microphone bloqué — vérifiez vos paramètres':'🎤 Mic blocked — check browser settings'); return false; }
+    } catch(e) {}
+  }
+  // Show friendly pre-prompt first
+  return new Promise(function(resolve) {
+    showPermissionRequest('mic');
+    var card = document.getElementById('perm-request-card');
+    if (!card) { resolve(false); return; }
+    var btns = card.querySelectorAll('button');
+    if (btns[0]) btns[0].onclick = async function() {
+      card.remove();
+      try {
+        var s = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
+        s.getTracks().forEach(function(t){ t.stop(); });
+        _micGranted = true; localStorage.setItem('shack_mic_granted','1');
+        toast(currentLang==='fr'?'🎤 Microphone autorisé!':'🎤 Microphone allowed!');
+        resolve(true);
+      } catch(e) { toast(currentLang==='fr'?'🎤 Microphone refusé':'🎤 Microphone denied'); resolve(false); }
+    };
+    if (btns[1]) btns[1].onclick = function() { card.remove(); resolve(false); };
+  });
+}
+
+// ── GPS permission — shows pre-prompt if not yet decided ──────────
+function requestGPSPermissionOnce() {
+  if (_gpsGranted) { startBackgroundGPS(); return; }
+  if (!navigator.geolocation) return;
+  if (navigator.permissions) {
+    navigator.permissions.query({name: 'geolocation'}).then(function(res) {
+      if (res.state === 'granted')  { _gpsGranted = true; localStorage.setItem('shack_gps_granted','1'); startBackgroundGPS(); }
+      else if (res.state === 'prompt') { showPermissionRequest('gps'); }
+      res.onchange = function() { if (res.state === 'granted') { _gpsGranted = true; localStorage.setItem('shack_gps_granted','1'); startBackgroundGPS(); } };
+    }).catch(function() {
+      navigator.geolocation.getCurrentPosition(
+        function() { _gpsGranted = true; localStorage.setItem('shack_gps_granted','1'); startBackgroundGPS(); },
+        function() {},
+        {enableHighAccuracy: false, timeout: 8000}
+      );
+    });
+  } else {
+    showPermissionRequest('gps');
+  }
+}
+
+// ── Notification permission ───────────────────────────────────────
+async function requestNotifPermission() {
+  if (!('Notification' in window)) { toast(currentLang==='fr'?'⚠️ Notifications non supportées':'⚠️ Notifications not supported'); return false; }
+  if (Notification.permission === 'granted') { _notifGranted = true; toast(currentLang==='fr'?'🔔 Notifications déjà activées':'🔔 Notifications already enabled'); updateNotifBtn(); return true; }
+  if (Notification.permission === 'denied')  { toast(currentLang==='fr'?'🔕 Notifications bloquées — vérifiez vos paramètres':'🔕 Notifications blocked — check settings'); return false; }
+  var result = await Notification.requestPermission();
+  _notifGranted = (result === 'granted');
+  if (_notifGranted) {
+    localStorage.setItem('notif_enabled','1');
+    toast(currentLang==='fr'?'🔔 Notifications activées!':'🔔 Notifications enabled!');
+    sendNotif('Le Shackachaga', currentLang==='fr'?'✅ Notifications activées pour votre atelier!':'✅ Notifications enabled for your workshop!');
+  } else { toast(currentLang==='fr'?'🔕 Notifications refusées':'🔕 Notifications denied'); }
+  updateNotifBtn(); return _notifGranted;
+}
+
+function updateNotifBtn() {
+  var btn = document.getElementById('notif-toggle-btn');
+  if (!btn) return;
+  var granted = !!(window.Notification && Notification.permission === 'granted');
+  btn.innerHTML = granted
+    ? '<span class="en">🔔 Enabled</span><span class="fr">🔔 Activées</span>'
+    : '<span class="en">🔕 Enable notifications</span><span class="fr">🔕 Activer les notifications</span>';
+  btn.style.background = granted ? 'var(--green)' : '';
+  btn.style.color      = granted ? 'white' : '';
+}
+
+// ── Notification helpers ──────────────────────────────────────────
+function sendNotif(title, body, icon) {
+  if (!_notifGranted || !('Notification' in window)) return;
+  try {
+    var n = new Notification(title, {body: body || '', icon: icon || '/favicon.ico', tag: 'shack-' + Date.now()});
+    n.onclick = function() { window.focus(); n.close(); };
+    setTimeout(function() { n.close(); }, 8000);
+  } catch(e) {}
+}
+function notifNewMessage(fromName, preview)       { if (!_notifGranted) return; sendNotif('Le Shackachaga — ' + (fromName||''), preview ? preview.substring(0,80) : (currentLang==='fr'?'Nouveau message':'New message')); }
+function notifIncomingCall(fromName, isVideo)     { if (!_notifGranted) return; sendNotif('Le Shackachaga', (currentLang==='fr'?'📞 Appel entrant de ':'📞 Incoming call from ') + (fromName||'Team')); }
+function notifProjectAdvanced(name, status)       { if (!_notifGranted) return; sendNotif('Le Shackachaga — ' + (name||''), (currentLang==='fr'?'→ Statut mis à jour: ':'→ Status updated: ') + (status||'')); }
+function notifClockIn(memberName)                 { if (!_notifGranted) return; sendNotif('Le Shackachaga', (memberName||'Team') + (currentLang==='fr'?' vient de pointer':' just clocked in')); }
+
+window.addEventListener('load', function() {
+  _notifGranted = !!(window.Notification && Notification.permission === 'granted');
+  setTimeout(updateNotifBtn, 800);
+});
+
+
 // ══════════════════════════════════════════════════════════════════
 // DELIVERY CALENDAR
 // ══════════════════════════════════════════════════════════════════
