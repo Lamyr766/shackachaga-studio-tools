@@ -805,6 +805,7 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
     <div class="nav-tab" onclick="showPage('clients')" id="tab-clients">👥 Clients</div>
     <div class="nav-tab" onclick="showPage('time')" id="tab-time">⏱️ Time</div>
     <div class="nav-tab" onclick="showPage('revenue')" id="tab-revenue">📊 Revenue</div>
+    <div class="nav-tab" onclick="showPage('qb')" id="tab-qb">🔗 QuickBooks</div>
     <div class="nav-tab" onclick="showPage('wood')" id="tab-wood">🌲 Wood Stock</div>
     <div class="nav-tab" onclick="showPage('post')" id="tab-post">✨ Post Gen</div>
     <div class="nav-tab" id="tab-calendar" onclick="showPage('calendar')" data-i18n="nav_calendar"><span class="en">📅 Calendar</span><span class="fr">📅 Calendrier</span></div>
@@ -1258,6 +1259,137 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
 </div>
 
 
+
+
+<!-- ═══ QUICKBOOKS PAGE ═══ -->
+<div id="page-qb" class="page">
+  <div class="section-header">
+    <div class="section-title"><span class="en">🔗 QuickBooks Sync</span><span class="fr">🔗 Sync QuickBooks</span></div>
+    <div id="qb-sync-status" style="font-size:0.72rem;color:var(--wood-mid);"></div>
+  </div>
+
+  <!-- Connection card -->
+  <div class="card" id="qb-connect-card">
+    <div style="text-align:center;padding:8px 0 16px;">
+      <div style="font-size:2.5rem;margin-bottom:10px;">💼</div>
+      <div style="font-family:Georgia,serif;font-size:1rem;font-weight:700;color:var(--wood-dark);margin-bottom:6px;">
+        <span class="en">Connect to QuickBooks Online</span>
+        <span class="fr">Connecter à QuickBooks Online</span>
+      </div>
+      <div style="font-size:0.82rem;color:var(--wood-mid);margin-bottom:18px;max-width:340px;margin-left:auto;margin-right:auto;">
+        <span class="en">Enter your QuickBooks app credentials to enable two-way sync of clients, invoices and payments.</span>
+        <span class="fr">Entrez vos identifiants QuickBooks pour synchroniser clients, factures et paiements.</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;max-width:420px;margin:0 auto;">
+      <div>
+        <label style="font-size:0.75rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:4px;">
+          <span class="en">Client ID</span><span class="fr">Client ID</span>
+        </label>
+        <input id="qb-client-id" type="text" placeholder="ABc1234..." style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--wood-pale);font-size:0.85rem;background:white;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:4px;">
+          <span class="en">Client Secret</span><span class="fr">Client Secret</span>
+        </label>
+        <input id="qb-client-secret" type="password" placeholder="••••••••••••••••" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--wood-pale);font-size:0.85rem;background:white;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;font-weight:700;color:var(--wood-mid);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:4px;">
+          <span class="en">Realm ID (Company ID)</span><span class="fr">ID d'entreprise</span>
+        </label>
+        <input id="qb-realm-id" type="text" placeholder="123456789012345" style="width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--wood-pale);font-size:0.85rem;background:white;box-sizing:border-box;">
+      </div>
+      <button onclick="qbSaveCredentials()" class="btn btn-primary" style="margin-top:6px;">
+        <span class="en">🔗 Connect &amp; Authorize</span>
+        <span class="fr">🔗 Connecter et autoriser</span>
+      </button>
+      <div style="font-size:0.7rem;color:var(--wood-mid);text-align:center;margin-top:4px;">
+        <span class="en">Get these from <strong>developer.intuit.com</strong> → your app → Keys &amp; OAuth</span>
+        <span class="fr">Disponibles sur <strong>developer.intuit.com</strong> → votre app → Clés &amp; OAuth</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status + sync panel (shown after connected) -->
+  <div id="qb-synced-card" style="display:none;">
+    <!-- Connected banner -->
+    <div class="card" style="background:linear-gradient(135deg,#2D6A4F,#1a4532);color:white;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="font-size:2rem;">✅</div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.95rem;">
+            <span class="en">Connected to QuickBooks Online</span>
+            <span class="fr">Connecté à QuickBooks Online</span>
+          </div>
+          <div id="qb-company-name" style="font-size:0.78rem;opacity:0.85;margin-top:2px;"></div>
+        </div>
+        <button onclick="qbDisconnect()" style="background:rgba(255,255,255,0.2);border:none;color:white;padding:6px 12px;border-radius:8px;font-size:0.75rem;cursor:pointer;">
+          <span class="en">Disconnect</span><span class="fr">Déconnecter</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sync stats row -->
+    <div class="stats-row" style="margin-bottom:12px;">
+      <div class="stat-card"><div class="stat-num" id="qb-stat-clients">—</div><div class="stat-label"><span class="en">Clients synced</span><span class="fr">Clients sync.</span></div></div>
+      <div class="stat-card"><div class="stat-num" id="qb-stat-invoices">—</div><div class="stat-label"><span class="en">Invoices pushed</span><span class="fr">Factures envoyées</span></div></div>
+      <div class="stat-card"><div class="stat-num" id="qb-stat-last">—</div><div class="stat-label"><span class="en">Last sync</span><span class="fr">Dernière sync</span></div></div>
+    </div>
+
+    <!-- Sync actions -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-title"><span class="en">Sync Actions</span><span class="fr">Actions de synchronisation</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+
+        <!-- Clients -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:white;border-radius:10px;border:1.5px solid var(--wood-pale);">
+          <div>
+            <div style="font-weight:700;font-size:0.88rem;color:var(--wood-dark);">👥 <span class="en">Clients → QB Customers</span><span class="fr">Clients → Clients QB</span></div>
+            <div style="font-size:0.72rem;color:var(--wood-mid);margin-top:2px;"><span class="en">Push all clients to QuickBooks as customers</span><span class="fr">Envoyer tous les clients vers QuickBooks</span></div>
+          </div>
+          <button onclick="qbSyncClients()" class="btn btn-primary btn-sm">
+            <span class="en">Sync</span><span class="fr">Sync</span>
+          </button>
+        </div>
+
+        <!-- Invoices -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:white;border-radius:10px;border:1.5px solid var(--wood-pale);">
+          <div>
+            <div style="font-weight:700;font-size:0.88rem;color:var(--wood-dark);">🧾 <span class="en">Projects → QB Invoices</span><span class="fr">Projets → Factures QB</span></div>
+            <div style="font-size:0.72rem;color:var(--wood-mid);margin-top:2px;"><span class="en">Push delivered projects as invoices to QuickBooks</span><span class="fr">Envoyer les projets livrés comme factures</span></div>
+          </div>
+          <button onclick="qbSyncInvoices()" class="btn btn-primary btn-sm">
+            <span class="en">Sync</span><span class="fr">Sync</span>
+          </button>
+        </div>
+
+        <!-- Expenses -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:white;border-radius:10px;border:1.5px solid var(--wood-pale);">
+          <div>
+            <div style="font-weight:700;font-size:0.88rem;color:var(--wood-dark);">💸 <span class="en">Expenses → QB Expenses</span><span class="fr">Dépenses → QB</span></div>
+            <div style="font-size:0.72rem;color:var(--wood-mid);margin-top:2px;"><span class="en">Push wood/supply purchases to QuickBooks</span><span class="fr">Envoyer les achats de matériaux vers QB</span></div>
+          </div>
+          <button onclick="qbSyncExpenses()" class="btn btn-primary btn-sm">
+            <span class="en">Sync</span><span class="fr">Sync</span>
+          </button>
+        </div>
+
+        <!-- Full sync -->
+        <button onclick="qbFullSync()" class="btn btn-green" style="width:100%;padding:12px;font-size:0.9rem;">
+          🔄 <span class="en">Full Sync Everything</span><span class="fr">Tout synchroniser</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Sync log -->
+    <div class="card">
+      <div class="card-title"><span class="en">Sync Log</span><span class="fr">Journal de sync</span></div>
+      <div id="qb-log" style="font-size:0.78rem;color:var(--wood-mid);max-height:200px;overflow-y:auto;margin-top:8px;"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ TEAM PAGE ═══ -->
 <div id="page-team" class="page">
   <div class="section-header">
@@ -1555,4 +1687,4 @@ CREATE POLICY IF NOT EXISTS "auth_all" ON expenses FOR ALL USING (auth.role() = 
   </div>
 </div>
 
-<script src="app.js?v=46" defer></script>
+<script src="app.js?v=47" defer></script>
