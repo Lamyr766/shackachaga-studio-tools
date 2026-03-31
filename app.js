@@ -1410,9 +1410,23 @@ function openProject(id) {
         </div>
       </div>
       <div id="notes-list-${id}"><p style="font-size:0.8rem;color:var(--wood-mid);">${currentLang==='fr'?'Chargement...':'Loading...'}</p></div>
+    </div>
+    <div class="card" style="margin-top:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="card-title" style="margin-bottom:0;">📎 ${currentLang==='fr'?'Fichiers joints':'Attached Files'}</div>
+        <label style="cursor:pointer;">
+          <input type="file" id="file-upload-${id}" style="display:none;" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.gif,.dwg,.dxf,.skp,.zip,.txt" onchange="Array.from(this.files).forEach(function(f){uploadProjectFile(${id},f)})">
+          <div class="btn btn-ghost btn-sm" onclick="document.getElementById('file-upload-${id}').click()" style="cursor:pointer;">+ ${currentLang==='fr'?'Joindre':'Attach'}</div>
+        </label>
+      </div>
+      <div id="files-list-${id}"><p style="font-size:0.8rem;color:var(--wood-mid);font-style:italic;">${currentLang==='fr'?'Chargement...':'Loading...'}</p></div>
     </div>`;
   document.getElementById('proj-modal').classList.add('open');
   // Load photos + cache them for viewer
+  loadProjectFiles(id).then(function(files) {
+    var el = document.getElementById('files-list-'+id);
+    if (el) el.innerHTML = renderProjectFiles(files, id);
+  });
   loadProjectPhotos(id).then(function(photos) {
     photos.forEach(function(p){ _photoCache[p.id] = p; });
     var pel = document.getElementById('photos-list-'+id);
@@ -2111,6 +2125,50 @@ function escapeHtml(s) {
 }
 var _projAudios = {};
 var _voiceNoteData = {}; // audio data map: nid -> base64 data URL
+
+async function deleteProjectNote(noteId) {
+  if (!sb || !isAdmin()) return;
+  var fr = currentLang === 'fr';
+  if (!confirm(fr ? 'Supprimer cette note vocale?' : 'Delete this voice note?')) return;
+  var { error } = await sb.from('project_notes').delete().eq('id', noteId);
+  if (error) { toast('⚠️ ' + error.message); return; }
+  // Remove from _voiceNoteData map
+  Object.keys(_voiceNoteData).forEach(function(k){ if (k === 'pn-'+noteId) delete _voiceNoteData[k]; });
+  // Find which project this note belongs to — re-render that project's notes
+  var noteEl = document.getElementById('pn-' + noteId);
+  if (noteEl) {
+    var container = noteEl.closest('[id^="notes-list-"]');
+    var pid = container ? container.id.replace('notes-list-','') : null;
+    noteEl.remove();
+    if (pid) {
+      loadProjectNotes(pid).then(function(notes){
+        if (container) container.innerHTML = renderNotes(notes);
+      });
+    }
+  }
+  toast(fr ? '🗑 Note vocale supprimée' : '🗑 Voice note deleted');
+}
+
+async function deleteTextNote(noteId) {
+  if (!sb || !isAdmin()) return;
+  var fr = currentLang === 'fr';
+  if (!confirm(fr ? 'Supprimer cette note?' : 'Delete this note?')) return;
+  var { error } = await sb.from('project_notes').delete().eq('id', noteId);
+  if (error) { toast('⚠️ ' + error.message); return; }
+  var noteEl = document.getElementById('pn-' + noteId);
+  if (noteEl) {
+    var container = noteEl.closest('[id^="notes-list-"]');
+    var pid = container ? container.id.replace('notes-list-','') : null;
+    noteEl.remove();
+    if (pid) {
+      loadProjectNotes(pid).then(function(notes){
+        if (container) container.innerHTML = renderNotes(notes);
+      });
+    }
+  }
+  toast(fr ? '🗑 Note supprimée' : '🗑 Note deleted');
+}
+
 function renderNotes(notes) {
   if (!notes || !notes.length) {
     return '<div class="empty-state" style="padding:12px 0;"><p style="font-size:0.82rem;color:var(--wood-mid);">'
@@ -2135,10 +2193,12 @@ function renderNotes(notes) {
       const dur = n.voice_duration || 0;
       const durStr = Math.floor(dur/60)+':'+(('0'+Math.floor(dur%60)).slice(-2));
       _voiceNoteData[nid] = n.voice_data;
-      return '<div class="note-item" id="' + nid + '">'
-        + '<div class="note-meta">'
-        +   '<span class="note-type note-type-voice">' + typeLabel + '</span>'
-        +   escapeHtml(n.author||'Team') + ' · ' + timeStr
+      var adminDeleteBtn = isAdmin() ? '<button data-nid="'+n.id+'" onclick="deleteProjectNote(this.dataset.nid*1)" style="flex-shrink:0;border:none;background:none;color:#ccc;font-size:0.8rem;cursor:pointer;padding:2px 6px;" title="'+(currentLang==='fr'?'Supprimer note vocale':'Delete voice note')+'">🗑</button>' : '';
+      return '<div class="note-item" id="' + nid + '" style="position:relative;">'
+        + '<div class="note-meta" style="display:flex;align-items:center;justify-content:space-between;">'
+        +   '<div><span class="note-type note-type-voice">' + typeLabel + '</span>'
+        +   escapeHtml(n.author||'Team') + ' · ' + timeStr + '</div>'
+        +   adminDeleteBtn
         + '</div>'
         + '<div class="voice-msg-wrap" style="margin-top:6px;">'
         +   '<button class="voice-play-btn" data-nid="' + nid + '" onclick="playProjVoice(this.dataset.nid,this)">▶</button>'
@@ -2150,8 +2210,9 @@ function renderNotes(notes) {
         + '</div>';
     }
 
-    return '<div class="note-item">'
-      + '<div class="note-meta">'
+    var adminDelBtn = isAdmin() ? '<button data-nid="'+n.id+'" onclick="deleteTextNote(this.dataset.nid*1)" style="border:none;background:none;color:#ccc;font-size:0.75rem;cursor:pointer;padding:1px 5px;">🗑</button>' : '';
+    return '<div class="note-item" id="pn-'+(n.id||idx)+'-txt">'
+      + '<div class="note-meta" style="display:flex;align-items:center;justify-content:space-between;">'
       +   '<span class="note-type note-type-' + escapeHtml(n.type||'note') + '">' + typeLabel + '</span>'
       +   escapeHtml(n.author||'Team') + ' · ' + timeStr
       + '</div>'
@@ -2853,6 +2914,122 @@ async function deleteClient(id) {
   toast(currentLang==='fr'?'🗑 Supprimé.':'🗑 Deleted.'); closeModal('client-modal'); loadClients();
 }
 
+
+
+// ══════════════════════════════════════════════════════════════════
+// PROJECT FILE ATTACHMENTS
+// ══════════════════════════════════════════════════════════════════
+
+var _fileCache = {}; // fileId -> base64 data
+
+async function loadProjectFiles(projectId) {
+  if (!sb) return [];
+  var { data, error } = await sb.from('project_files')
+    .select('*').eq('project_id', projectId).order('created_at');
+  if (error || !data) return [];
+  data.forEach(function(f){ if (f.file_data) _fileCache[f.id] = {data: f.file_data, name: f.file_name, type: f.file_type}; });
+  return data;
+}
+
+async function uploadProjectFile(projectId, file) {
+  if (!sb || !file) return;
+  var fr = currentLang === 'fr';
+  var MAX_SIZE = 5 * 1024 * 1024; // 5MB
+  if (file.size > MAX_SIZE) {
+    toast(fr ? '⚠️ Fichier trop volumineux (max 5MB)' : '⚠️ File too large (max 5MB)');
+    return;
+  }
+  toast(fr ? '⏳ Téléversement...' : '⏳ Uploading...');
+  var reader = new FileReader();
+  reader.onloadend = async function() {
+    try {
+      var ud = await sb.auth.getUser();
+      var author = ud?.data?.user?.email?.split('@')[0] || 'Team';
+      var { data, error } = await sb.from('project_files').insert([{
+        project_id: projectId,
+        file_name:  file.name,
+        file_type:  file.type || 'application/octet-stream',
+        file_size:  file.size,
+        file_data:  reader.result,
+        author:     author,
+        created_at: new Date().toISOString(),
+      }]).select();
+      if (error) throw error;
+      toast(fr ? '📎 Fichier joint!' : '📎 File attached!');
+      // Re-render files section
+      var files = await loadProjectFiles(projectId);
+      var el = document.getElementById('files-list-'+projectId);
+      if (el) el.innerHTML = renderProjectFiles(files, projectId);
+    } catch(e) { toast('⚠️ ' + e.message); }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function deleteProjectFile(fileId, projectId) {
+  if (!sb) return;
+  var fr = currentLang === 'fr';
+  if (!confirm(fr ? 'Supprimer ce fichier?' : 'Delete this file?')) return;
+  var { error } = await sb.from('project_files').delete().eq('id', fileId);
+  if (error) { toast('⚠️ ' + error.message); return; }
+  delete _fileCache[fileId];
+  var files = await loadProjectFiles(projectId);
+  var el = document.getElementById('files-list-'+projectId);
+  if (el) el.innerHTML = renderProjectFiles(files, projectId);
+  toast(fr ? '🗑 Fichier supprimé' : '🗑 File deleted');
+}
+
+function downloadProjectFile(fileId) {
+  var f = _fileCache[fileId];
+  if (!f) { toast(currentLang==='fr'?'⚠️ Fichier non disponible':'⚠️ File not available'); return; }
+  var a = document.createElement('a');
+  a.href = f.data;
+  a.download = f.name || 'file';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function getFileIcon(fileType, fileName) {
+  var ext = (fileName||'').split('.').pop().toLowerCase();
+  if (!fileType) fileType = '';
+  if (fileType.includes('pdf') || ext === 'pdf')                  return '📄';
+  if (fileType.includes('image') || ['jpg','jpeg','png','gif','webp'].includes(ext)) return '🖼️';
+  if (fileType.includes('word') || ['doc','docx'].includes(ext))  return '📝';
+  if (fileType.includes('excel') || ['xls','xlsx','csv'].includes(ext)) return '📊';
+  if (['zip','rar','7z'].includes(ext))                            return '🗜️';
+  if (['dwg','dxf','skp'].includes(ext))                           return '📐'; // CAD files
+  return '📎';
+}
+
+function formatFileSize(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+function renderProjectFiles(files, projectId) {
+  var fr = currentLang === 'fr';
+  if (!files || !files.length) {
+    return '<div style="font-size:0.8rem;color:var(--wood-mid);padding:8px 0;font-style:italic;">'
+      + (fr ? 'Aucun fichier joint' : 'No files attached') + '</div>';
+  }
+  return files.map(function(f) {
+    var icon = getFileIcon(f.file_type, f.file_name);
+    var size = formatFileSize(f.file_size);
+    var date = f.created_at ? new Date(f.created_at).toLocaleDateString(fr?'fr-CA':'en-CA') : '';
+    var delBtn = '<button data-fid="'+f.id+'" data-pid="'+projectId+'" onclick="deleteProjectFile(this.dataset.fid*1,this.dataset.pid*1)" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:0.8rem;padding:2px 4px;" title="'+(fr?'Supprimer':'Delete')+'">🗑</button>';
+    return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:white;border-radius:8px;border:1px solid var(--wood-pale);margin-bottom:6px;">'
+      + '<div style="font-size:1.4rem;flex-shrink:0;">'+icon+'</div>'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-size:0.82rem;font-weight:600;color:var(--wood-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+escapeHtml(f.file_name||'file')+'</div>'
+      + '<div style="font-size:0.7rem;color:var(--wood-mid);">'+size+(date?' · '+date:'')+(f.author?' · '+escapeHtml(f.author):'')+'</div>'
+      + '</div>'
+      + '<button data-fid="'+f.id+'" onclick="downloadProjectFile(this.dataset.fid*1)" style="border:none;background:var(--wood-pale);color:var(--wood-dark);border-radius:6px;padding:5px 10px;font-size:0.75rem;cursor:pointer;flex-shrink:0;">⬇ '+(fr?'Télécharger':'Download')+'</button>'
+      + delBtn
+      + '</div>';
+  }).join('');
+}
 
 // ══════════════════════════════════════════════════════════════════
 // PERMISSION SYSTEM — onboarding + individual pre-prompts
